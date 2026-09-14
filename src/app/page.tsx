@@ -163,7 +163,7 @@ export default function Home() {
 
       {/* ── STATEMENT ── */}
       <section className="py-24 md:py-32 px-6 bg-white text-center">
-        <p className="text-[10px] tracking-[0.5em] text-neutral-300 uppercase mb-6">EL&apos;S — Manifesto</p>
+        <p className="text-[10px] tracking-[0.5em] text-neutral-300 uppercase mb-6">zeouf — Manifesto</p>
         <blockquote className="text-[18px] md:text-[28px] lg:text-[36px] font-light font-playfair tracking-[0.03em] text-neutral-900 max-w-4xl mx-auto leading-relaxed px-4">
           &ldquo;Fashion fades, style remains.&rdquo;
         </blockquote>
@@ -205,7 +205,7 @@ export default function Home() {
       <section className="relative h-[50vh] md:h-[70vh] overflow-hidden">
         <Image
           src="/kadin-bluz-1.jpg"
-          alt="EL'S Koleksiyon"
+          alt="zeouf Koleksiyon"
           fill
           className="object-cover object-top"
         />
@@ -237,7 +237,7 @@ export default function Home() {
                 <span className="text-neutral-300 text-xl">◆</span>
                 <span className="text-[28px] md:text-[44px] lg:text-[64px] font-light font-playfair text-neutral-800">Luxury</span>
                 <span className="text-neutral-300 text-xl">◆</span>
-                <span className="text-[28px] md:text-[44px] lg:text-[64px] font-light font-playfair italic text-neutral-300">EL&apos;S</span>
+                <span className="text-[28px] md:text-[44px] lg:text-[64px] font-light font-playfair italic text-neutral-300">zeouf</span>
                 <span className="text-neutral-300 text-xl">◆</span>
               </span>
             ))}

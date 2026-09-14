@@ -19,9 +19,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "EL'S | Luxury Fashion & Lifestyle",
+  title: "zeouf | Luxury Fashion & Lifestyle",
   description:
-    "Discover the world of EL'S — timeless elegance, haute couture, fine jewellery, and luxury lifestyle.",
+    "Discover the world of zeouf — timeless elegance, haute couture, fine jewellery, and luxury lifestyle.",
 };
 
 export default function RootLayout({

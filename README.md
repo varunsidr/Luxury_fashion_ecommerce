@@ -1,14 +1,14 @@
 <div align="center">
 
-# EL'S — Luxury Fashion & Lifestyle E-Commerce
+# zeouf — Luxury Fashion & Lifestyle E-Commerce
 
 **Designed and developed by [varunsidr](https://github.com/varunsidr)**
 
-**EL'S** is a luxury fashion and lifestyle e-commerce platform designed to offer a premium online shopping experience. The platform covers a wide range of categories — women's and men's clothing, shoes, bags, accessories, perfume, and makeup — all presented with a clean, editorial aesthetic inspired by high-end fashion brands.
+**zeouf** is a luxury fashion and lifestyle e-commerce platform designed to offer a premium online shopping experience. The platform covers a wide range of categories — women's and men's clothing, shoes, bags, accessories, perfume, and makeup — all presented with a clean, editorial aesthetic inspired by high-end fashion brands.
 
 The project consists of two parts: a **customer-facing storefront** where users can browse collections, search products, add items to their cart, save favorites, and leave reviews; and a **password-protected admin panel** where the store owner can manage the entire product catalog, upload images, track stock, and moderate customer reviews — all from a single dashboard.
 
-Built entirely from scratch as a personal project, EL'S combines modern web technologies with a minimalist black-and-white design language to deliver a boutique shopping experience.
+Built entirely from scratch as a personal project, zeouf combines modern web technologies with a minimalist black-and-white design language to deliver a boutique shopping experience.
 
 </div>
 
@@ -38,7 +38,7 @@ Built entirely from scratch as a personal project, EL'S combines modern web tech
 
 ## Overview
 
-EL'S is split into **two distinct sections**:
+zeouf is split into **two distinct sections**:
 
 | Section | Path | Description |
 |---|---|---|
@@ -328,7 +328,7 @@ Category routes use Turkish URL slugs (the underlying product data is Turkish), 
 ## License
 
 This project was designed and built by **[varunsidr](https://github.com/varunsidr)**.
-All rights reserved © 2026 EL'S. See [LICENSE](LICENSE) for details.
+All rights reserved © 2026 zeouf. See [LICENSE](LICENSE) for details.
 
 ---
 

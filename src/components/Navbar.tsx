@@ -293,7 +293,7 @@ export default function Navbar() {
             <h1
               className="text-[22px] md:text-[28px] lg:text-[32px] tracking-[0.35em] font-medium select-none font-playfair"
             >
-              EL&apos;S
+              zeouf
             </h1>
             <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-black transition-all duration-500 group-hover:w-full" />
           </Link>

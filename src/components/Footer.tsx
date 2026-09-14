@@ -18,8 +18,8 @@ export default function Footer() {
             Paris · Milan · Istanbul
           </p>
           <Link href="/">
-            <span className="text-[48px] md:text-[64px] lg:text-[80px] font-light font-playfair tracking-[0.12em] text-white leading-none hover:text-neutral-300 transition-colors duration-500">
-              EL&apos;S
+              <span className="text-[48px] md:text-[64px] lg:text-[80px] font-light font-playfair tracking-[0.12em] text-white leading-none hover:text-neutral-300 transition-colors duration-500">
+              zeouf
             </span>
           </Link>
           <p className="text-[12px] text-neutral-500 font-light mt-6 leading-relaxed max-w-xs">
@@ -100,7 +100,7 @@ export default function Footer() {
           rel="noopener noreferrer"
           className="text-[10px] tracking-[0.1em] text-neutral-700 hover:text-neutral-400 transition-colors duration-300"
         >
-          &copy; {new Date().getFullYear()} EL&apos;S. All rights reserved.
+          &copy; {new Date().getFullYear()} zeouf. All rights reserved.
         </a>
         {/* Socials */}
         <div className="flex items-center gap-6">
