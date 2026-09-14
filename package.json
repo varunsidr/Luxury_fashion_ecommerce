@@ -1,0 +1,35 @@
+{
+  "name": "els-ecommerce",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "seed:products": "node migrate-products.js",
+    "upload:images": "node upload-images.js",
+    "local:up": "docker-compose up -d",
+    "local:down": "docker-compose down",
+    "seed:postgres": "node scripts/seed_postgres.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
+    "lucide-react": "^1.7.0",
+    "next": "16.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+    ,
+    "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

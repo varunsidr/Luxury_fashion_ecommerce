@@ -1,0 +1,73 @@
+name: CI - Local DB & Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Start local Postgres (docker-compose)
+        run: |
+          docker-compose up -d
+
+      - name: Wait for Postgres
+        run: |
+          DB_CID=$(docker-compose ps -q db)
+          echo "Waiting for DB container $DB_CID"
+          for i in {1..30}; do
+            docker exec "$DB_CID" pg_isready -U postgres -d els_ecommerce_local && break || sleep 1
+          done
+
+      - name: Apply schema to Postgres
+        run: |
+          DB_CID=$(docker-compose ps -q db)
+          docker exec -i "$DB_CID" psql -U postgres -d els_ecommerce_local < supabase_schema.sql
+
+      - name: Create .env.local from secrets
+        run: |
+          cat > .env.local <<EOF
+          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DATABASE_URL=postgres://postgres:postgres@localhost:5432/els_ecommerce_local
+          EOF
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Seed local Postgres
+        run: npm run seed:postgres
+
+      - name: Build app
+        run: npm run build
+
+      - name: Start app (background)
+        run: |
+          npm run start &
+          npx wait-on http://localhost:3000 || (sleep 3 && npx wait-on http://localhost:3000)
+
+      - name: Health check
+        run: |
+          curl --fail http://localhost:3000/api/health
+
+      - name: Reset via protected endpoint
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          curl -X POST http://localhost:3000/api/test/reset -H "x-supabase-service-role: ${SUPABASE_SERVICE_ROLE_KEY}"
+
+      - name: Tear down local services
+        if: always()
+        run: docker-compose down -v
