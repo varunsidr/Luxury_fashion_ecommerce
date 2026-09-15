@@ -1,5 +1,5 @@
 import ProductListing from "@/components/ProductListing";
 
 export default function CantaPage() {
-  return <ProductListing mainCategory="Çanta" />;
+  return <ProductListing mainCategory="Bags" />;
 }

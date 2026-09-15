@@ -42,9 +42,17 @@ export default function AdminLoginPage() {
     return () => clearTimeout(timeout);
   }, [displayed, deleting, lineIndex]);
 
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (password === "admin123") {
+    setError(false);
+
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+
+    if (response.ok) {
       localStorage.setItem("admin_auth", "1");
       router.push("/admin/dashboard");
     } else {

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
 import ProductDetailView from "@/components/ProductDetailView";
 import { notFound } from "next/navigation";
 
@@ -11,15 +11,8 @@ export default async function ParfumSlugPage({ params }: PageProps) {
   const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
 
   // 1. Check as product ID first (support UUIDs by querying directly)
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", normalizedSlug)
-    .single();
-
-  if (product && !error) {
-    return <ProductDetailView product={product} mainCategory="Parfüm" />;
-  }
+  const product = await findProductByIdOrSlug(normalizedSlug);
+  if (product) return <ProductDetailView product={product} mainCategory="Perfume" />;
 
   notFound();
 }

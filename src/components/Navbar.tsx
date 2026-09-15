@@ -123,6 +123,7 @@ export default function Navbar() {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [registerSuccess, setRegisterSuccess] = useState<string | null>(null);
 
   const { favoritesCount } = useFavorites();
   const { items, totalCount, totalPrice, removeItem, updateQuantity, cartOpen, setCartOpen } = useCart();
@@ -196,14 +197,14 @@ export default function Navbar() {
       if (devResp.ok) {
         const jr = await devResp.json();
         if (jr.status === 'ok') {
-          alert('Registration successful (dev auto-confirmed). You can sign in now.');
-          setAuthTab('login');
-          setEmail('');
-          setPassword('');
-          setFullName('');
-          setLoading(false);
-          return;
-        }
+            setRegisterSuccess('Registration successful — you can sign in now.');
+            setAuthTab('login');
+            setEmail('');
+            setPassword('');
+            setFullName('');
+            setLoading(false);
+            return;
+          }
       }
     } catch (err) {
       // ignore and fall back to normal signup
@@ -221,7 +222,7 @@ export default function Navbar() {
     if (error) {
       setError(error.message);
     } else {
-      alert("Registration successful! Please verify your email.");
+      setRegisterSuccess('Registration successful! Please verify your email.');
       setAuthTab("login");
       setEmail("");
       setPassword("");
@@ -745,6 +746,11 @@ export default function Navbar() {
                     {error && (
                       <div data-testid="navbar-register-error" className="bg-red-50 text-red-500 text-[11px] p-3 border border-red-100">
                         {error}
+                      </div>
+                    )}
+                    {registerSuccess && (
+                      <div data-testid="navbar-register-success" className="bg-emerald-50 text-emerald-700 text-[12px] p-3 border border-emerald-100">
+                        {registerSuccess}
                       </div>
                     )}
                     <div>

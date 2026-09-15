@@ -7,11 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:products": "node migrate-products.js",
+    "seed:products": "node --env-file=.env.local migrate-products.js",
     "upload:images": "node upload-images.js",
     "local:up": "docker-compose up -d",
     "local:down": "docker-compose down",
-    "seed:postgres": "node scripts/seed_postgres.js"
+    "seed:postgres": "node scripts/seed_postgres.js",
+    "seed:orders": "node scripts/seed_orders.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Heart, Minus, Plus, ChevronDown, X, Star } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 
 interface Review {
@@ -18,6 +18,7 @@ interface Review {
   created_at: string;
   admin_reply: string | null;
   replied_at: string | null;
+  images?: string[];
 }
 
 interface SizeStock {
@@ -67,6 +68,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
         .replace(/Klasik/g, "Classic")
         .replace(/Avangart/g, "Avant-garde")
     : "";
+  const [schemaCopyStatus, setSchemaCopyStatus] = useState<string | null>(null);
   const displayProductName = product.name
     ? product.name
         .replace(/Kadın/g, "Women")
@@ -116,9 +118,12 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewForm, setReviewForm] = useState({ name: "", rating: 0, comment: "" });
+  const [reviewImages, setReviewImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [hoverRating, setHoverRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -161,24 +166,128 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
   async function submitReview() {
     if (!reviewForm.name.trim() || !reviewForm.rating || !reviewForm.comment.trim()) return;
     setSubmitting(true);
+    setReviewError(null);
+
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    if (authError || !authData.user) {
+      setSubmitting(false);
+      setReviewError("Please sign in before submitting a review.");
+      return;
+    }
+
+    // Build optimistic review object (pending)
+    const tempId = `temp-${Date.now()}`;
+    const tempReview: Review = {
+      id: tempId,
+      product_id: product.id,
+      name: reviewForm.name.trim(),
+      rating: reviewForm.rating,
+      comment: reviewForm.comment.trim(),
+      created_at: new Date().toISOString(),
+      admin_reply: null,
+      replied_at: null,
+      images: reviewImages.length ? imagePreviews : undefined,
+    };
+
+    // Immediately show the user's review optimistically
+    setReviews((prev) => [tempReview as any, ...prev]);
+    setReviewForm({ name: "", rating: 0, comment: "" });
+    setImagePreviews([]);
+    setReviewImages([]);
+
+    // If Supabase not configured (local dev), keep optimistic review and inform user
+    if (!isSupabaseConfigured) {
+      setSubmitting(false);
+      setReviewSubmitted(true);
+      setTimeout(() => setReviewSubmitted(false), 3000);
+      return;
+    }
+
+    // If there are images, upload them first via server endpoint which will validate size
+    let uploadedPaths: string[] | undefined = undefined;
+    if (reviewImages.length > 0) {
+      const form = new FormData();
+      reviewImages.forEach((f) => form.append('images', f));
+      form.append('productId', product.id);
+      const resp = await fetch('/api/reviews/upload', { method: 'POST', body: form });
+      const j = await resp.json();
+      if (!resp.ok) {
+        // remove optimistic review
+        setReviews((prev) => prev.filter((r) => r.id !== tempId));
+        setSubmitting(false);
+        setReviewError(j?.error || 'Image upload failed');
+        return;
+      }
+      uploadedPaths = j.paths;
+    }
+
     const { data, error } = await supabase
       .from("reviews")
       .insert({
         product_id: product.id,
-        name: reviewForm.name.trim(),
-        rating: reviewForm.rating,
-        comment: reviewForm.comment.trim(),
+        user_id: authData.user.id,
+        rating: tempReview.rating,
+        comment: tempReview.comment,
+        images: uploadedPaths ?? null,
       })
       .select()
       .single();
 
     if (!error && data) {
-      setReviews((prev) => [data, ...prev]);
-      setReviewForm({ name: "", rating: 0, comment: "" });
+      // replace optimistic review with server response
+      setReviews((prev) => [data, ...prev.filter((r) => r.id !== tempId)]);
       setReviewSubmitted(true);
       setTimeout(() => setReviewSubmitted(false), 3000);
+    } else {
+      // on error, remove optimistic and show inline error
+      setReviews((prev) => prev.filter((r) => r.id !== tempId));
+      const msg = error?.message || 'Failed to submit review';
+      if (typeof msg === 'string' && msg.includes("Could not find the table 'public.reviews'")) {
+        setReviewError('Database table `reviews` not found. Run the project `supabase_schema.sql` in your Supabase SQL editor (or create the `reviews` table) to enable reviews.');
+      } else {
+        setReviewError(msg);
+      }
     }
+
     setSubmitting(false);
+  }
+
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const arr: File[] = [];
+    const previews: string[] = [];
+    for (let i = 0; i < files.length && i < 3; i++) {
+      const f = files[i];
+      if (f.size > 2 * 1024 * 1024) {
+        setReviewError('Each image must be <= 2MB');
+        continue;
+      }
+      arr.push(f);
+      previews.push(URL.createObjectURL(f));
+    }
+    setReviewImages(arr);
+    setImagePreviews(previews);
+  }
+
+  function removePreview(index: number) {
+    setReviewImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  async function copySchemaToClipboard() {
+    setSchemaCopyStatus('loading');
+    try {
+      const resp = await fetch('/api/schema');
+      if (!resp.ok) throw new Error('Could not load schema file');
+      const text = await resp.text();
+      await navigator.clipboard.writeText(text);
+      setSchemaCopyStatus('copied');
+      setTimeout(() => setSchemaCopyStatus(null), 3000);
+    } catch (err: any) {
+      setSchemaCopyStatus('error');
+      setTimeout(() => setSchemaCopyStatus(null), 3000);
+    }
   }
 
   const avgRating = reviews.length
@@ -523,6 +632,23 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
               </button>
             </div>
 
+            {reviewError && (
+              <div className="mt-3 bg-red-50 text-red-600 p-3 border border-red-100 text-[13px]">
+                <div className="mb-2">{reviewError}</div>
+                {reviewError.includes('supabase_schema.sql') && (
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={copySchemaToClipboard}
+                      className="py-2 px-3 bg-neutral-900 text-white text-[12px] rounded"
+                    >
+                      {schemaCopyStatus === 'loading' ? 'Copying...' : schemaCopyStatus === 'copied' ? 'Copied' : 'Copy schema (supabase_schema.sql)'}
+                    </button>
+                    <a href="https://app.supabase.com/" target="_blank" rel="noreferrer" className="text-[12px] underline">Open Supabase</a>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="md:col-span-3">
               <label className="text-[10px] tracking-[0.2em] text-neutral-400 uppercase block mb-2">Your review</label>
               <textarea
@@ -533,6 +659,19 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                 className="w-full border-b border-neutral-200 py-2 text-[13px] font-light placeholder:text-neutral-300 focus:outline-none focus:border-neutral-800 transition-colors resize-none bg-transparent"
                 data-testid="product-detail-review-comment"
               />
+              {/* Image uploads */}
+              <div className="mt-4">
+                <label className="text-[10px] tracking-[0.2em] text-neutral-400 uppercase block mb-2">Add images (optional, up to 3, 2MB each)</label>
+                <input type="file" accept="image/*" multiple onChange={handleImageSelect} />
+                <div className="flex gap-2 mt-3">
+                  {imagePreviews.map((p, i) => (
+                    <div key={i} className="relative">
+                      <img src={p} className="w-24 h-24 object-cover border" />
+                      <button onClick={() => removePreview(i)} className="absolute top-0 right-0 bg-white p-1">X</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 

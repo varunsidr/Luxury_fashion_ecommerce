@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
 import ProductDetailView from "@/components/ProductDetailView";
 import { notFound } from "next/navigation";
 
@@ -10,15 +10,9 @@ export default async function AksesuarSlugPage({ params }: PageProps) {
   const { slug } = await params;
   const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
 
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", normalizedSlug)
-    .single();
+  const product = await findProductByIdOrSlug(normalizedSlug);
 
-  if (product && !error) {
-    return <ProductDetailView product={product} mainCategory="Aksesuar" />;
-  }
+  if (product) return <ProductDetailView product={product} mainCategory="Accessories" />;
 
   notFound();
 }

@@ -171,7 +171,7 @@ The full schema lives in [supabase_schema.sql](supabase_schema.sql).
 
 ### Requirements
 
-- Node.js 18+
+- Node.js 20.9+ (required by Next.js 16)
 - npm
 - A [Supabase](https://supabase.com) project (the free tier is enough)
 
@@ -190,16 +190,15 @@ npm install
 
 ### 3. Configure environment variables
 
-Create a `.env.local` file in the project root:
+Copy the example file and replace every placeholder with values from your Supabase project:
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```bash
+cp .env.example .env.local
 ```
 
-You can find these values in your Supabase project under **Settings → API**.
+On Windows PowerShell, use `Copy-Item .env.example .env.local` instead. The public values are available in Supabase under **Project Settings → API**. Generate a long random value for `DEV_CREATE_USER_KEY`; do not reuse a Supabase key.
 
-> **Note:** login and registration only work against a real Supabase project. If `NEXT_PUBLIC_SUPABASE_ANON_KEY` is left as a placeholder (or contains `dummy`), the app silently falls back to a local mock client and auth calls will fail — make sure both values above are your real project credentials.
+> **Note:** the storefront can render local product fallback data without Supabase, but customer authentication, reviews, uploads, admin actions, and seeded data require valid environment variables.
 
 ### 4. Set up the database
 
@@ -214,6 +213,31 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the storefront.
+
+### Admin access
+
+Open `/admin` and use the value configured in `DEV_CREATE_USER_KEY`. The optional `DEV_ADMIN_USERNAME` setting can be used by custom API clients that send a username. The admin session is stored in an HttpOnly cookie; there is no default password in the repository.
+
+### Local PostgreSQL with Docker
+
+The optional Docker setup starts PostgreSQL on port `5432` and Adminer on [http://localhost:8080](http://localhost:8080):
+
+```bash
+npm run local:up
+npm run seed:postgres
+```
+
+Use `npm run local:down` when finished. The local database credentials are defined in [docker-compose.yml](docker-compose.yml) and are for development only.
+
+### Production build
+
+```bash
+npm run lint
+npm run build
+npm run start
+```
+
+The included GitHub Actions workflow runs the local database setup, seed, build, and health check on pushes and pull requests targeting `main`. Add these repository secrets before relying on the workflow: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
 
 ---
 
@@ -238,6 +262,19 @@ curl -X POST http://localhost:3000/api/test/seed-user \
 ```
 
 Remember: never expose `SUPABASE_SERVICE_ROLE_KEY` to client-side code or commit it to source control.
+
+## Contributing
+
+1. Create a feature branch.
+2. Keep secrets in local or hosting-provider environment variables.
+3. Run `npm run lint` and `npm run build` before opening a pull request.
+4. Include a short description of user-facing changes and any required Supabase schema updates.
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting and deployment safeguards.
+
+## License
+
+This project is released under the license in [LICENSE](LICENSE).
 
 ### Dev auto-create users (convenience)
 

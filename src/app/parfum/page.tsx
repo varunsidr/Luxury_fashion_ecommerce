@@ -1,5 +1,5 @@
 import ProductListing from "@/components/ProductListing";
 
 export default function ParfumPage() {
-  return <ProductListing mainCategory="Parfüm" />;
+  return <ProductListing mainCategory="Perfume" />;
 }

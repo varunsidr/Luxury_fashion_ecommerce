@@ -27,8 +27,8 @@ export const ERKEK_CATEGORIES: Record<string, CategoryDef> = {
 
 export function getCategoryBySlug(mainCategory: string, slug: string): CategoryDef | undefined {
   const normMain = mainCategory.toLowerCase().replace(/ı/g, 'i');
-  if (normMain === "kadin") return KADIN_CATEGORIES[slug];
-  if (normMain === "erkek") return ERKEK_CATEGORIES[slug];
+  if (normMain === "kadin" || normMain === "women") return KADIN_CATEGORIES[slug];
+  if (normMain === "erkek" || normMain === "men") return ERKEK_CATEGORIES[slug];
   return undefined;
 }
 

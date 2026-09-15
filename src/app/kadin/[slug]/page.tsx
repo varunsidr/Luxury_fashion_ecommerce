@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
 import ProductListing from "@/components/ProductListing";
 import ProductDetailView from "@/components/ProductDetailView";
 import { notFound } from "next/navigation";
@@ -13,29 +13,21 @@ export default async function KadinSlugPage({ params }: PageProps) {
   const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
 
   // 1. Kategori mi diye kontrol et (Merkezi kütüphaneden)
-  const categoryDef = getCategoryBySlug("kadin", normalizedSlug);
+  const categoryDef = getCategoryBySlug("women", normalizedSlug) ?? getCategoryBySlug("kadin", normalizedSlug);
   
   if (categoryDef) {
     return (
       <ProductListing 
-        mainCategory="Kadın" 
+        mainCategory="Women" 
         subCategory={categoryDef.name} 
         subCategorySlug={normalizedSlug}
       />
     );
   }
 
-  // 2. Check as product ID first (always validate if not a category)
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", normalizedSlug)
-    .single();
+  // 2. Use findProductByIdOrSlug helper
+  const product = await findProductByIdOrSlug(normalizedSlug);
+  if (product) return <ProductDetailView product={product} mainCategory="Women" />;
 
-  if (product && !error) {
-    return <ProductDetailView product={product} mainCategory="Kadın" />;
-  }
-
-  // 3. Hiçbiri değilse 404
   notFound();
 }

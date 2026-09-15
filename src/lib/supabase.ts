@@ -101,3 +101,51 @@ const localSupabase = {
 export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl!, supabaseAnonKey!)
   : (localSupabase as any);
+
+// Helper: try to find a product by id or slug with fallbacks for local seed data
+export async function findProductByIdOrSlug(value: string) {
+  const normalized = String(value ?? "").toLowerCase().trim();
+  
+
+  // Quick numeric ID mapping for local seed data like `1`, `2` => map to localProducts[0], localProducts[1]
+  try {
+    if (/^\d+$/.test(normalized)) {
+      const idx = Math.max(0, parseInt(normalized, 10) - 1);
+      const maybe = (localProducts as any[])[idx];
+      if (maybe) return maybe;
+    }
+  } catch (e) {}
+
+  // 1) Try id exact match
+  try {
+    const byId = await supabase.from("products").select("*").eq("id", normalized).single();
+    if (byId && (byId as any).data) return (byId as any).data;
+  } catch (e) {
+    // ignore
+  }
+
+  // 2) Try slug exact match
+  try {
+    const bySlug = await supabase.from("products").select("*").eq("slug", normalized).single();
+    if (bySlug && (bySlug as any).data) return (bySlug as any).data;
+  } catch (e) {
+    // ignore
+  }
+
+  // 3) Fallback: fetch list and search (useful for localProducts where id may be "1", "2" strings)
+  try {
+    // If Supabase isn't configured, use the localProducts array directly to avoid query nuances
+    if (!isSupabaseConfigured) {
+      const lp = localProducts as any[];
+      const foundLocal = lp.find((p) => String(p.id).toLowerCase() === normalized || String((p.slug ?? "")).toLowerCase() === normalized);
+      return foundLocal ?? null;
+    }
+
+    const listResp: any = await supabase.from("products").select("*");
+    const all = (listResp && listResp.data) || (listResp && listResp instanceof Array ? listResp : []);
+    const found = (all as any[]).find((p) => String(p.id).toLowerCase() === normalized || String(p.slug ?? "").toLowerCase() === normalized);
+    return found ?? null;
+  } catch (e) {
+    return null;
+  }
+}

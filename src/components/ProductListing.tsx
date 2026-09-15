@@ -36,30 +36,95 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
     "Çanta": "Bags",
     "Aksesuar": "Accessories",
     "Makyaj": "Makeup",
+    "Women": "Women",
+    "Men": "Men",
+    "Perfume": "Perfume",
+    "Shoes": "Shoes",
+    "Bags": "Bags",
+    "Accessories": "Accessories",
+    "Makeup": "Makeup",
+  };
+  const mainCategoryUrlSlug: Record<string, string> = {
+    "Women": "kadin",
+    "Men": "erkek",
+    "Perfume": "parfum",
+    "Shoes": "ayakkabi",
+    "Bags": "canta",
+    "Accessories": "aksesuar",
+    "Makeup": "makyaj",
+    "Kadın": "kadin",
+    "Erkek": "erkek",
+    "Parfüm": "parfum",
+    "Ayakkabı": "ayakkabi",
+    "Çanta": "canta",
+    "Aksesuar": "aksesuar",
+    "Makyaj": "makyaj",
   };
   const dataCategoryPrefix = mainCategoryEnglishMap[mainCategory] ?? mainCategory;
   const displayTitleText = categoryDef?.name ?? (mainCategoryEnglishMap[mainCategory] ?? displayTitle);
+  const mainCategoryRoute = mainCategoryUrlSlug[mainCategory] ?? mainCategoryKey;
+
+  const normalizeValue = (value: string | null | undefined) =>
+    String(value ?? "").toLowerCase().replace(/[’']/g, "").replace(/\s+/g, " ").trim();
+
+  const matchesMainCategory = (product: any) => {
+    const productCategory = normalizeValue(product.category);
+    const target = normalizeValue(dataCategoryPrefix);
+
+    if (!productCategory) return false;
+
+    // Some imported rows may contain Turkish labels instead of English labels.
+    const translatedAliases: Record<string, string[]> = {
+      Women: ["women", "womens", "kadin", "kadın"],
+      Men: ["men", "mens", "erkek"],
+      Perfume: ["perfume", "parfum"],
+      Shoes: ["shoes", "ayakkabi"],
+      Bags: ["bags", "canta", "çant"],
+      Accessories: ["accessories", "aksesuar"],
+      Makeup: ["makeup", "makyaj"],
+    };
+
+    const aliases = translatedAliases[dataCategoryPrefix] ?? [target];
+    return aliases.some((alias) => {
+      const categoryTokens = productCategory.split(/[\s/&-]+/).filter(Boolean);
+      return categoryTokens.includes(normalizeValue(alias));
+    });
+  };
+
+  const matchesProductFilter = (product: any) => {
+    if (isMainCategoryOnly) return matchesMainCategory(product);
+
+    if (subCategorySlug === "yeni") {
+      return matchesMainCategory(product) && normalizeValue(product.tag).includes("new");
+    }
+
+    if (subCategorySlug === "cok-satan") {
+      const tag = normalizeValue(product.tag);
+      return matchesMainCategory(product) && (tag.includes("best") || tag.includes("featured") || tag.includes("populer"));
+    }
+
+    if (subCategorySlug === "koleksiyon") {
+      return matchesMainCategory(product);
+    }
+
+    const productCategory = normalizeValue(product.category);
+    const targetCategory = normalizeValue(dbCategory);
+    const subCategoryName = normalizeValue(categoryDef?.name ?? subCategory ?? "");
+
+    return productCategory === targetCategory ||
+      productCategory.includes(targetCategory) ||
+      productCategory.includes(subCategoryName) ||
+      matchesMainCategory(product);
+  };
+
+  const filterProducts = (items: any[]) => items.filter((product) => matchesProductFilter(product));
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const useLocal = !isSupabaseConfigured || !supabase;
       if (useLocal) {
-        const filtered = localProducts.filter((product) => {
-          if (isMainCategoryOnly) {
-            return product.category.startsWith(dataCategoryPrefix);
-          }
-          if (subCategorySlug === "yeni") {
-            return product.category.startsWith(dataCategoryPrefix) && product.tag === "New";
-          }
-          if (subCategorySlug === "cok-satan") {
-            return product.category.startsWith(dataCategoryPrefix) && product.tag === "Best Seller";
-          }
-          if (subCategorySlug === "koleksiyon") {
-            return product.category.startsWith(dataCategoryPrefix);
-          }
-          return product.category === dbCategory;
-        });
+        const filtered = filterProducts(localProducts);
         setProducts(filtered);
         setLoading(false);
         return;
@@ -68,57 +133,29 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
       let query = supabase.from("products").select("*");
 
       if (isMainCategoryOnly) {
-        query = query.ilike("category", `${dataCategoryPrefix}%`);
+        query = query.ilike("category", `%${dataCategoryPrefix}%`);
       } else if (subCategorySlug === "yeni") {
-        query = query.ilike("category", `${dataCategoryPrefix}%`).eq("tag", "New");
+        query = query.ilike("category", `%${dataCategoryPrefix}%`).ilike("tag", "%New%");
       } else if (subCategorySlug === "cok-satan") {
-        query = query.ilike("category", `${dataCategoryPrefix}%`).eq("tag", "Best Seller");
+        query = query.ilike("category", `%${dataCategoryPrefix}%`).or("tag.ilike.%Best%,tag.ilike.%Featured%,tag.ilike.%Populer%");
       } else if (subCategorySlug === "koleksiyon") {
-        query = query.ilike("category", `${dataCategoryPrefix}%`);
+        query = query.ilike("category", `%${dataCategoryPrefix}%`);
       } else {
-        query = query.eq("category", dbCategory);
+        query = query.ilike("category", `%${dbCategory}%`);
       }
 
       const { data, error } = await query;
 
-      if (error || !data) {
+      if (error || !data || data.length === 0) {
         console.warn("Supabase fetch failed, using local catalog fallback.", error);
-        const filtered = localProducts.filter((product) => {
-          if (isMainCategoryOnly) {
-            return product.category.startsWith(dataCategoryPrefix);
-          }
-          if (subCategorySlug === "yeni") {
-            return product.category.startsWith(dataCategoryPrefix) && product.tag === "New";
-          }
-          if (subCategorySlug === "cok-satan") {
-            return product.category.startsWith(dataCategoryPrefix) && product.tag === "Best Seller";
-          }
-          if (subCategorySlug === "koleksiyon") {
-            return product.category.startsWith(dataCategoryPrefix);
-          }
-          return product.category === dbCategory;
-        });
+        const filtered = filterProducts(localProducts);
         setProducts(filtered);
       } else {
-        setProducts(data);
+        setProducts(filterProducts(data));
       }
     } catch (err) {
       console.error("Fetch error, falling back to local catalog:", err);
-      const filtered = localProducts.filter((product) => {
-        if (isMainCategoryOnly) {
-          return product.category.startsWith(dataCategoryPrefix);
-        }
-        if (subCategorySlug === "yeni") {
-          return product.category.startsWith(dataCategoryPrefix) && product.tag === "New";
-        }
-        if (subCategorySlug === "cok-satan") {
-          return product.category.startsWith(dataCategoryPrefix) && product.tag === "Best Seller";
-        }
-        if (subCategorySlug === "koleksiyon") {
-          return product.category.startsWith(dataCategoryPrefix);
-        }
-        return product.category === dbCategory;
-      });
+      const filtered = filterProducts(localProducts);
       setProducts(filtered);
     } finally {
       setLoading(false);
@@ -154,7 +191,7 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
                 <ChevronRight size={10} strokeWidth={3} />
                 {subCategorySlug ? (
                   <>
-                    <a href={`/${mainCategoryKey}`} className="hover:text-black transition-colors font-medium">{mainCategoryEnglishMap[mainCategory] ?? mainCategory}</a>
+                    <a href={`/${mainCategoryRoute}`} className="hover:text-black transition-colors font-medium">{mainCategoryEnglishMap[mainCategory] ?? mainCategory}</a>
                     <ChevronRight size={10} strokeWidth={3} />
                     <span className="text-neutral-600 font-semibold">{displayTitle}</span>
                   </>

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
 import ProductListing from "@/components/ProductListing";
 import ProductDetailView from "@/components/ProductDetailView";
 import { notFound } from "next/navigation";
@@ -12,15 +12,8 @@ export default async function AyakkabiSlugPage({ params }: PageProps) {
   const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
 
   // 1. Check as product ID first (support UUIDs by querying directly)
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", normalizedSlug)
-    .single();
-
-  if (product && !error) {
-    return <ProductDetailView product={product} mainCategory="Ayakkabı" />;
-  }
+  const product = await findProductByIdOrSlug(normalizedSlug);
+  if (product) return <ProductDetailView product={product} mainCategory="Shoes" />;
 
   // 2. Subcategory support can be added later; for now return 404 if not an ID
   notFound();

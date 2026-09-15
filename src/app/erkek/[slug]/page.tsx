@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
 import ProductListing from "@/components/ProductListing";
 import ProductDetailView from "@/components/ProductDetailView";
 import { notFound } from "next/navigation";
@@ -13,28 +13,21 @@ export default async function ErkekSlugPage({ params }: PageProps) {
   const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
 
   // 1. Kategori mi diye kontrol et (Merkezi kütüphaneden)
-  const categoryDef = getCategoryBySlug("erkek", normalizedSlug);
+  const categoryDef = getCategoryBySlug("men", normalizedSlug) ?? getCategoryBySlug("erkek", normalizedSlug);
   
   if (categoryDef) {
     return (
       <ProductListing 
-        mainCategory="Erkek" 
+        mainCategory="Men" 
         subCategory={categoryDef.name} 
         subCategorySlug={normalizedSlug}
       />
     );
   }
 
-  // 2. Check as product ID first (support UUIDs by querying directly)
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", normalizedSlug)
-    .single();
-
-  if (product && !error) {
-    return <ProductDetailView product={product} mainCategory="Erkek" />;
-  }
+  // 2. Use findProductByIdOrSlug helper
+  const product = await findProductByIdOrSlug(normalizedSlug);
+  if (product) return <ProductDetailView product={product} mainCategory="Men" />;
 
   // 3. Hiçbiri değilse 404
   notFound();

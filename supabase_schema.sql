@@ -17,6 +17,8 @@ CREATE TABLE products (
   image_url TEXT,
   tag TEXT,
   stock INTEGER DEFAULT 0,
+  avg_rating NUMERIC(3,2),
+  review_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -44,9 +46,49 @@ CREATE TABLE reviews (
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
   product_id UUID REFERENCES products(id) ON DELETE CASCADE NOT NULL,
   rating INTEGER DEFAULT 5 CHECK (rating >= 1 AND rating <= 5),
+  title TEXT,
   comment TEXT,
+  images TEXT[],
+  approved BOOLEAN DEFAULT FALSE,
+  moderated_by UUID,
+  moderated_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Trigger: update product aggregates (avg_rating, review_count)
+CREATE OR REPLACE FUNCTION public.refresh_product_review_aggregates()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Recalculate avg and count for the affected product (only approved reviews)
+  DECLARE
+    target_prod uuid;
+  BEGIN
+    target_prod := COALESCE(NEW.product_id, OLD.product_id);
+    UPDATE products
+    SET (
+      avg_rating,
+      review_count
+    ) = (
+      (SELECT CASE WHEN COUNT(*) = 0 THEN NULL ELSE ROUND(AVG(rating)::numeric, 2) END FROM reviews WHERE product_id = target_prod AND approved = TRUE),
+      (SELECT COUNT(*) FROM reviews WHERE product_id = target_prod AND approved = TRUE)
+    )
+    WHERE id = target_prod;
+    RETURN NEW;
+  END;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER reviews_after_insert
+  AFTER INSERT ON reviews
+  FOR EACH ROW EXECUTE FUNCTION public.refresh_product_review_aggregates();
+
+CREATE TRIGGER reviews_after_update
+  AFTER UPDATE ON reviews
+  FOR EACH ROW EXECUTE FUNCTION public.refresh_product_review_aggregates();
+
+CREATE TRIGGER reviews_after_delete
+  AFTER DELETE ON reviews
+  FOR EACH ROW EXECUTE FUNCTION public.refresh_product_review_aggregates();
 
 -- ENABLE ROW LEVEL SECURITY (RLS)
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
@@ -94,3 +136,38 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 6. Create ORDERS and ORDER_ITEMS tables
+CREATE TABLE orders (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  total NUMERIC(12,2) NOT NULL DEFAULT 0,
+  status TEXT DEFAULT 'pending',
+  shipping_address JSONB,
+  payment_method TEXT,
+  placed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE order_items (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  order_id UUID REFERENCES orders(id) ON DELETE CASCADE NOT NULL,
+  product_id UUID REFERENCES products(id) ON DELETE SET NULL,
+  quantity INTEGER DEFAULT 1 CHECK (quantity > 0),
+  unit_price NUMERIC(12,2) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+
+-- Orders: users can view their own orders
+CREATE POLICY "Users can view own orders" ON orders FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Order items: select/insert allowed when linked to user's orders
+CREATE POLICY "Users can view order items for own orders" ON order_items FOR SELECT USING (
+  EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.user_id = auth.uid())
+);
+CREATE POLICY "Users can insert order items for own orders" ON order_items FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.user_id = auth.uid())
+);
