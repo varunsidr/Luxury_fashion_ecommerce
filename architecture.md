@@ -23,6 +23,14 @@ This document gives a concise, developer-focused overview of the app architectur
 - Checkout → authenticated session → profile upsert for legacy users → `orders` insert → `order_items` insert → confirmation.
 - Review submission → authenticated POST to `/api/reviews` (server route) → server validates, stores images in Storage, writes `reviews` row (default `approved=false`).
 - Admin moderation → admin UI calls `/api/admin/reviews/*` to approve or delete reviews; approved reviews are visible in storefront.
+- Admin users → the browser admin shell calls `/api/admin/users`, which verifies the admin cookie and reads profiles with the server-only Supabase service-role client.
+- Admin orders → `/api/admin/orders` provides protected order listing and status updates, including order items and product summaries.
+
+## Admin inventory and demo data
+
+The dashboard uses one inventory rule: products with size rows derive their quantity from `product_size_stock`; products without sizes use `products.stock`. The stock-management view edits size rows directly, while product editing controls the fallback product stock. This prevents a size-stock total from being compared against an unrelated zero product-stock field.
+
+The repeatable `npm run seed:admin-data` script creates demo data against the configured Supabase project: a confirmed demo customer/profile, three orders, four approved reviews, and non-zero stock for the first catalog products. It uses the service-role key and is intended only for local or demo environments.
 
 ## Checkout and profile integrity
 
@@ -60,6 +68,7 @@ The `/admin` page submits the password to `/api/admin/login`. The route compares
 
 - `supabase_schema.sql` — canonical DB schema and policies
 - `supabase_checkout_profile_fix.sql` — idempotent repair for existing Supabase projects
+- `scripts/seed_admin_data.js` — repeatable demo orders, reviews, customer, and stock seed
 - `src/lib/supabase.ts` — Supabase client initialization and fallbacks
 - `src/app/api` — server API routes (test helpers, dev helpers, production APIs)
 

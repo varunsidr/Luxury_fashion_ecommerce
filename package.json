@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed:products": "node --env-file=.env.local migrate-products.js",
+    "seed:admin-data": "node --env-file=.env.local scripts/seed_admin_data.js",
     "upload:images": "node upload-images.js",
     "local:up": "docker-compose up -d",
     "local:down": "docker-compose down",

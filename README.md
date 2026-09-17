@@ -232,6 +232,18 @@ Open [http://localhost:3000](http://localhost:3000) to view the storefront.
 
 Open `/admin` and use the value configured in `DEV_CREATE_USER_KEY`. The optional `DEV_ADMIN_USERNAME` setting can be used by custom API clients that send a username. The admin session is stored in an HttpOnly cookie; there is no default password in the repository.
 
+### Populate admin demo data
+
+After running `npm run seed:products`, run the following with your Supabase service-role key configured in `.env.local`:
+
+```bash
+npm run seed:admin-data
+```
+
+This creates or reuses a demo customer, three sample orders, four approved reviews, and realistic product stock. It is intended for local or demo environments only.
+
+The dashboard calculates stock from `product_size_stock` for size-based products and from `products.stock` for products without sizes. Both values are now kept consistent so total stock and out-of-stock counts cannot describe the same inventory incorrectly.
+
 ### Local PostgreSQL with Docker
 
 The optional Docker setup starts PostgreSQL on port `5432` and Adminer on [http://localhost:8080](http://localhost:8080):
