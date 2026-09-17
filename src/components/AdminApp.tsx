@@ -88,6 +88,8 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [orderSearch, setOrderSearch] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
 
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem("admin_auth") !== "1") router.replace("/admin");
@@ -135,15 +137,20 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
 
   async function fetchOrders() {
     setOrdersLoading(true);
-    // fetch orders with items
-    const { data } = await supabase.from("orders").select(`*, order_items(*)`).order("placed_at", { ascending: false });
-    setOrders((data as any) ?? []);
+    const response = await fetch("/api/admin/orders");
+    const result = await response.json().catch(() => ({}));
+    setOrders(response.ok ? result.orders ?? [] : []);
     setOrdersLoading(false);
   }
 
   async function updateOrderStatus(orderId: string, status: string) {
     try {
-      await supabase.from('orders').update({ status }).eq('id', orderId);
+      const response = await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: orderId, status }),
+      });
+      if (!response.ok) throw new Error("Failed to update order status");
       setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status } : o));
       if (selectedOrder && selectedOrder.id === orderId) setSelectedOrder((s: any) => ({ ...s, status }));
     } catch (err) {
@@ -155,6 +162,13 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
     localStorage.removeItem("admin_auth");
     router.push("/admin");
   }
+
+  const filteredOrders = orders.filter((order) => {
+    const matchesStatus = orderStatusFilter === "all" || order.status === orderStatusFilter;
+    const query = orderSearch.trim().toLowerCase();
+    const matchesSearch = !query || String(order.id).toLowerCase().includes(query) || String(order.user_id ?? "").toLowerCase().includes(query);
+    return matchesStatus && matchesSearch;
+  });
 
   function openAdd() {
     setForm(emptyForm);
@@ -574,13 +588,30 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
           <div className="p-8">
             <div className="mb-6">
               <h1 className="text-[20px] font-light text-neutral-800">Orders</h1>
-              <p className="text-[11px] text-neutral-400">View and manage orders</p>
+              <p className="text-[11px] text-neutral-400">{orders.length} total orders · update fulfillment status</p>
+            </div>
+
+            <div className="mb-5 flex flex-col gap-3 md:flex-row">
+              <div className="relative flex-1">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-300" />
+                <input value={orderSearch} onChange={(e) => setOrderSearch(e.target.value)} placeholder="Search order ID or user ID" className="w-full border border-neutral-100 bg-white py-2.5 pl-9 pr-4 text-[11px] outline-none focus:border-neutral-300" />
+              </div>
+              <select value={orderStatusFilter} onChange={(e) => setOrderStatusFilter(e.target.value)} className="border border-neutral-100 bg-white px-4 py-2.5 text-[11px] outline-none focus:border-neutral-300">
+                <option value="all">All statuses</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
             </div>
 
             {ordersLoading ? (
               <div className="flex flex-col gap-2">{[1,2,3].map((i) => <div key={i} className="h-12 bg-neutral-100 animate-pulse" />)}</div>
             ) : orders.length === 0 ? (
               <div className="bg-white border border-neutral-100 p-6">No orders found.</div>
+            ) : filteredOrders.length === 0 ? (
+              <div className="bg-white border border-neutral-100 p-6 text-[12px] text-neutral-500">No orders match the current filters.</div>
             ) : (
               <div className="bg-white border border-neutral-100 overflow-hidden">
                 <table className="w-full">
@@ -592,12 +623,12 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-50">
-                    {orders.map((o) => (
+                    {filteredOrders.map((o) => (
                       <tr key={o.id} className="hover:bg-neutral-50/50 transition-colors group">
                         <td className="px-4 py-3"><p className="text-[12px] font-medium text-neutral-800">{String(o.id).slice(0,8)}</p></td>
                         <td className="px-4 py-3"><span className="text-[11px] text-neutral-400">{o.user_id ?? '-'}</span></td>
                         <td className="px-4 py-3"><span className="text-[12px] text-neutral-700">{fmt(Number(o.total) || 0)}</span></td>
-                        <td className="px-4 py-3"><span className="text-[11px] text-neutral-500">{o.status}</span></td>
+                        <td className="px-4 py-3"><span className="inline-flex border border-neutral-200 px-2 py-1 text-[10px] uppercase tracking-wide text-neutral-500">{o.status}</span></td>
                         <td className="px-4 py-3"><span className="text-[11px] text-neutral-400">{o.placed_at ? new Date(o.placed_at).toLocaleString() : '-'}</span></td>
                         <td className="px-4 py-3 text-right">
                           <button onClick={() => setSelectedOrder(o)} className="text-[10px] text-neutral-500 hover:text-neutral-800">View</button>
@@ -619,9 +650,9 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                       <p className="text-[11px] text-neutral-400">{selectedOrder.user_id ?? '-'}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="text-[11px] text-neutral-500 mr-2">{selectedOrder.status}</div>
-                      <button onClick={() => updateOrderStatus(selectedOrder.id, 'shipped')} className="px-3 py-1.5 bg-emerald-600 text-white text-[11px]">Mark Shipped</button>
-                      <button onClick={() => updateOrderStatus(selectedOrder.id, 'cancelled')} className="px-3 py-1.5 bg-red-500 text-white text-[11px]">Cancel</button>
+                      <select value={selectedOrder.status} onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value)} className="border border-neutral-200 px-2 py-1.5 text-[11px] outline-none">
+                        {['pending', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => <option key={status} value={status}>{status}</option>)}
+                      </select>
                       <button onClick={() => setSelectedOrder(null)} className="text-[11px] text-neutral-500">Close</button>
                     </div>
                   </div>
@@ -631,10 +662,10 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                       {(selectedOrder.order_items ?? []).map((it: any) => (
                         <div key={it.id} className="flex items-center justify-between py-3">
                           <div>
-                            <p className="text-[12px] font-medium text-neutral-800">{it.product_id ?? 'Product'}</p>
+                            <p className="text-[12px] font-medium text-neutral-800">{it.products?.name ?? 'Product'}</p>
                             <p className="text-[11px] text-neutral-400">Qty: {it.quantity}</p>
                           </div>
-                          <div className="text-[12px] text-neutral-700">{fmt(Number(it.unit_price) || 0)}</div>
+                          <div className="text-right text-[12px] text-neutral-700">{fmt(Number(it.unit_price) * Number(it.quantity) || 0)}<p className="text-[10px] text-neutral-400">{it.products?.image_url ? "Product image available" : "No product image"}</p></div>
                         </div>
                       ))}
                     </div>

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+const SALE_END = new Date("2026-12-31T23:59:59");
+
 function getTimeLeft(targetDate: Date) {
   const now = new Date();
   const diff = targetDate.getTime() - now.getTime();
@@ -22,12 +24,12 @@ function pad(n: number) {
 
 export default function SaleBanner() {
   const [timeLeft, setTimeLeft] = useState(() =>
-    getTimeLeft(new Date("2026-04-02T00:00:00"))
+    getTimeLeft(SALE_END)
   );
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeLeft(getTimeLeft(new Date("2026-04-02T00:00:00")));
+      setTimeLeft(getTimeLeft(SALE_END));
     }, 1000);
     return () => clearInterval(interval);
   }, []);

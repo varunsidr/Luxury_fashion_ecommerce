@@ -20,6 +20,19 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<any>(null);
   const { openLoginPrompt } = useAuthPrompt();
 
+  const fetchFavorites = async (userId: string) => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("favorites")
+      .select("product_id")
+      .eq("user_id", userId);
+
+    if (!error && data) {
+      setFavorites(data.map((favorite: { product_id: string }) => favorite.product_id));
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then((result: any) => {
       const session = result?.data?.session;
@@ -43,19 +56,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
     return () => sessionResult?.data?.subscription?.unsubscribe?.();
   }, []);
-
-  const fetchFavorites = async (userId: string) => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("favorites")
-      .select("product_id")
-      .eq("user_id", userId);
-
-    if (!error && data) {
-      setFavorites(data.map((f: any) => f.product_id));
-    }
-    setLoading(false);
-  };
 
   const toggleFavorite = async (productId: string) => {
     if (!user) {

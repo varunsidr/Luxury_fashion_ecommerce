@@ -145,10 +145,13 @@ products       -- Product catalog
 cart_items     -- Per-user carts
 favorites      -- Per-user saved products
 reviews        -- Star-rated product reviews (1–5)
+orders         -- Authenticated customer orders
+order_items    -- Products and quantities belonging to an order
 ```
 
 **RLS Policies:**
 - `profiles` — users can only view and update their own profile
+- `profiles` — signed-in users can create or update only their own profile
 - `products` — public read access; write access via the Supabase dashboard or admin scripts
 - `cart_items` — users can only access their own cart
 - `favorites` — users can only access their own favorites
@@ -164,6 +167,11 @@ CREATE TRIGGER on_auth_user_created
 ```
 
 The full schema lives in [supabase_schema.sql](supabase_schema.sql).
+
+### Existing Supabase projects
+
+If users were created before the profile trigger was installed, run
+[supabase_checkout_profile_fix.sql](supabase_checkout_profile_fix.sql) once in the Supabase SQL Editor. It backfills missing profile rows and adds the self-profile insert policy required by checkout. The script is safe to run more than once.
 
 ---
 
@@ -197,6 +205,12 @@ cp .env.example .env.local
 ```
 
 On Windows PowerShell, use `Copy-Item .env.example .env.local` instead. The public values are available in Supabase under **Project Settings → API**. Generate a long random value for `DEV_CREATE_USER_KEY`; do not reuse a Supabase key.
+
+If the admin secret contains `#`, wrap the value in double quotes because `#` starts a dotenv comment when left unquoted:
+
+```env
+DEV_CREATE_USER_KEY="replace-with-a-long-random-admin-secret"
+```
 
 > **Note:** the storefront can render local product fallback data without Supabase, but customer authentication, reviews, uploads, admin actions, and seeded data require valid environment variables.
 
@@ -238,6 +252,10 @@ npm run start
 ```
 
 The included GitHub Actions workflow runs the local database setup, seed, build, and health check on pushes and pull requests targeting `main`. Add these repository secrets before relying on the workflow: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
+
+### Demo checkout
+
+Checkout includes a simulated card flow for portfolio and testing purposes. It never charges a card or stores card details. Use `4242 4242 4242 4242` to simulate an approved payment, or any fictional card number ending in `0002` to simulate a declined payment. Cash on delivery is also available.
 
 ---
 
@@ -309,9 +327,9 @@ The client-side registration form will try this endpoint first during developmen
 
 The admin panel is available at `/admin`.
 
-**Default password:** `admin123`
+**Admin password:** use the value configured in `DEV_CREATE_USER_KEY`. Do not use a default password or commit this value.
 
-> The admin session is stored in `localStorage` under the `admin_auth` key. This is a simple authentication method suitable for personal or demo projects. For production use, replace it with a proper server-side authentication solution.
+> Admin login is checked server-side at `/api/admin/login`. A successful login issues an HttpOnly `admin_token` cookie for one hour; the client also keeps a small `admin_auth` flag for UI state. There is no default password in the repository.
 
 ### What you can do in the admin panel:
 - Add, edit, and delete products
@@ -343,6 +361,8 @@ Don't forget to add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KE
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Your Supabase project URL (e.g. `https://xxxx.supabase.co`) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Your Supabase anonymous/public API key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Only for test endpoints | Server-only key used by `/api/test/*` routes — never expose to the client |
+| `DEV_CREATE_USER_KEY` | Admin/dev only | Password for `/admin` and protection key for the dev user endpoint; keep server-side |
+| `DEV_ADMIN_USERNAME` | Optional | Username restriction for custom admin API clients; the browser admin form uses password-only login |
 
 ---
 
@@ -385,7 +405,7 @@ Follow these quick steps before creating a commit that will be pushed to a share
 - **Verify `.gitignore`:** The repo ignores local env files; keep any example env files tracked instead (e.g. `.env.example`).
 - **Restart dev server after env changes:** Run `npm run dev` again after editing `.env.local` so server routes pick up new keys.
 - **Run lint & type checks:** `npm run lint` and `npm run build` to catch issues early.
-- **Run quick functional checks:** visit `/admin` and a product page, and exercise the register/login flow. If you rely on the dev helper, test `/api/dev/create-user` with `curl`.
+- **Run quick functional checks:** visit `/admin`, place a demo checkout order with an authenticated user, and exercise the register/login flow. If you rely on the dev helper, test `/api/dev/create-user` with `curl`.
 - **Update architecture notes:** Keep `architecture.md` in sync with any DB or API changes so reviewers understand design decisions.
 
 If you'd like, I can run a pre-commit tidy-up (format, lint, and a small sanity test) and prepare a commit message for you.

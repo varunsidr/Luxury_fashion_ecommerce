@@ -118,8 +118,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         />
       </button>
 
-      <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="block" data-testid="product-card-link">
-        <div className="relative aspect-[3/4] overflow-hidden bg-neutral-50 mb-4">
+      <div className="relative aspect-[3/4] overflow-hidden bg-neutral-50 mb-4">
+        <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="block h-full" data-testid="product-card-link">
           {product.tag && (
             <span className="absolute top-3 left-3 z-10 text-[9px] tracking-[0.15em] uppercase bg-black text-white px-2 py-1">
               {displayTag}
@@ -131,22 +131,23 @@ export default function ProductCard({ product }: ProductCardProps) {
             fill
             className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
           />
-          {/* Quick Add Overlay */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              addItem({ id: product.id, name: product.name, price: product.price, image_url: product.image_url, category: product.category, size: null });
-            }}
-            className="absolute inset-x-0 bottom-0 bg-black/80 py-3 text-center translate-y-full group-hover:translate-y-0 transition-transform duration-400"
-            data-testid="product-card-add-to-cart"
-          >
-            <span className="text-[10px] tracking-[0.2em] text-white uppercase">
-              Add to cart
-            </span>
-          </button>
-        </div>
+        </Link>
 
+        <button
+          onClick={() => {
+            addItem({ id: product.id, name: product.name, price: product.price, image_url: product.image_url, category: product.category, size: null });
+          }}
+          className="absolute inset-x-0 bottom-0 bg-black/80 py-3 text-center translate-y-full group-hover:translate-y-0 transition-transform duration-400"
+          data-testid="product-card-add-to-cart"
+          aria-label={`Add ${displayName} to cart`}
+        >
+          <span className="text-[10px] tracking-[0.2em] text-white uppercase">
+            Add to cart
+          </span>
+        </button>
+      </div>
+
+      <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="block">
         <div className="flex flex-col gap-1">
           {product.brand && (
             <p className="text-[9px] tracking-[0.2em] text-neutral-400 uppercase">
@@ -164,6 +165,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </p>
         </div>
       </Link>
+
     </div>
   );
 }

@@ -10,6 +10,10 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function POST(req: Request) {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'dev create-user endpoint disabled in production' }, { status: 403 });
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const devKey = process.env.DEV_CREATE_USER_KEY;
@@ -24,8 +28,6 @@ export async function POST(req: Request) {
       if (!provided || provided !== devKey) {
         return NextResponse.json({ error: 'missing or invalid dev key' }, { status: 401 });
       }
-    } else if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ error: 'dev create-user endpoint disabled in production' }, { status: 403 });
     }
 
     const body = await req.json().catch(() => ({}));

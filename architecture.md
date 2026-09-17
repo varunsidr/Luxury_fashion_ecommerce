@@ -9,7 +9,7 @@ This document gives a concise, developer-focused overview of the app architectur
   - Pages and layouts in `src/app` and components in `src/components`.
 - Supabase
   - Auth: `auth.users` manages customer accounts.
-  - Database: Postgres for `products`, `profiles`, `cart_items`, `favorites`, `reviews`.
+  - Database: Postgres for `products`, `profiles`, `cart_items`, `favorites`, `reviews`, `orders`, and `order_items`.
   - Storage: object storage for product images and user-uploaded review images.
 - Client
   - React + Tailwind UI components and Context providers (`CartContext`, `FavoritesContext`).
@@ -20,8 +20,19 @@ This document gives a concise, developer-focused overview of the app architectur
 
 - Customer browse → product data fetched from Supabase (public read) → images served from Storage CDN.
 - Signup/login → Supabase Auth (client-side anon key) → `profiles` row created by auth trigger.
+- Checkout → authenticated session → profile upsert for legacy users → `orders` insert → `order_items` insert → confirmation.
 - Review submission → authenticated POST to `/api/reviews` (server route) → server validates, stores images in Storage, writes `reviews` row (default `approved=false`).
 - Admin moderation → admin UI calls `/api/admin/reviews/*` to approve or delete reviews; approved reviews are visible in storefront.
+
+## Checkout and profile integrity
+
+Orders reference `profiles.id`, not `auth.users.id` directly. New accounts receive a profile through `on_auth_user_created`. Checkout also performs an idempotent profile upsert before creating an order so accounts created before the trigger was installed can still place orders. Existing databases should run [supabase_checkout_profile_fix.sql](supabase_checkout_profile_fix.sql) once to backfill those profiles and add the matching RLS insert policy.
+
+The client currently supports authenticated checkout only. Demo card payments are simulated in the browser and never charge or store real card details; cash on delivery is also available.
+
+## Admin authentication
+
+The `/admin` page submits the password to `/api/admin/login`. The route compares it with the server-only `DEV_CREATE_USER_KEY`, signs a short-lived token, and returns it in an HttpOnly `admin_token` cookie. `DEV_ADMIN_USERNAME` is optional and applies to custom API clients that send a username. No admin password is stored in source control.
 
 ## Security and best practices
 
@@ -42,11 +53,13 @@ This document gives a concise, developer-focused overview of the app architectur
 ## Operational notes
 
 - Local dev convenience: `/api/dev/create-user` aids testing by creating confirmed users (guarded by `DEV_CREATE_USER_KEY`). Limit to small number of dev accounts.
+- Environment changes require a full Next.js dev-server restart because server routes read `.env.local` at process startup.
 - CI / deployments: set environment variables in the hosting platform (Vercel, Netlify) rather than committing them.
 
 ## Useful files
 
 - `supabase_schema.sql` — canonical DB schema and policies
+- `supabase_checkout_profile_fix.sql` — idempotent repair for existing Supabase projects
 - `src/lib/supabase.ts` — Supabase client initialization and fallbacks
 - `src/app/api` — server API routes (test helpers, dev helpers, production APIs)
 

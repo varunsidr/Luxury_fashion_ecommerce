@@ -102,6 +102,7 @@ ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 -- Profiles: Users can view and update their own profiles
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Users can create own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Products: Everyone can view products
 CREATE POLICY "Anyone can view products" ON products FOR SELECT USING (true);

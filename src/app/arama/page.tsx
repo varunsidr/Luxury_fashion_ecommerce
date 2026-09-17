@@ -7,29 +7,43 @@ import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
 
+interface SearchProduct {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  image_url: string;
+  tag?: string | null;
+  brand?: string | null;
+}
+
 function AramaResults() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") || "";
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!q.trim()) return;
-    setLoading(true);
-    const results = (supabase as any)
-      ?.from("products")
-      ?.select("*")
-      ?.or(`name.ilike.%${q}%,category.ilike.%${q}%`);
+    let active = true;
+    const search = async () => {
+      setLoading(true);
+      const [nameResult, categoryResult] = await Promise.all([
+        supabase.from("products").select("*").ilike("name", `%${q}%`),
+        supabase.from("products").select("*").ilike("category", `%${q}%`),
+      ]);
 
-    if (results && typeof results.then === "function") {
-      results.then(({ data, error }: { data?: any[]; error?: any }) => {
-        if (!error && data) setProducts(data);
-        setLoading(false);
-      });
-    } else {
-      setProducts([]);
+      if (!active) return;
+      const matches = [...(nameResult.data ?? []), ...(categoryResult.data ?? [])];
+      const uniqueProducts = Array.from(new Map(matches.map((product) => [product.id, product])).values());
+      setProducts(uniqueProducts);
       setLoading(false);
-    }
+    };
+
+    void search();
+    return () => {
+      active = false;
+    };
   }, [q]);
 
   return (

@@ -8,7 +8,7 @@ import { createClient } from '@supabase/supabase-js';
 export async function POST(req: Request) {
   const provided = req.headers.get('x-supabase-service-role');
   const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!svc || (provided && provided !== svc)) {
+  if (!svc || provided !== svc) {
     return NextResponse.json({ error: 'missing or invalid service role key' }, { status: 401 });
   }
 

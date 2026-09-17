@@ -178,6 +178,25 @@ export default function Navbar() {
     setLoading(false);
   };
 
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setError("Enter your email address first.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/`,
+    });
+    if (resetError) {
+      setError(resetError.message);
+    } else {
+      setRegisterSuccess("Password reset instructions sent. Check your inbox.");
+    }
+    setLoading(false);
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -185,10 +204,6 @@ export default function Navbar() {
     // Try dev auto-create endpoint first (dev convenience). If it fails or is unavailable, fall back to normal signup.
     try {
       const devHeaders: Record<string, string> = { 'content-type': 'application/json' };
-      // If a public dev key is exposed for local dev, send it so the endpoint accepts the request
-      const publicDevKey = process.env.NEXT_PUBLIC_DEV_CREATE_USER_KEY;
-      if (publicDevKey) devHeaders['x-dev-key'] = publicDevKey;
-
       const devResp = await fetch('/api/dev/create-user', {
         method: 'POST',
         headers: devHeaders,
@@ -313,7 +328,7 @@ export default function Navbar() {
             {/* User — sadece desktop */}
             <div className="relative group/auth hidden md:block">
               <button
-                onClick={() => user ? handleLogout() : setLoginOpen(true)}
+                onClick={() => setLoginOpen(true)}
                 className="relative p-1.5 transition-all duration-300 hover:scale-110 group flex items-center gap-2"
                 aria-label="Account"
                 data-testid="navbar-account-toggle"
@@ -612,6 +627,24 @@ export default function Navbar() {
             </button>
           </div>
 
+          {user && (
+            <div className="border-b border-neutral-100 px-8 py-5">
+              <Link
+                href="/orders"
+                onClick={() => setLoginOpen(false)}
+                className="block text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-700 hover:text-black"
+              >
+                Order history
+              </Link>
+              <button
+                onClick={() => { handleLogout(); setLoginOpen(false); }}
+                className="mt-4 text-[10px] uppercase tracking-[0.2em] text-neutral-400 hover:text-red-500"
+              >
+                Sign out
+              </button>
+            </div>
+          )}
+
           {/* Tabs */}
           <div className="flex border-b border-neutral-100">
             <button
@@ -703,9 +736,9 @@ export default function Navbar() {
                         <input type="checkbox" className="w-3.5 h-3.5 accent-black" />
                         <span className="text-[11px] tracking-wide text-neutral-500">Remember me</span>
                       </label>
-                      <Link href="#" className="text-[11px] tracking-wide text-neutral-500 hover:text-black transition-colors duration-300">
+                      <button type="button" onClick={handleForgotPassword} className="text-[11px] tracking-wide text-neutral-500 hover:text-black transition-colors duration-300">
                         Forgot password
-                      </Link>
+                      </button>
                     </div>
 
                     <button
@@ -863,7 +896,7 @@ export default function Navbar() {
           {/* Bottom */}
           <div className="px-8 py-6 border-t border-neutral-100 text-center">
             <p className="text-[10px] tracking-[0.1em] text-neutral-400">
-              By signing in you accept the <Link href="#" className="underline hover:text-black transition-colors">Terms of Service</Link>.
+              By signing in you accept the <Link href="/kullanim-kosullari" onClick={() => setLoginOpen(false)} className="underline hover:text-black transition-colors">Terms of Service</Link>.
             </p>
           </div>
         </div>
@@ -951,7 +984,14 @@ export default function Navbar() {
                   {new Intl.NumberFormat("en-US", { style: "currency", currency: "TRY", minimumFractionDigits: 0 }).format(totalPrice)}
                 </span>
               </div>
-              <button data-testid="navbar-cart-checkout" className="w-full py-4 bg-black text-white text-[11px] tracking-[0.25em] uppercase font-medium hover:bg-neutral-800 transition-colors duration-300">
+              <button
+                data-testid="navbar-cart-checkout"
+                onClick={() => {
+                  setCartOpen(false);
+                  router.push("/checkout");
+                }}
+                className="w-full py-4 bg-black text-white text-[11px] tracking-[0.25em] uppercase font-medium hover:bg-neutral-800 transition-colors duration-300"
+              >
                 Proceed to Checkout
               </button>
             </div>
