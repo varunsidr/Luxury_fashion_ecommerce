@@ -16,15 +16,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
-      - name: Start local Postgres (docker-compose)
+      - name: Start local Postgres (Docker Compose)
         run: |
-          docker-compose up -d
+          docker compose up -d
 
       - name: Wait for Postgres
         run: |
-          DB_CID=$(docker-compose ps -q db)
+          DB_CID=$(docker compose ps -q db)
           echo "Waiting for DB container $DB_CID"
           for i in {1..30}; do
             docker exec "$DB_CID" pg_isready -U postgres -d els_ecommerce_local && break || sleep 1
@@ -32,17 +32,8 @@ jobs:
 
       - name: Apply schema to Postgres
         run: |
-          DB_CID=$(docker-compose ps -q db)
-          docker exec -i "$DB_CID" psql -U postgres -d els_ecommerce_local < supabase_schema.sql
-
-      - name: Create .env.local from secrets
-        run: |
-          cat > .env.local <<EOF
-          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          DATABASE_URL=postgres://postgres:postgres@localhost:5432/els_ecommerce_local
-          EOF
+          DB_CID=$(docker compose ps -q db)
+          docker exec -i "$DB_CID" psql -U postgres -d els_ecommerce_local < scripts/ci_products_schema.sql
 
       - name: Install dependencies
         run: npm ci
@@ -62,12 +53,6 @@ jobs:
         run: |
           curl --fail http://localhost:3000/api/health
 
-      - name: Reset via protected endpoint
-        env:
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          curl -X POST http://localhost:3000/api/test/reset -H "x-supabase-service-role: ${SUPABASE_SERVICE_ROLE_KEY}"
-
       - name: Tear down local services
         if: always()
-        run: docker-compose down -v
+        run: docker compose down -v
