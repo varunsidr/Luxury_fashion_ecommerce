@@ -20,7 +20,7 @@ This document gives a concise, developer-focused overview of the app architectur
 
 - Customer browse → product data fetched from Supabase (public read) → images served from Storage CDN.
 - Signup/login → Supabase Auth (client-side anon key) → `profiles` row created by auth trigger.
-- Checkout → authenticated session → profile upsert for legacy users → `orders` insert → `order_items` insert → confirmation.
+- Checkout → authenticated session → `/api/checkout` verifies the session, reloads catalog prices on the server, and creates the order and line items → confirmation. Apply `supabase_checkout_security_migration.sql` to remove direct customer insert policies for orders and line items.
 - Review submission → authenticated POST to `/api/reviews` (server route) → server validates, stores images in Storage, writes `reviews` row (default `approved=false`).
 - Admin moderation → admin UI calls `/api/admin/reviews/*` to approve or delete reviews; approved reviews are visible in storefront.
 - Admin users → the browser admin shell calls `/api/admin/users`, which verifies the admin cookie and reads profiles with the server-only Supabase service-role client.

@@ -279,14 +279,14 @@ The project provides lightweight endpoints to help automated tests (e.g. Playwri
 - `POST /api/test/reset` — protected endpoint that clears core tables and reseeds `products` using the seed data. Requires the service role key.
 - `POST /api/test/seed-user` — protected endpoint that creates (or resets the password of) a fixed test user, so a test suite can log in via API and reuse a `storageState` instead of driving the UI login form every run.
 
-Both `/api/test/*` endpoints require the `x-supabase-service-role` header to match `SUPABASE_SERVICE_ROLE_KEY`.
+Both `/api/test/*` endpoints are disabled in production. In local development they require `x-test-api-secret` to match the separate `TEST_API_SECRET` environment variable. The service role key stays on the server and is never used as an HTTP credential.
 
 ```bash
 curl -X POST http://localhost:3000/api/test/reset \
-  -H "x-supabase-service-role: $SUPABASE_SERVICE_ROLE_KEY"
+  -H "x-test-api-secret: $TEST_API_SECRET"
 
 curl -X POST http://localhost:3000/api/test/seed-user \
-  -H "x-supabase-service-role: $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "x-test-api-secret: $TEST_API_SECRET" \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"Test1234!"}'
 ```

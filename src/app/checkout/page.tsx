@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { ArrowLeft, Check, Loader2, ShoppingBag } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { supabase } from "@/lib/supabase";
 
@@ -24,7 +23,6 @@ type ShippingForm = {
 type PaymentMethod = "cash_on_delivery" | "card_demo";
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const { items, totalPrice, clearCart } = useCart();
   const [userId, setUserId] = useState<string | null>(null);
   const [form, setForm] = useState<ShippingForm>({
@@ -38,12 +36,9 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [orderId, setOrderId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card_demo");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }: any) => {
+    supabase.auth.getSession().then(({ data }) => {
       setUserId(data.session?.user?.id ?? null);
     });
   }, []);
@@ -52,7 +47,9 @@ export default function CheckoutPage() {
     event.preventDefault();
     setError("");
 
-    if (!userId) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!userId || !accessToken) {
       setError("Please sign in before placing your order.");
       return;
     }
@@ -61,65 +58,32 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (paymentMethod === "card_demo" && cardNumber.replace(/\s/g, "").endsWith("0002")) {
-      setError("Demo payment declined. Try another test card number.");
-      return;
-    }
-
     setSubmitting(true);
     if (paymentMethod === "card_demo") {
       await new Promise((resolve) => setTimeout(resolve, 1200));
     }
 
-    const { error: profileError } = await supabase.from("profiles").upsert(
-      {
-        id: userId,
-        full_name: form.fullName,
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
-      { onConflict: "id" }
-    );
-
-    if (profileError) {
-      setError("We could not prepare your customer profile. Please sign out and sign in again.");
-      setSubmitting(false);
-      return;
-    }
-
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .insert({
-        user_id: userId,
-        total: totalPrice,
-        status: "pending",
-        shipping_address: form,
-        payment_method: paymentMethod,
-      })
-      .select("id")
-      .single();
-
-    if (orderError || !order) {
-      setError(orderError?.message ?? "We could not create your order. Please try again.");
-      setSubmitting(false);
-      return;
-    }
-
-    const { error: itemsError } = await supabase.from("order_items").insert(
-      items.map((item) => ({
-        order_id: order.id,
-        product_id: item.id,
-        quantity: item.quantity,
-        unit_price: item.price,
-      }))
-    );
-
-    if (itemsError) {
-      setError(itemsError.message);
+      body: JSON.stringify({
+        items: items.map(({ id, quantity }) => ({ id, quantity })),
+        shippingAddress: form,
+        paymentMethod,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.orderId) {
+      setError(result.error ?? "We could not create your order. Please try again.");
       setSubmitting(false);
       return;
     }
 
     clearCart();
-    setOrderId(order.id);
+    setOrderId(result.orderId);
     setSubmitting(false);
   }
 
@@ -203,21 +167,7 @@ export default function CheckoutPage() {
                 </div>
                 {paymentMethod === "card_demo" && (
                   <div className="mt-6 space-y-6 border border-neutral-100 bg-neutral-50 p-5">
-                    <p className="text-xs leading-5 text-neutral-500">Use a fictional card for this demo. Try <strong className="font-medium text-neutral-800">4242 4242 4242 4242</strong> for success or a number ending in <strong className="font-medium text-neutral-800">0002</strong> for a declined payment.</p>
-                    <label className="block text-[10px] uppercase tracking-[0.2em] text-neutral-500">
-                      Card number
-                      <input required inputMode="numeric" autoComplete="off" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} placeholder="4242 4242 4242 4242" className="mt-3 w-full border-b border-neutral-200 bg-transparent px-0 py-3 text-sm normal-case tracking-normal text-neutral-900 outline-none focus:border-black" />
-                    </label>
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-neutral-500">
-                        Expiry
-                        <input required inputMode="numeric" autoComplete="off" value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} placeholder="MM / YY" className="mt-3 w-full border-b border-neutral-200 bg-transparent px-0 py-3 text-sm normal-case tracking-normal text-neutral-900 outline-none focus:border-black" />
-                      </label>
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-neutral-500">
-                        CVC
-                        <input required inputMode="numeric" autoComplete="off" value={cardCvc} onChange={(e) => setCardCvc(e.target.value)} placeholder="123" className="mt-3 w-full border-b border-neutral-200 bg-transparent px-0 py-3 text-sm normal-case tracking-normal text-neutral-900 outline-none focus:border-black" />
-                      </label>
-                    </div>
+                    <p className="text-xs leading-5 text-neutral-500">This is a payment simulation only. No card details are needed, stored, or sent.</p>
                   </div>
                 )}
               </fieldset>

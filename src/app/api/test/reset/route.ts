@@ -4,10 +4,14 @@ import { createClient } from '@supabase/supabase-js';
 // NOTE: This endpoint must be protected in CI / production. It uses the service role key.
 
 export async function POST(req: Request) {
-  const provided = req.headers.get('x-supabase-service-role');
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'test endpoint disabled in production' }, { status: 404 });
+  }
+  const provided = req.headers.get('x-test-api-secret');
+  const testSecret = process.env.TEST_API_SECRET;
   const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!svc || provided !== svc) {
-    return NextResponse.json({ error: 'missing or invalid service role key' }, { status: 401 });
+  if (!testSecret || provided !== testSecret) {
+    return NextResponse.json({ error: 'missing or invalid test API secret' }, { status: 401 });
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
