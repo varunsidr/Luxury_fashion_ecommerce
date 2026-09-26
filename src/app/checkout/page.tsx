@@ -38,8 +38,8 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card_demo");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUserId(data.session?.user?.id ?? null);
+    supabase.auth.getSession().then((result: { data?: { session?: { user?: { id?: string } } | null } }) => {
+      setUserId(result.data?.session?.user?.id ?? null);
     });
   }, []);
 

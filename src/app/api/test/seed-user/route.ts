@@ -20,6 +20,9 @@ export async function POST(req: Request) {
   if (!supabaseUrl) {
     return NextResponse.json({ error: 'missing NEXT_PUBLIC_SUPABASE_URL' }, { status: 500 });
   }
+  if (!svc) {
+    return NextResponse.json({ error: 'missing SUPABASE_SERVICE_ROLE_KEY' }, { status: 500 });
+  }
 
   let body: { email?: string; password?: string; fullName?: string } = {};
   try {
