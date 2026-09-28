@@ -16,7 +16,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Omit<CartItem, "quantity">) => void;
+  addItem: (product: Omit<CartItem, "quantity">, quantity?: number) => void;
   removeItem: (id: string, size: string | null) => void;
   updateQuantity: (id: string, size: string | null, quantity: number) => void;
   clearCart: () => void;
@@ -55,7 +55,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("els-cart", JSON.stringify(items));
   }, [items]);
 
-  const addItem = (product: Omit<CartItem, "quantity">) => {
+  const addItem = (product: Omit<CartItem, "quantity">, quantity = 1) => {
     if (!user) {
       openLoginPrompt("You need to sign in to add items to the cart.");
       return;
@@ -65,11 +65,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existing) {
         return prev.map(i =>
           i.id === product.id && i.size === product.size
-            ? { ...i, quantity: i.quantity + 1 }
+            ? { ...i, quantity: i.quantity + quantity }
             : i
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity }];
     });
     setCartOpen(true);
   };

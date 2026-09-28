@@ -1,5 +1,42 @@
 @import "tailwindcss";
 
+*:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+.catalog-range {
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.catalog-range::-webkit-slider-runnable-track { height: 3px; background: transparent; }
+.catalog-range::-moz-range-track { height: 3px; background: transparent; }
+.catalog-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5.5px;
+  border: 1px solid #171717;
+  border-radius: 50%;
+  background: #fff;
+  pointer-events: auto;
+  cursor: grab;
+}
+.catalog-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #171717;
+  border-radius: 50%;
+  background: #fff;
+  pointer-events: auto;
+  cursor: grab;
+}
+.catalog-range:active::-webkit-slider-thumb { cursor: grabbing; background: #171717; }
+.catalog-range:active::-moz-range-thumb { cursor: grabbing; background: #171717; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

@@ -4,13 +4,8 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { ArrowLeft, Check, Loader2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useCurrency } from "@/context/CurrencyContext";
 import { supabase } from "@/lib/supabase";
-
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "TRY",
-  minimumFractionDigits: 0,
-});
 
 type ShippingForm = {
   fullName: string;
@@ -24,6 +19,7 @@ type PaymentMethod = "cash_on_delivery" | "card_demo";
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
+  const { formatPrice } = useCurrency();
   const [userId, setUserId] = useState<string | null>(null);
   const [form, setForm] = useState<ShippingForm>({
     fullName: "",
@@ -191,14 +187,14 @@ export default function CheckoutPage() {
                     <p className="font-playfair text-base text-neutral-900">{item.name}</p>
                     <p className="mt-1 text-xs text-neutral-400">{item.size ? `Size ${item.size} · ` : ""}Qty {item.quantity}</p>
                   </div>
-                  <span className="whitespace-nowrap text-sm">{currency.format(item.price * item.quantity)}</span>
+                  <span className="whitespace-nowrap text-sm">{formatPrice(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
             {items.length === 0 && <p className="py-8 text-center text-sm font-light text-neutral-400">Your cart is empty.</p>}
             <div className="mt-3 flex items-center justify-between border-t border-neutral-200 pt-5 text-sm font-medium">
               <span>Total</span>
-              <span>{currency.format(totalPrice)}</span>
+              <span>{formatPrice(totalPrice)}</span>
             </div>
           </aside>
         </div>

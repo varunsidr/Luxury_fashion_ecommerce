@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getClientAddress, isRateLimited } from "@/lib/rateLimit";
 
 type CheckoutBody = {
   items?: Array<{ id?: unknown; quantity?: unknown }>;
@@ -17,6 +18,9 @@ const text = (value: unknown, maxLength: number) =>
   typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 
 export async function POST(request: Request) {
+  if (isRateLimited(`checkout:${getClientAddress(request)}`, 10, 60_000)) {
+    return NextResponse.json({ error: "Too many checkout attempts. Please try again shortly." }, { status: 429 });
+  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -52,7 +56,11 @@ export async function POST(request: Request) {
     if (!id || !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
       return NextResponse.json({ error: "A cart item is invalid." }, { status: 400 });
     }
-    normalizedItems.push({ id, quantity });
+    const existing = normalizedItems.find((entry) => entry.id === id);
+    if (existing) {
+      existing.quantity += quantity;
+      if (existing.quantity > 20) return NextResponse.json({ error: "A cart item exceeds the quantity limit." }, { status: 400 });
+    } else normalizedItems.push({ id, quantity });
   }
 
   const shippingAddress = {
@@ -72,47 +80,27 @@ export async function POST(request: Request) {
   }
 
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
-  const productIds = [...new Set(normalizedItems.map((item) => item.id))];
-  const { data: products, error: productsError } = await admin
+  const { data: inventory, error: inventoryError } = await admin
     .from("products")
-    .select("id, price")
-    .in("id", productIds);
-  if (productsError) return NextResponse.json({ error: "Could not verify product prices." }, { status: 500 });
-
-  const productById = new Map((products ?? []).map((product) => [String(product.id), Number(product.price)]));
-  if (productById.size !== productIds.length || [...productById.values()].some((price) => !Number.isFinite(price) || price < 0)) {
-    return NextResponse.json({ error: "One or more products are no longer available." }, { status: 409 });
+    .select("id, stock")
+    .in("id", normalizedItems.map((item) => item.id));
+  if (inventoryError) {
+    return NextResponse.json({ error: "Could not verify product stock. Please try again." }, { status: 503 });
+  }
+  const stockById = new Map((inventory ?? []).map((product) => [String(product.id), Number(product.stock ?? 0)]));
+  if (normalizedItems.some((item) => (stockById.get(item.id) ?? 0) < item.quantity)) {
+    return NextResponse.json({ error: "One or more items are no longer in stock. Update your cart and try again." }, { status: 409 });
   }
 
-  const orderItems = normalizedItems.map((item) => ({
-    product_id: item.id,
-    quantity: item.quantity,
-    unit_price: productById.get(item.id)!,
-  }));
-  const total = orderItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
-
-  const { error: profileError } = await admin.from("profiles").upsert({
-    id: authData.user.id,
-    full_name: shippingAddress.fullName,
-  }, { onConflict: "id" });
-  if (profileError) return NextResponse.json({ error: "Could not prepare your customer profile." }, { status: 500 });
-
-  const { data: order, error: orderError } = await admin.from("orders").insert({
-    user_id: authData.user.id,
-    total,
-    status: "pending",
-    shipping_address: shippingAddress,
-    payment_method: paymentMethod,
-  }).select("id").single();
-  if (orderError || !order) return NextResponse.json({ error: "Could not create your order." }, { status: 500 });
-
-  const { error: itemsError } = await admin.from("order_items").insert(
-    orderItems.map((item) => ({ ...item, order_id: order.id }))
-  );
-  if (itemsError) {
-    await admin.from("orders").delete().eq("id", order.id);
-    return NextResponse.json({ error: "Could not save your order items. Please try again." }, { status: 500 });
+  const { data: created, error: orderError } = await admin.rpc("create_checkout_order", {
+    p_user_id: authData.user.id,
+    p_items: normalizedItems,
+    p_shipping_address: shippingAddress,
+    p_payment_method: paymentMethod,
+  });
+  if (orderError?.message?.includes("OUT_OF_STOCK")) {
+    return NextResponse.json({ error: "One or more items are no longer in stock. Update your cart and try again." }, { status: 409 });
   }
-
-  return NextResponse.json({ orderId: order.id, total });
+  if (orderError || !created?.order_id) return NextResponse.json({ error: "Could not create your order. Apply the checkout transaction migration and try again." }, { status: 500 });
+  return NextResponse.json({ orderId: created.order_id, total: created.total });
 }

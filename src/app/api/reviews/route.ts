@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getClientAddress, isRateLimited } from '@/lib/rateLimit';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export async function POST(req: Request) {
+  if (isRateLimited(`review:${getClientAddress(req)}`, 5, 60_000)) return NextResponse.json({ error: 'Too many review attempts. Try again shortly.' }, { status: 429 });
   if (!supabaseUrl) return NextResponse.json({ error: 'missing SUPABASE URL' }, { status: 500 });
   // require auth cookie via anon client? We'll use service key server-side for storage handling if available
 
@@ -12,7 +14,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { productId, rating, title, comment, images } = body;
 
-    if (!productId || !rating) {
+    if (typeof productId !== 'string' || productId.length > 100 || !Number.isInteger(rating) || rating < 1 || rating > 5 ||
+        (title != null && (typeof title !== 'string' || title.length > 160)) ||
+        (comment != null && (typeof comment !== 'string' || comment.length > 4000)) ||
+        (images != null && (!Array.isArray(images) || images.length > 3 || images.some((image) => typeof image !== 'string' || image.length > 2048)))) {
       return NextResponse.json({ error: 'productId and rating are required' }, { status: 400 });
     }
 

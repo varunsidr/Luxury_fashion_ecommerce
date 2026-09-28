@@ -6,8 +6,10 @@ import Link from "next/link";
 import { Heart, Minus, Plus, ChevronDown, X, Star } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
+import { useCurrency } from "@/context/CurrencyContext";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
+import { Product } from "@/lib/productTypes";
 
 interface Review {
   id: string;
@@ -26,14 +28,6 @@ interface SizeStock {
   stock: number;
 }
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "TRY",
-    minimumFractionDigits: 0,
-  }).format(price);
-}
-
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", {
     day: "numeric",
@@ -42,9 +36,10 @@ function formatDate(dateStr: string) {
   });
 }
 
-export default function ProductDetailView({ product, mainCategory }: { product: any, mainCategory: string }) {
+export default function ProductDetailView({ product, mainCategory }: { product: Product, mainCategory: string }) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { addItem } = useCart();
+  const { formatPrice } = useCurrency();
   const isFav = isFavorite(product.id.toString());
   const displayCategory = product.category
     ? product.category
@@ -112,7 +107,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
 
   // Related products ("Complete Your Look")
-  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -151,7 +146,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
         .ilike("category", `${mainCategory}%`)
         .neq("id", product.id)
         .limit(8);
-      setRelatedProducts(related ?? []);
+      setRelatedProducts((related ?? []) as Product[]);
     }
     fetchData();
   }, [product.id, mainCategory]);
@@ -161,7 +156,18 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
   }
 
   const selectedSizeStock = selectedSize ? getSizeStock(selectedSize) : null;
-  const isOutOfStock = selectedSize !== null && selectedSizeStock === 0;
+  const availableStock = selectedSize !== null
+    ? selectedSizeStock
+    : product.sizes?.length
+      ? null
+      : Number(product.stock ?? 0);
+  const isOutOfStock = availableStock !== null && availableStock <= 0;
+
+  useEffect(() => {
+    if (availableStock !== null && availableStock > 0) {
+      setQuantity((current) => Math.min(current, availableStock));
+    }
+  }, [availableStock]);
 
   async function submitReview() {
     if (!reviewForm.name.trim() || !reviewForm.rating || !reviewForm.comment.trim()) return;
@@ -209,7 +215,8 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
       const form = new FormData();
       reviewImages.forEach((f) => form.append('images', f));
       form.append('productId', product.id);
-      const resp = await fetch('/api/reviews/upload', { method: 'POST', body: form });
+      const { data: sessionData } = await supabase.auth.getSession();
+      const resp = await fetch('/api/reviews/upload', { method: 'POST', headers: sessionData.session?.access_token ? { Authorization: `Bearer ${sessionData.session.access_token}` } : {}, body: form });
       const j = await resp.json();
       if (!resp.ok) {
         // remove optimistic review
@@ -295,26 +302,28 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
     : 0;
 
   const images: string[] = product.images?.length ? product.images : [product.image_url];
-  const sizes: string[] = product.sizes ?? ["S", "M", "L", "XL"];
-  const details: string[] = product.details ?? [
+  const sizes: string[] = product.sizes ?? [];
+  const asLines = (value: string | null | undefined, fallback: string[]) =>
+    value ? value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean) : fallback;
+  const details: string[] = asLines(product.details, [
     "Made from sustainable materials.",
     "Dry clean only recommended.",
     "Model is 178 cm tall and wears size S."
-  ];
-  const measurements: string[] = product.measurements ?? [
+  ]);
+  const measurements: string[] = asLines(product.measurements, [
     "Garment measurements may vary by size.",
     "Refer to the size guide for detailed body measurements.",
-  ];
-  const compositionCare: string[] = product.compositionCare ?? [
+  ]);
+  const compositionCare: string[] = asLines(product.compositionCare, [
     "Exterior: 100% cotton.",
     "Lining: 100% polyester.",
     "Made in Turkey.",
-  ];
-  const shippingReturns: string[] = product.shippingReturns ?? [
+  ]);
+  const shippingReturns: string[] = asLines(product.shippingReturns, [
     "Free standard shipping on all orders.",
     "Free returns within 30 days of delivery.",
     "Items must be unworn, unwashed and with original tags attached.",
-  ];
+  ]);
   const accordionSections = [
     { key: "details", title: "Product Details", content: details },
     { key: "measurements", title: "Product Measurements", content: measurements },
@@ -350,6 +359,8 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                     <button
                       key={i}
                       onClick={() => setSelectedImage(i)}
+                      aria-label={`Show product image ${i + 1}`}
+                      aria-pressed={selectedImage === i}
                       className={`relative aspect-[3/4] overflow-hidden border-2 transition-all duration-200 ${
                         selectedImage === i ? "border-black" : "border-transparent hover:border-neutral-300"
                       }`}
@@ -376,6 +387,8 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                     <button
                       key={i}
                       onClick={() => setSelectedImage(i)}
+                      aria-label={`Show product image ${i + 1}`}
+                      aria-pressed={selectedImage === i}
                       className={`relative w-16 aspect-[3/4] flex-shrink-0 overflow-hidden border-2 transition-all duration-200 ${
                         selectedImage === i ? "border-black" : "border-transparent hover:border-neutral-300"
                       }`}
@@ -460,6 +473,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                 <div className="flex items-center border border-neutral-200 w-fit">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    aria-label="Decrease quantity"
                     className="w-10 h-10 flex items-center justify-center hover:bg-neutral-50 transition-colors"
                     data-testid="product-detail-quantity-decrease"
                   >
@@ -468,7 +482,9 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                   <span className="w-12 text-center text-[13px] font-medium" data-testid="product-detail-quantity-value">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-10 flex items-center justify-center hover:bg-neutral-50 transition-colors"
+                    disabled={isOutOfStock || (availableStock !== null && quantity >= availableStock)}
+                    aria-label="Increase quantity"
+                    className="w-10 h-10 flex items-center justify-center hover:bg-neutral-50 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                     data-testid="product-detail-quantity-increase"
                   >
                     <Plus size={14} strokeWidth={1.5} />
@@ -479,19 +495,20 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
               {/* Add to cart + Fav */}
               <div className="flex gap-3 mb-8">
                 <button
-                  onClick={() => !isOutOfStock && addItem({ id: product.id.toString(), name: product.name, price: product.price, image_url: images[0], category: product.category, size: selectedSize })}
-                  disabled={isOutOfStock}
+                  onClick={() => !isOutOfStock && (sizes.length === 0 || selectedSize) && addItem({ id: product.id.toString(), name: product.name, price: product.price, image_url: images[0], category: product.category, size: selectedSize }, quantity)}
+                  disabled={isOutOfStock || (availableStock !== null && quantity > availableStock) || (sizes.length > 0 && !selectedSize)}
                   data-testid="product-detail-add-to-cart"
                   className={`flex-1 py-3.5 text-[11px] tracking-[0.25em] uppercase font-medium transition-colors duration-300 ${
-                    isOutOfStock
+                    isOutOfStock || (availableStock !== null && quantity > availableStock) || (sizes.length > 0 && !selectedSize)
                       ? "bg-neutral-100 text-neutral-400 cursor-not-allowed"
                       : "bg-black text-white hover:bg-neutral-800"
                   }`}
                 >
-                  {isOutOfStock ? "Out of stock" : "Add to cart"}
+                  {isOutOfStock ? "Out of stock" : sizes.length > 0 && !selectedSize ? "Select a size" : "Add to cart"}
                 </button>
                 <button
                   onClick={() => toggleFavorite(product.id.toString())}
+                  aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
                   className="w-[52px] h-[52px] border border-neutral-200 flex items-center justify-center hover:border-black transition-colors duration-300 group"
                   data-testid="product-detail-favorite-button"
                 >
@@ -729,6 +746,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                 <h3 className="text-[13px] tracking-[0.25em] font-medium uppercase">Size Guide</h3>
                 <button
                   onClick={() => setSizeGuideOpen(false)}
+                  aria-label="Close size guide"
                   className="p-1 hover:rotate-90 transition-transform duration-300"
                 >
                   <X size={18} strokeWidth={1.5} />

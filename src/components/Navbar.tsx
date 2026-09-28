@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
 import { useAuthPrompt } from "@/context/AuthPromptContext";
+import { useCurrency } from "@/context/CurrencyContext";
 
 const navLinks = [
   {
@@ -127,6 +128,7 @@ export default function Navbar() {
 
   const { favoritesCount } = useFavorites();
   const { items, totalCount, totalPrice, removeItem, updateQuantity, cartOpen, setCartOpen } = useCart();
+  const { formatPrice } = useCurrency();
   const { promptMessage, clearPrompt } = useAuthPrompt();
 
   useEffect(() => {
@@ -961,7 +963,7 @@ export default function Navbar() {
                         </div>
                         <div className="flex items-center gap-3">
                           <p className="text-[13px] font-medium">
-                            {new Intl.NumberFormat("en-US", { style: "currency", currency: "TRY", minimumFractionDigits: 0 }).format(item.price * item.quantity)}
+                            {formatPrice(item.price * item.quantity)}
                           </p>
                           <button onClick={() => removeItem(item.id, item.size)} className="text-neutral-300 hover:text-red-400 transition-colors">
                             <X size={14} strokeWidth={1.5} />
@@ -981,7 +983,7 @@ export default function Navbar() {
               <div className="flex items-center justify-between mb-5">
                 <span className="text-[11px] tracking-[0.15em] text-neutral-500 uppercase">Toplam</span>
                 <span className="text-[16px] font-medium">
-                  {new Intl.NumberFormat("en-US", { style: "currency", currency: "TRY", minimumFractionDigits: 0 }).format(totalPrice)}
+                  {formatPrice(totalPrice)}
                 </span>
               </div>
               <button

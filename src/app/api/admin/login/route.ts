@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { signToken } from '@/lib/adminAuth';
+import { getClientAddress, isRateLimited } from '@/lib/rateLimit';
 
 export async function POST(req: Request) {
+  if (isRateLimited(`admin-login:${getClientAddress(req)}`, 5, 60_000)) return NextResponse.json({ error: 'Too many login attempts. Try again shortly.' }, { status: 429 });
   try {
     // support form POST (application/x-www-form-urlencoded) and JSON
     let password = '';

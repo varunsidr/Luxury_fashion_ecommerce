@@ -1,166 +1,80 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { isSupabaseConfigured, CONFIG_ERROR } from "@/lib/supabase";
-
-const typewriterLines = [
-  "Manage your store from one place.",
-  "Easily update products.",
-  "Track orders in real-time.",
-  "Stock management made simple.",
-  "Elegance managed effortlessly.",
-];
+import { Eye, EyeOff, ArrowUpRight, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const [lineIndex, setLineIndex] = useState(0);
-  const [displayed, setDisplayed] = useState("");
-  const [deleting, setDeleting] = useState(false);
-
-  useEffect(() => {
-    const current = typewriterLines[lineIndex];
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (!deleting && displayed === current) {
-      timeout = setTimeout(() => setDeleting(true), 2800);
-    } else if (deleting && displayed === "") {
-      setDeleting(false);
-      setLineIndex((i) => (i + 1) % typewriterLines.length);
-    } else if (deleting) {
-      timeout = setTimeout(() => setDisplayed((t) => t.slice(0, -1)), 35);
-    } else {
-      timeout = setTimeout(
-        () => setDisplayed(current.slice(0, displayed.length + 1)),
-        70
-      );
-    }
-
-    return () => clearTimeout(timeout);
-  }, [displayed, deleting, lineIndex]);
-
-  async function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError(false);
-
-    const response = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-
-    if (response.ok) {
-      localStorage.setItem("admin_auth", "1");
-      router.push("/admin/dashboard");
-    } else {
-      setError(true);
+    if (!password || submitting) return;
+    setError("");
+    setSubmitting(true);
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (response.ok) {
+        localStorage.setItem("admin_auth", "1");
+        router.push("/admin/dashboard");
+        return;
+      }
+      const result = await response.json().catch(() => ({}));
+      setError(response.status === 500 ? "Admin sign in is not configured. Check the server environment." : response.status === 429 ? "Too many attempts. Wait a moment and try again." : "That password didn’t match. Try again.");
       setPassword("");
+    } catch {
+      setError("Couldn’t reach the sign in service. Check your connection and try again.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex bg-white">
-      {/* Sol panel */}
-      <div className="hidden lg:flex w-[52%] bg-neutral-950 flex-col justify-between p-16 relative overflow-hidden">
-        {/* Fine grid */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(0deg,#fff 0px,#fff 1px,transparent 1px,transparent 60px), repeating-linear-gradient(90deg,#fff 0px,#fff 1px,transparent 1px,transparent 60px)",
-          }}
-        />
-
-        <p className="relative text-white text-[13px] tracking-[0.5em] font-light">EL&apos;S</p>
-
-        <div className="relative">
-          <p className="text-neutral-500 text-[10px] tracking-[0.45em] uppercase mb-6">
-              Admin Panel
-            </p>
-          <div className="min-h-[100px]">
-            <h2 className="text-white text-[36px] font-light leading-tight font-playfair">
-              {displayed}
-              <span className="inline-block w-[2px] h-[34px] bg-white/70 ml-1 align-middle animate-pulse" />
-            </h2>
-          </div>
-
-          <div className="mt-10 flex gap-1.5">
-            {typewriterLines.map((_, i) => (
-              <div
-                key={i}
-                className={`h-[1px] transition-all duration-500 ${
-                  i === lineIndex ? "w-6 bg-white/60" : "w-3 bg-white/15"
-                }`}
-              />
-            ))}
-          </div>
+    <main className="min-h-screen bg-[#f7f6f3] text-neutral-900 lg:grid lg:grid-cols-[1.05fr_0.95fr]">
+      <section className="relative hidden min-h-screen overflow-hidden bg-[#171715] px-14 py-12 text-white lg:flex lg:flex-col lg:justify-between xl:px-20 xl:py-16">
+        <div aria-hidden="true" className="absolute inset-0 opacity-[0.13]" style={{ backgroundImage: "radial-gradient(#d8c9ad 0.7px, transparent 0.7px)", backgroundSize: "19px 19px" }} />
+        <div aria-hidden="true" className="absolute -bottom-32 -left-36 h-[34rem] w-[34rem] rounded-full border border-white/10" />
+        <div aria-hidden="true" className="absolute -bottom-16 -left-20 h-[26rem] w-[26rem] rounded-full border border-white/10" />
+        <a href="/" className="relative w-fit text-sm tracking-[0.42em]">EL&apos;S <span className="ml-2 text-[9px] tracking-[0.25em] text-white/45">LUXURY FASHION</span></a>
+        <div className="relative max-w-xl pb-8">
+          <p className="mb-6 text-[10px] uppercase tracking-[0.42em] text-[#c5b18e]">The house, behind the scenes</p>
+          <h1 className="font-playfair text-5xl font-light leading-[1.13] xl:text-6xl">Thoughtful tools<br />for a considered<br /><span className="italic text-[#c5b18e]">storefront.</span></h1>
+          <p className="mt-7 max-w-sm text-sm leading-7 text-white/55">Manage your collection, inventory and customer orders in one calm workspace.</p>
         </div>
+        <p className="relative text-[10px] tracking-[0.16em] text-white/35">EL&apos;S ADMINISTRATION · PRIVATE ACCESS</p>
+      </section>
 
-        <p className="relative text-neutral-600 text-[11px] tracking-wide">
-          © 2026 EL&apos;S. All rights reserved.
-        </p>
-      </div>
+      <section className="flex min-h-screen items-center justify-center px-6 py-12 sm:px-12">
+        <div className="w-full max-w-[410px]">
+          <a href="/" className="mb-16 inline-block text-xs tracking-[0.4em] text-neutral-900 lg:hidden">EL&apos;S</a>
+          <div className="mb-10 flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600"><LockKeyhole size={17} strokeWidth={1.5} /></div>
+          <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.36em] text-neutral-500">Admin sign in</p>
+          <h2 className="font-playfair text-[38px] font-normal leading-tight">Welcome back.</h2>
+          <p className="mt-2 text-sm text-neutral-500">Enter your password to open your workspace.</p>
 
-      {/* Right — form */}
-      <div className="flex-1 flex items-center justify-center px-8 bg-white">
-        <div className="w-full max-w-sm">
-          <p className="text-[11px] tracking-[0.5em] text-neutral-400 uppercase mb-10 lg:hidden">
-            EL&apos;S
-          </p>
-
-          <p className="text-[10px] tracking-[0.45em] text-neutral-400 uppercase mb-3">
-            Admin Sign In
-          </p>
-          <h1 className="text-[30px] font-light text-neutral-900 mb-1 font-playfair">
-            Welcome.
-          </h1>
-          <p className="text-[13px] text-neutral-400 font-light mb-12">
-            Enter your password to continue.
-          </p>
-
-          {!isSupabaseConfigured && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
-              <p className="text-[13px]">{CONFIG_ERROR.message}</p>
+          <form onSubmit={handleLogin} className="mt-10">
+            <label htmlFor="admin-password" className="mb-2 block text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-500">Password</label>
+            <div className="relative">
+              <input id="admin-password" name="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => { setPassword(e.target.value); setError(""); }} autoComplete="current-password" required autoFocus className="h-14 w-full border border-neutral-300 bg-white px-4 pr-12 text-sm outline-none transition focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900" aria-invalid={!!error} aria-describedby={error ? "admin-login-error" : undefined} data-testid="admin-login-password" />
+              <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-neutral-400 transition hover:text-neutral-900">{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button>
             </div>
-          )}
-
-          <form onSubmit={handleLogin} className="flex flex-col gap-5">
-            <div>
-              <label className="text-[10px] tracking-[0.3em] text-neutral-400 uppercase block mb-3">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setError(false);
-                }}
-                placeholder="••••••••"
-                autoFocus
-                className="w-full border-b border-neutral-200 px-0 py-3.5 text-[15px] font-light focus:outline-none focus:border-neutral-800 transition-colors bg-transparent placeholder:text-neutral-300"
-                data-testid="admin-login-password"
-              />
-              {error && (
-                <p className="text-[12px] text-red-400 mt-2.5 tracking-wide" data-testid="admin-login-error">
-                  Incorrect password. Try again.
-                </p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              className="w-full mt-4 py-4 bg-neutral-900 text-white text-[10px] tracking-[0.35em] uppercase font-medium hover:bg-black transition-colors duration-300"
-              data-testid="admin-login-submit"
-            >
-              Sign In
+            {error && <p id="admin-login-error" role="alert" className="mt-3 text-xs leading-5 text-red-700" data-testid="admin-login-error">{error}</p>}
+            <button type="submit" disabled={!password || submitting} className="mt-5 flex h-14 w-full items-center justify-center gap-3 bg-neutral-900 text-[10px] font-medium uppercase tracking-[0.32em] text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50" data-testid="admin-login-submit">
+              {submitting ? <><LoaderCircle size={15} className="animate-spin" /> Signing in</> : <>Sign in <ArrowUpRight size={14} /></>}
             </button>
           </form>
+          <div className="mt-8 flex items-center gap-2 text-[11px] text-neutral-500"><ShieldCheck size={14} strokeWidth={1.5} /><span>Secure access for store administrators</span></div>
+          <p className="mt-16 text-[10px] tracking-wide text-neutral-400">Need help? Contact your store administrator.</p>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

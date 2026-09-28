@@ -4,6 +4,7 @@ import "./globals.css";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { CartProvider } from "@/context/CartContext";
 import { AuthPromptProvider } from "@/context/AuthPromptContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 import SiteShell from "@/components/SiteShell";
 
 const poppins = Poppins({
@@ -19,7 +20,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "zeouf | Luxury Fashion & Lifestyle",
+  metadataBase: process.env.NEXT_PUBLIC_SITE_URL ? new URL(process.env.NEXT_PUBLIC_SITE_URL) : undefined,
+  title: { default: "zeouf | Luxury Fashion & Lifestyle", template: "%s | zeouf" },
+  openGraph: { type: "website", siteName: "zeouf", title: "zeouf | Luxury Fashion & Lifestyle", description: "Discover timeless fashion, accessories, and lifestyle pieces." },
   description:
     "Discover the world of zeouf — timeless elegance, haute couture, fine jewellery, and luxury lifestyle.",
 };
@@ -36,11 +39,13 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-poppins">
         <AuthPromptProvider>
-          <CartProvider>
-            <FavoritesProvider>
-              <SiteShell>{children}</SiteShell>
-            </FavoritesProvider>
-          </CartProvider>
+          <CurrencyProvider>
+            <CartProvider>
+              <FavoritesProvider>
+                <SiteShell>{children}</SiteShell>
+              </FavoritesProvider>
+            </CartProvider>
+          </CurrencyProvider>
         </AuthPromptProvider>
       </body>
     </html>

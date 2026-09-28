@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
+import { useCurrency } from "@/context/CurrencyContext";
 import { getStorefrontSlugForCategory } from "@/lib/categories";
 
 interface ProductCardProps {
@@ -16,6 +17,9 @@ interface ProductCardProps {
     image_url: string;
     tag?: string | null;
     brand?: string | null;
+    sizes?: string[] | null;
+    stock?: number | null;
+    size_stock?: { size: string; stock: number }[];
   };
 }
 
@@ -83,18 +87,16 @@ const translateDisplayText = (value?: string | null) => {
 export default function ProductCard({ product }: ProductCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { addItem } = useCart();
+  const { formatPrice } = useCurrency();
   const isFav = isFavorite(product.id);
   const displayCategory = translateDisplayText(product.category);
   const displayName = translateDisplayText(product.name);
   const displayTag = translateDisplayText(product.tag ?? "");
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "TRY",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const hasStock = product.sizes?.length
+    ? product.size_stock?.length
+      ? product.size_stock.some((entry) => Number(entry.stock) > 0)
+      : Number(product.stock ?? 0) > 0
+    : Number(product.stock ?? 0) > 0;
 
   return (
     <div className="group relative" data-testid="product-card" data-product-id={product.id}>
@@ -129,22 +131,29 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={product.image_url}
             alt={product.name}
             fill
-            className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+            className={`object-cover object-top transition-transform duration-700 group-hover:scale-105 ${hasStock ? "" : "grayscale-[35%]"}`}
           />
+          {!hasStock && <span className="absolute inset-x-0 top-1/2 z-10 mx-auto w-fit -translate-y-1/2 border border-white/50 bg-black/75 px-5 py-3 text-[9px] font-medium uppercase tracking-[0.28em] text-white backdrop-blur-sm">Out of stock</span>}
         </Link>
 
-        <button
+        {hasStock && <button
           onClick={() => {
+            if (product.sizes?.length) return;
             addItem({ id: product.id, name: product.name, price: product.price, image_url: product.image_url, category: product.category, size: null });
           }}
-          className="absolute inset-x-0 bottom-0 bg-black/80 py-3 text-center translate-y-full group-hover:translate-y-0 transition-transform duration-400"
+          className={`absolute inset-x-0 bottom-0 bg-black/80 py-3 text-center transition-transform duration-400 ${product.sizes?.length ? "hidden" : "translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0"}`}
           data-testid="product-card-add-to-cart"
           aria-label={`Add ${displayName} to cart`}
         >
           <span className="text-[10px] tracking-[0.2em] text-white uppercase">
             Add to cart
           </span>
-        </button>
+        </button>}
+        {hasStock && product.sizes?.length ? (
+          <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="absolute inset-x-0 bottom-0 bg-black/80 py-3 text-center text-[10px] uppercase tracking-[0.2em] text-white sm:translate-y-full sm:transition-transform sm:group-hover:translate-y-0" aria-label={`Choose a size for ${displayName}`}>
+            Choose size
+          </Link>
+        ) : null}
       </div>
 
       <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="block">
@@ -163,6 +172,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-[13px] font-medium text-neutral-900 mt-1" data-testid="product-card-price">
             {formatPrice(product.price)}
           </p>
+          {!hasStock && <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">Currently unavailable</p>}
         </div>
       </Link>
 

@@ -41,6 +41,7 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = setInterval(() => setSlide(s => (s + 1) % heroSlides.length), 6000);
     return () => clearInterval(timer);
   }, []);
@@ -112,6 +113,8 @@ export default function Home() {
             <button
               key={i}
               onClick={() => setSlide(i)}
+              aria-label={`Show ${heroSlides[i].label}`}
+              aria-pressed={i === slide}
               className={`h-[1px] transition-all duration-500 ${i === slide ? "w-8 bg-white" : "w-4 bg-white/40"}`}
             />
           ))}

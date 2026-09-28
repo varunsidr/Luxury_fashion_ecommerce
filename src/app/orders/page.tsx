@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, ChevronDown, Loader2, Package } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useCurrency } from "@/context/CurrencyContext";
 
 type OrderItem = {
   id: string;
@@ -23,12 +24,6 @@ type Order = {
   order_items: OrderItem[];
 };
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "TRY",
-  minimumFractionDigits: 0,
-});
-
 const statusLabels: Record<string, string> = {
   pending: "Pending",
   processing: "Processing",
@@ -38,6 +33,7 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function OrdersPage() {
+  const { formatPrice } = useCurrency();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(true);
@@ -114,7 +110,7 @@ export default function OrdersPage() {
                     </div>
                     <div className="flex items-center gap-5">
                       <div className="text-right">
-                        <p className="text-sm font-medium">{currency.format(order.total)}</p>
+                        <p className="text-sm font-medium">{formatPrice(order.total)}</p>
                         <span className="mt-1 inline-block text-[10px] uppercase tracking-[0.2em] text-neutral-500">{statusLabels[order.status] ?? order.status}</span>
                       </div>
                       <ChevronDown size={16} className={`text-neutral-400 transition-transform ${expanded ? "rotate-180" : ""}`} />
@@ -129,7 +125,7 @@ export default function OrdersPage() {
                               {item.products?.image_url ? <Image src={item.products.image_url} alt={item.products.name} width={40} height={52} className="h-[52px] w-10 object-cover object-top" /> : <div className="h-[52px] w-10 bg-neutral-100" />}
                               <span>{item.products?.name ?? "Product"} × {item.quantity}</span>
                             </div>
-                            <span>{currency.format(item.unit_price * item.quantity)}</span>
+                            <span>{formatPrice(item.unit_price * item.quantity)}</span>
                           </div>
                         ))}
                       </div>

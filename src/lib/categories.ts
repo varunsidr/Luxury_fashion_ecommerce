@@ -4,6 +4,23 @@ export interface CategoryDef {
   dbCategory: string;
 }
 
+export const MAIN_CATEGORY_LABELS: Record<string, string> = {
+  "Kad\u0131n": "Women", Erkek: "Men", "Parf\u00fcm": "Perfume", "Ayakkab\u0131": "Shoes", "\u00c7anta": "Bags",
+  Aksesuar: "Accessories", Makyaj: "Makeup", Women: "Women", Men: "Men", Perfume: "Perfume",
+  Shoes: "Shoes", Bags: "Bags", Accessories: "Accessories", Makeup: "Makeup",
+};
+
+export const MAIN_CATEGORY_ROUTES: Record<string, string> = {
+  Women: "kadin", Men: "erkek", Perfume: "parfum", Shoes: "ayakkabi", Bags: "canta",
+  Accessories: "aksesuar", Makeup: "makyaj", "Kad\u0131n": "kadin", Erkek: "erkek", "Parf\u00fcm": "parfum",
+  "Ayakkab\u0131": "ayakkabi", "\u00c7anta": "canta", Aksesuar: "aksesuar", Makyaj: "makyaj",
+};
+
+export const MAIN_CATEGORY_ALIASES: Record<string, string[]> = {
+  Women: ["women", "womens", "kadin"], Men: ["men", "mens", "erkek"],
+  Perfume: ["perfume", "parfum"], Shoes: ["shoes", "ayakkabi"],
+  Bags: ["bags", "canta"], Accessories: ["accessories", "aksesuar"], Makeup: ["makeup", "makyaj"],
+};
 export const KADIN_CATEGORIES: Record<string, CategoryDef> = {
   elbise: { slug: "elbise", name: "Dress", dbCategory: "Women's Dress" },
   bluz: { slug: "bluz", name: "Blouse & Shirt", dbCategory: "Women's Blouse & Shirt" },

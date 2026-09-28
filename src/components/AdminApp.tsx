@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Package, Layers, LogOut,
   Plus, Edit2, Trash2, X, ChevronDown, Upload,
   TrendingUp, AlertTriangle, CheckCircle, Search,
-  MessageSquare, Star, Send, User, BarChart, Settings, ShoppingCart,
+  MessageSquare, Star, Send, User, BarChart, Settings, ShoppingCart, ArrowUpRight, Clock3,
 } from "lucide-react";
 
 const ALL_CATEGORIES = [
@@ -100,6 +100,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   useEffect(() => {
     fetchProducts();
     fetchAllSizeStocks();
+    fetchOrders();
   }, []);
 
   useEffect(() => {
@@ -344,7 +345,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
     .slice(0, 5);
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: "TRY", minimumFractionDigits: 0 }).format(n);
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
@@ -398,22 +399,39 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
       <main className="flex-1 overflow-y-auto">
         {/* Dashboard */}
         {page === "dashboard" && (
-          <div className="p-8">
-            <h1 className="text-[22px] font-light text-neutral-800 mb-1">Welcome</h1>
-            <p className="text-[12px] text-neutral-400 mb-8">EL&apos;S store administration panel</p>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="mx-auto max-w-[1440px] p-6 sm:p-8 xl:p-10">
+            <div className="mb-9 flex flex-wrap items-end justify-between gap-5 border-b border-neutral-200 pb-7">
+              <div>
+                <p className="mb-2 text-[10px] uppercase tracking-[0.3em] text-neutral-400">EL&apos;S · Store overview</p>
+                <h1 className="font-playfair text-[32px] font-normal text-neutral-900">Good day.</h1>
+                <p className="mt-2 text-[13px] text-neutral-500">Here&apos;s what&apos;s happening with your store.</p>
+              </div>
+              <button onClick={openAdd} className="inline-flex items-center gap-2 bg-neutral-900 px-5 py-3 text-[10px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-700"><Plus size={14} /> Add a product</button>
+            </div>
+            <div className="mb-3 flex items-center justify-between"><h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">Inventory snapshot</h2><button onClick={() => setPage("analytics")} className="inline-flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-900">View analytics <ArrowUpRight size={13} /></button></div>
+            <div className="mb-9 grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4">
               {[
                 { label: "Total Products", value: products.length, icon: <Package size={18} strokeWidth={1.5} />, color: "text-neutral-700" },
                 { label: "Total Stock", value: totalStock, icon: <TrendingUp size={18} strokeWidth={1.5} />, color: "text-emerald-600" },
                 { label: "Out of Stock", value: outOfStock, icon: <AlertTriangle size={18} strokeWidth={1.5} />, color: "text-red-400" },
                 { label: "Low Stock", value: lowStock, icon: <AlertTriangle size={18} strokeWidth={1.5} />, color: "text-amber-500" },
               ].map((s) => (
-                <div key={s.label} className="bg-white border border-neutral-100 p-5">
-                  <div className={`mb-3 ${s.color}`}>{s.icon}</div>
-                  <p className="text-[26px] font-light text-neutral-800">{s.value}</p>
-                  <p className="text-[10px] tracking-[0.2em] text-neutral-400 uppercase mt-1">{s.label}</p>
+                <div key={s.label} className="border border-neutral-200 bg-white p-5 sm:p-6">
+                  <div className="mb-7 flex items-center justify-between"><p className="text-[10px] tracking-[0.16em] text-neutral-500 uppercase">{s.label}</p><span className={s.color}>{s.icon}</span></div>
+                  <p className="font-playfair text-[34px] font-light leading-none text-neutral-900">{s.value}</p>
                 </div>
               ))}
+            </div>
+            <div className="grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
+              <section className="border border-neutral-200 bg-white">
+                <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 sm:px-6"><div><h2 className="text-[13px] font-medium text-neutral-900">Recent orders</h2><p className="mt-1 text-[11px] text-neutral-500">Latest activity from your customers</p></div><button onClick={() => setPage("orders")} className="inline-flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-900">All orders <ArrowUpRight size={13} /></button></div>
+                {ordersLoading ? <div className="space-y-3 p-6">{[1,2,3].map((i) => <div key={i} className="h-10 animate-pulse bg-neutral-100" />)}</div> : orders.length === 0 ? <div className="px-6 py-10 text-center"><ShoppingCart size={20} className="mx-auto mb-3 text-neutral-300" /><p className="text-[13px] text-neutral-700">No orders yet</p><p className="mt-1 text-[11px] text-neutral-500">New orders will appear here.</p></div> : <div className="divide-y divide-neutral-100">{[...orders].sort((a,b) => new Date(b.placed_at ?? b.created_at ?? 0).getTime() - new Date(a.placed_at ?? a.created_at ?? 0).getTime()).slice(0,5).map((order) => <div key={order.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center bg-neutral-50 text-neutral-500"><ShoppingCart size={15} /></span><div><p className="text-[12px] font-medium text-neutral-800">Order {String(order.id).slice(0,8)}</p><p className="mt-1 flex items-center gap-1 text-[10px] text-neutral-400"><Clock3 size={11} />{order.placed_at ? formatDate(order.placed_at) : "Date unavailable"}</p></div></div><div className="flex items-center gap-4"><span className="text-[12px] text-neutral-700">{fmt(Number(order.total) || 0)}</span><span className="border border-neutral-200 px-2 py-1 text-[9px] uppercase tracking-wide text-neutral-500">{order.status ?? "New"}</span></div></div>)}</div>}
+              </section>
+              <section className="border border-neutral-200 bg-white p-5 sm:p-6">
+                <h2 className="text-[13px] font-medium text-neutral-900">Quick access</h2><p className="mt-1 text-[11px] text-neutral-500">Go straight to a task</p>
+                <div className="mt-5 divide-y divide-neutral-100">{[{ label: "Manage products", detail: `${products.length} items in your catalog`, page: "products" as Page, icon: <Package size={16} /> }, { label: "Review inventory", detail: `${lowStock + outOfStock} items need attention`, page: "stock" as Page, icon: <Layers size={16} /> }, { label: "Read customer reviews", detail: "See feedback and reply", page: "reviews" as Page, icon: <MessageSquare size={16} /> }].map((item) => <button key={item.page} onClick={() => setPage(item.page)} className="group flex w-full items-center gap-3 py-4 text-left"><span className="text-neutral-400 transition group-hover:text-neutral-900">{item.icon}</span><span className="flex-1"><span className="block text-[12px] text-neutral-800">{item.label}</span><span className="mt-1 block text-[10px] text-neutral-400">{item.detail}</span></span><ArrowUpRight size={14} className="text-neutral-300 transition group-hover:text-neutral-900" /></button>)}</div>
+                {(outOfStock > 0 || lowStock > 0) && <button onClick={() => setPage("stock")} className="mt-3 flex w-full items-start gap-2 border border-amber-200 bg-amber-50 p-3 text-left"><AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-700" /><span className="text-[11px] leading-5 text-amber-900">{outOfStock + lowStock} products may need restocking. Review inventory.</span></button>}
+              </section>
             </div>
           </div>
         )}
@@ -531,7 +549,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                     </div>
                     <div className="grid grid-cols-2 gap-5">
                       <div>
-                        <label className="text-[10px] tracking-[0.15em] text-neutral-500 uppercase block mb-2">Price (₺) *</label>
+                        <label className="text-[10px] tracking-[0.15em] text-neutral-500 uppercase block mb-2">Price (INR) *</label>
                         <input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} placeholder="0"
                           className="w-full border-b border-neutral-200 py-2 text-[14px] font-light focus:outline-none focus:border-neutral-800 transition-colors" />
                       </div>
