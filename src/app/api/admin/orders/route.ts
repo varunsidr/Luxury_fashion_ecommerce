@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from("orders")
-    .select("*, order_items(id, quantity, unit_price, product_id, products(name, image_url))")
+    .select("*, order_items(id, quantity, unit_price, product_id, size, color, products(name, image_url))")
     .order("placed_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -133,6 +133,63 @@ const rawProducts = [
 ];
 
 const translations = [
+  // Longer phrases go first in `toEnglish` so a general word cannot leave a
+  // Turkish fragment behind (for example, "Koyu Kahve" -> "Dark Brown").
+  ["Koyu Kahve", "Dark Brown"],
+  ["Kömür Gri", "Charcoal Gray"],
+  ["Kum Beji", "Sand Beige"],
+  ["Çantası", "Bag"],
+  ["Koyu Bej", "Dark Beige"],
+  ["Bilekten Bağlamalı", "Ankle-Strap"],
+  ["Düz Kesim", "Straight-Leg"],
+  ["Geniş Paça", "Wide-Leg"],
+  ["Kırık Beyaz", "Off-White"],
+  ["Zümrüt Yeşili", "Emerald Green"],
+  ["Adaçayı Yeşili", "Sage Green"],
+  ["Buz Mavisi", "Ice Blue"],
+  ["Kızıl-Kahve", "Red-Brown"],
+  ["Siyah Etek Detaylı", "Black Skirt-Detail"],
+  ["Dark Kahve", "Dark Brown"],
+  ["Fiyonklu Bebe Mavi Topuklu", "Baby Blue Bow Pumps"],
+  ["Classic Flap White Kapitone Çanta", "Classic Flap White Quilted Handbag"],
+  ["Envelope Medium Zincirli Çanta", "Medium Envelope Chain Bag"],
+  ["Puffy Deri Mini Çanta", "Puffy Mini Leather Bag"],
+  ["Bordo Dokulu Omuz Çantası", "Burgundy Textured Shoulder Bag"],
+  ["Ekru", "Cream"],
+  ["Krem", "Cream"],
+  ["Kesimli", "Tailored"],
+  ["Drapeli", "Draped"],
+  ["İnci Beyazı", "Pearl White"],
+  ["Işıltılı", "Shimmering"],
+  ["Bileklik", "Bracelet"],
+  ["Bilekten", "Ankle"],
+  ["Bağlamalı", "Strap"],
+  ["Motorcu", "Biker"],
+  ["Kapitone", "Quilted"],
+  ["Zincirli", "Chain"],
+  ["Fiyonklu", "Bow"],
+  ["Kristal", "Crystal"],
+  ["Kare", "Square"],
+  ["Monokrom", "Monochrome"],
+  ["Jakar", "Jacquard"],
+  ["Bluz", "Blouse"],
+  ["Yün", "Wool"],
+  ["Pamuklu", "Cotton"],
+  ["Pamuk", "Cotton"],
+  ["Organik", "Organic"],
+  ["Beltli", "Belted"],
+  ["Bebe", "Baby"],
+  ["Likit", "Liquid"],
+  ["Far", "Eyeshadow"],
+  ["Parlak", "Polished"],
+  ["Bot", "Boot"],
+  ["Kargo", "Cargo"],
+  ["Uzun", "Long"],
+  ["Bordo", "Burgundy"],
+  ["İnci", "Pearl"],
+  ["Altın", "Gold"],
+  ["Omuz", "Shoulder"],
+  ["Kolye", "Necklace"],
   ["Kadın Bluz & Gömlek", "Women's Blouse & Shirt"],
   ["Erkek Takım Elbise", "Men's Suit"],
   ["Kadın Elbise", "Women's Dress"],
@@ -193,10 +250,7 @@ const translations = [
   ["Altın", "Gold"],
   ["İnce", "Slim"],
   ["Omuz", "Shoulder"],
-  ["Beigei", "Beige"],
-  ["Greeni", "Green"],
   ["Açık", "Light"],
-  ["Bagssı", "Bag"],
   ["Zümrüt", "Emerald"],
   ["Adaçayı", "Sage"],
   ["Zümrüt Yeşili", "Emerald Green"],
@@ -240,7 +294,6 @@ const translations = [
   ["İpek", "Silk"],
   ["Eşarp", "Scarf"],
   ["Kemer", "Belt"],
-  ["Koly e", "Necklace"],
   ["Kolye", "Necklace"],
   ["Allık", "Blush"],
   ["Kapatıcı", "Concealer"],
@@ -252,7 +305,9 @@ const translations = [
 ];
 
 function toEnglish(value) {
-  return translations.reduce((text, [source, target]) => text.replaceAll(source, target), value);
+  return [...translations]
+    .sort(([left], [right]) => right.length - left.length)
+    .reduce((text, [source, target]) => text.replaceAll(source, target), value);
 }
 
 const allProducts = rawProducts.map((product) => ({
@@ -261,5 +316,44 @@ const allProducts = rawProducts.map((product) => ({
   category: toEnglish(product.category),
   tag: product.tag ? toEnglish(product.tag) : product.tag,
 }));
+
+// Original demo catalog: these images are generated for this project and do not
+// change or reuse the existing seeded products or their stock.
+const demoCollections = [
+  { category: "Women's Dress", slug: "womens-dress", base: 16800, names: ["Satin Column Midi", "Pleated Chiffon Gown", "Sculpted Crepe Dress", "One-Shoulder Evening Dress", "Silk Wrap Midi", "Tiered Tulle Gown", "Linen Shirt Dress", "Soft Corset Midi", "Draped Jersey Gown", "Halter Neck Maxi", "Bow-Back Occasion Dress", "Asymmetric Hem Midi", "Velvet Evening Gown", "Embroidered Tulle Dress", "Square-Neck Cocktail Dress", "Ruched Satin Maxi", "Cape-Sleeve Midi", "Floral Jacquard Dress", "Gathered Waist Maxi", "Tailored Day Dress"] },
+  { category: "Women's Blouse & Shirt", slug: "womens-blouse", base: 7200, names: ["Silk Tie-Neck Blouse", "Relaxed Linen Shirt", "Pleated Cuff Blouse", "Cotton Poplin Shirt", "Draped Satin Top", "Embroidered Collar Blouse", "Soft Twill Shirt", "Puff-Sleeve Cotton Blouse", "Striped Resort Shirt", "Button-Front Silk Shirt", "Lace-Trim Camisole", "Ruffle-Front Blouse", "Oversized Oxford Shirt", "Bow-Collar Satin Blouse", "Textured Knit Top", "Gathered-Neck Blouse", "Sleeveless Linen Shell", "Fine Stripe Shirt", "Scalloped-Cuff Blouse", "Tailored Evening Shirt"] },
+  { category: "Women's Jacket", slug: "womens-jacket", base: 24700, names: ["Single-Breasted Blazer", "Cropped Suede Jacket", "Soft-Tweed Jacket", "Belted Trench Jacket", "Leather Moto Jacket", "Longline Crepe Blazer", "Bouclé Collarless Jacket", "Satin-Lapel Tuxedo Jacket", "Quilted Utility Jacket", "Double-Breasted Blazer", "Cropped Denim Jacket", "Textured Wool Coat Jacket", "Relaxed Linen Blazer", "Velvet Evening Jacket", "Buttoned Shirt Jacket", "Wrap-Front Jacket", "Ribbed-Collar Bomber", "Tailored Vest Jacket", "Fringed Tweed Jacket", "Minimal Leather Blazer"] },
+  { category: "Women's Skirt", slug: "womens-skirt", base: 11800, names: ["Pleated Satin Midi Skirt", "A-Line Tailored Mini", "Bias-Cut Silk Skirt", "Wrap Linen Midi Skirt", "Tulle Occasion Skirt", "Denim Column Skirt", "Leather Mini Skirt", "Tiered Chiffon Maxi", "Checked Wool Mini", "Draped Jersey Midi", "Embroidered Organza Skirt", "High-Waist Pencil Skirt", "Asymmetric Pleated Skirt", "Linen A-Line Maxi", "Sequin Evening Skirt", "Button-Front Denim Midi", "Soft-Tweed Mini Skirt", "Gathered Waist Maxi", "Satin Slip Skirt", "Tailored Slit Midi"] },
+  { category: "Women's Trousers", slug: "womens-trousers", base: 13900, names: ["Wide-Leg Tailored Trousers", "Pleated Crepe Pants", "Linen Drawstring Trousers", "Straight-Leg Twill Pants", "Satin Evening Trousers", "High-Rise Palazzo Pants", "Cropped Cigarette Trousers", "Soft Denim Wide-Leg Jeans", "Belted Paperbag Trousers", "Pinstripe Tailored Pants", "Fluid Jersey Trousers", "Cargo Pocket Trousers", "Side-Stripe Track Pants", "Tapered Wool Pants", "Silk-Blend Lounge Trousers", "Front-Seam Flare Pants", "Relaxed Cotton Chinos", "Wrap-Waist Trousers", "Checked Wide-Leg Pants", "Draped Occasion Trousers"] },
+  { category: "Men's Suit", slug: "mens-suit", base: 43800, names: ["Modern Two-Piece Suit", "Soft-Shoulder Linen Suit", "Double-Breasted Evening Suit", "Slim-Tailored Wool Suit", "Textured Travel Suit", "Peak-Lapel Formal Suit", "Relaxed Summer Suit", "Windowpane Check Suit", "Velvet Dinner Suit", "Lightweight Cotton Suit", "Pinstripe City Suit", "Unstructured Blazer Suit", "Tonal Jacquard Suit", "Classic Three-Piece Suit", "Cropped Trouser Suit", "Soft Flannel Suit", "Tropical Wool Suit", "Modern Tuxedo Suit", "Cotton Twill Suit", "Weekend Linen Suit"] },
+  { category: "Men's Shirt", slug: "mens-shirt", base: 4100, names: ["Linen Resort Shirt", "Oxford Button-Down Shirt", "Fine-Stripe Poplin Shirt", "Soft Twill Shirt", "Mandarin-Collar Shirt", "Textured Cotton Shirt", "Relaxed Chambray Shirt", "Micro-Check Shirt", "Silk-Blend Evening Shirt", "Washed Denim Shirt", "Short-Sleeve Camp Shirt", "Classic White Poplin Shirt", "Brushed Cotton Overshirt", "Pinstripe Office Shirt", "Grandad-Collar Linen Shirt", "Contrast-Cuff Shirt", "Lightweight Seersucker Shirt", "Hidden-Placket Shirt", "Botanical Print Shirt", "Double-Pocket Utility Shirt"] },
+  { category: "Men's Trousers", slug: "mens-trousers", base: 5100, names: ["Tailored Pleated Trousers", "Straight-Leg Chinos", "Relaxed Linen Pants", "Slim Wool Trousers", "Cotton Twill Five-Pocket Pants", "Pinstripe Suit Trousers", "Soft Denim Jeans", "Drawstring Resort Trousers", "Tapered Travel Pants", "Corduroy Straight Pants", "Wide-Leg Pleated Trousers", "Lightweight Summer Chinos", "Textured Evening Pants", "Washed Cotton Cargo Pants", "Cropped Tailored Trousers", "Classic Flannel Pants", "Clean-Cut Office Trousers", "Double-Pleat Wool Pants", "Relaxed Seersucker Trousers", "Side-Adjuster Dress Pants"] },
+  { category: "Men's Jacket", slug: "mens-jacket", base: 31900, names: ["Soft Leather Bomber", "Suede Harrington Jacket", "Wool Car Coat", "Quilted Field Jacket", "Minimal Zip Leather Jacket", "Textured Overshirt Jacket", "Double-Breasted Peacoat", "Cotton Utility Jacket", "Corduroy Trucker Jacket", "Lightweight Rain Mac", "Wool-Blend Blazer", "Shearling-Collar Jacket", "Relaxed Denim Jacket", "Stand-Collar Zip Jacket", "Herringbone Sport Coat", "Linen Summer Blazer", "Minimalist Coach Jacket", "Button-Front Chore Coat", "Nylon Weekend Bomber", "Structured Twill Jacket"] },
+  { category: "Perfume", slug: "perfume", base: 6950, names: ["Saffron & Amber Eau de Parfum", "Rosewood No. 04", "Citrus Veil Eau de Toilette", "Velvet Fig Extrait", "White Tea & Neroli", "Midnight Iris Parfum", "Salted Cedar Eau de Parfum", "Petal No. 08", "Bergamot Atelier", "Soft Musk Skin Scent", "Smoked Vanilla Parfum", "Greenhouse No. 12", "Cashmere Rose Eau de Parfum", "Black Pepper & Oud", "Linen Blossom Eau de Toilette", "Golden Hour Extrait", "Wild Jasmine Parfum", "Blue Cedar Cologne", "Amberlight No. 17", "Orchid & Sandalwood"] },
+  { category: "Shoes", slug: "shoes", base: 15400, names: ["Sculpted Leather Pump", "Minimal Strappy Sandal", "Soft Suede Loafer", "Crystal-Buckle Evening Heel", "Square-Toe Ballet Flat", "Leather Slingback Heel", "Braided Slide Sandal", "Patent Mary Jane", "Gold-Trim Mule", "Soft Leather Ankle Boot", "Modern Kitten Heel", "Satin Occasion Pump", "Woven Leather Flat", "Block-Heel Sandal", "Pointed-Toe Court Shoe", "Suede Knee-High Boot", "Polished Penny Loafer", "Crossover Strap Sandal", "Textured Evening Mule", "Classic Leather Derby"] },
+  { category: "Bags", slug: "bags", base: 38900, names: ["Structured Top-Handle Bag", "Soft Crescent Shoulder Bag", "Mini Box Crossbody", "Woven Leather Tote", "Quilted Chain Bag", "Slouchy Suede Hobo", "Compact Evening Clutch", "Everyday Zip Tote", "Curved Saddle Bag", "Drawstring Leather Pouch", "East-West Shoulder Bag", "Pebbled Leather Satchel", "Miniature Handle Bag", "Soft Foldover Clutch", "Travel Weekender Tote", "Braided Shoulder Bag", "Envelope Chain Bag", "Rounded Bucket Bag", "Compact Camera Bag", "Structured Day Bag"] },
+  { category: "Accessories", slug: "accessories", base: 7800, names: ["Sculptural Gold Pendant", "Slim Two-Tone Watch", "Tortoiseshell Sunglasses", "Polished Leather Belt", "Silk Print Square Scarf", "Pearl Drop Earrings", "Textured Cuff Bracelet", "Oval Signet Ring", "Soft Leather Card Holder", "Minimal Chain Necklace", "Round Metal Sunglasses", "Classic Dial Watch", "Gold Hoop Earrings", "Woven Leather Wallet", "Delicate Tennis Bracelet", "Silk Neck Tie", "Statement Stone Ring", "Slim Reversible Belt", "Layered Pendant Necklace", "Satin Evening Headband"] },
+  { category: "Makeup", slug: "makeup", base: 2250, names: ["Velvet Matte Lip Color", "Soft Focus Blush Compact", "Radiant Skin Tint", "Silk Finish Concealer", "Sheer Lip Oil", "Sculpting Bronzer Duo", "Fine-Line Eye Pencil", "Luminous Setting Powder", "Cream Cheek Tint", "Satin Lipstick No. 04", "Soft Definition Mascara", "Dewy Highlight Balm", "Neutral Eye Palette", "Longwear Foundation", "Tinted Brow Gel", "Lip Veil No. 08", "Pressed Finishing Powder", "Nourishing Lip Treatment", "Warm Rose Blush", "Lightweight Primer"] },
+];
+
+const demoProducts = demoCollections.flatMap((collection) =>
+  collection.names.map((name, index) => {
+    const imageUrl = `/demo-products/${collection.slug}/${String(index + 1).padStart(2, "0")}.jpg`;
+    return {
+      name: `Atelier ${name}`,
+      category: collection.category,
+      price: Math.round(collection.base * (0.82 + ((index * 7) % 13) / 30) / 50) * 50,
+      image_url: imageUrl,
+      images: [imageUrl],
+      color_options: [],
+      stock: index % 5 === 4 ? 0 : 6 + ((index * 3) % 13),
+      tag: index % 5 === 0 ? "New" : index % 7 === 0 ? "Featured" : null,
+      brand: "zeouf Atelier",
+      description: "A considered demo design from the zeouf Atelier collection, photographed in our warm, minimal studio style.",
+    };
+  })
+);
+
+allProducts.push(...demoProducts);
 
 module.exports = { allProducts };

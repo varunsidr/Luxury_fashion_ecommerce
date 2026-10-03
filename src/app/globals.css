@@ -57,6 +57,14 @@ body {
   scrollbar-width: none;
 }
 
+@keyframes catalog-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+button:not(:disabled) { transition-property: color, background-color, border-color, opacity, transform; transition-duration: 220ms; }
+button:not(:disabled):active { transform: scale(0.98); }
+
 /* Mobile menu slide-in animation */
 @keyframes slideIn {
   from {

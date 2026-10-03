@@ -35,7 +35,7 @@ export default function Footer() {
           </h3>
           {submitted ? (
             <p className="text-[12px] text-neutral-400 font-light tracking-wide" data-testid="footer-newsletter-success">
-              Thanks — welcome aboard.
+              Newsletter preview only. Your email was not saved or sent.
             </p>
           ) : (
             <form
@@ -70,14 +70,16 @@ export default function Footer() {
       {/* Nav links row */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 py-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
         {[
-          { label: "Women", href: "/kadin" },
-          { label: "Men", href: "/erkek" },
-          { label: "Shoes", href: "/ayakkabi" },
-          { label: "Bags", href: "/canta" },
-          { label: "Accessories", href: "/aksesuar" },
-          { label: "Perfume", href: "/parfum" },
-          { label: "Makeup", href: "/makyaj" },
-          { label: "Favorites", href: "/favorilerim" },
+          { label: "Women", href: "/women" },
+          { label: "Men", href: "/men" },
+          { label: "Shoes", href: "/shoes" },
+          { label: "Bags", href: "/bags" },
+          { label: "Accessories", href: "/accessories" },
+          { label: "Perfume", href: "/perfume" },
+          { label: "Makeup", href: "/makeup" },
+          { label: "Favorites", href: "/favorites" },
+          { label: "Privacy", href: "/privacy" },
+          { label: "Terms", href: "/terms" },
         ].map((link) => (
           <Link
             key={link.href}

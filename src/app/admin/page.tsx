@@ -43,18 +43,18 @@ export default function AdminLoginPage() {
         <div aria-hidden="true" className="absolute inset-0 opacity-[0.13]" style={{ backgroundImage: "radial-gradient(#d8c9ad 0.7px, transparent 0.7px)", backgroundSize: "19px 19px" }} />
         <div aria-hidden="true" className="absolute -bottom-32 -left-36 h-[34rem] w-[34rem] rounded-full border border-white/10" />
         <div aria-hidden="true" className="absolute -bottom-16 -left-20 h-[26rem] w-[26rem] rounded-full border border-white/10" />
-        <a href="/" className="relative w-fit text-sm tracking-[0.42em]">EL&apos;S <span className="ml-2 text-[9px] tracking-[0.25em] text-white/45">LUXURY FASHION</span></a>
+        <a href="/" className="relative w-fit text-sm tracking-[0.42em]">zeouf <span className="ml-2 text-[9px] tracking-[0.25em] text-white/45">LUXURY FASHION</span></a>
         <div className="relative max-w-xl pb-8">
           <p className="mb-6 text-[10px] uppercase tracking-[0.42em] text-[#c5b18e]">The house, behind the scenes</p>
           <h1 className="font-playfair text-5xl font-light leading-[1.13] xl:text-6xl">Thoughtful tools<br />for a considered<br /><span className="italic text-[#c5b18e]">storefront.</span></h1>
           <p className="mt-7 max-w-sm text-sm leading-7 text-white/55">Manage your collection, inventory and customer orders in one calm workspace.</p>
         </div>
-        <p className="relative text-[10px] tracking-[0.16em] text-white/35">EL&apos;S ADMINISTRATION · PRIVATE ACCESS</p>
+        <p className="relative text-[10px] tracking-[0.16em] text-white/35">ZEOUF ADMINISTRATION · PRIVATE ACCESS</p>
       </section>
 
       <section className="flex min-h-screen items-center justify-center px-6 py-12 sm:px-12">
         <div className="w-full max-w-[410px]">
-          <a href="/" className="mb-16 inline-block text-xs tracking-[0.4em] text-neutral-900 lg:hidden">EL&apos;S</a>
+          <a href="/" className="mb-16 inline-block text-xs tracking-[0.4em] text-neutral-900 lg:hidden">zeouf</a>
           <div className="mb-10 flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600"><LockKeyhole size={17} strokeWidth={1.5} /></div>
           <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.36em] text-neutral-500">Admin sign in</p>
           <h2 className="font-playfair text-[38px] font-normal leading-tight">Welcome back.</h2>

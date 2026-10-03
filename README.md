@@ -34,6 +34,25 @@ Built entirely from scratch as a personal project, zeouf combines modern web tec
 ### Database Schema (Supabase)
 ![Database](screenshots/database.png)
 
+### New demo catalog photography
+
+The 280 demo additions currently use low-resolution crops from generated contact sheets. Some crops contain neighboring image edges, so these assets need individual high-resolution replacements before production use. Here are a few examples:
+
+<table>
+  <tr>
+    <td align="center"><img src="public/demo-products/womens-dress/01.jpg" width="180" alt="Ivory occasion dress"><br><sub>Women’s dresses</sub></td>
+    <td align="center"><img src="public/demo-products/womens-blouse/01.jpg" width="180" alt="Ivory blouse"><br><sub>Women’s blouses</sub></td>
+    <td align="center"><img src="public/demo-products/mens-suit/01.jpg" width="180" alt="Navy men's suit"><br><sub>Men’s suits</sub></td>
+    <td align="center"><img src="public/demo-products/perfume/01.jpg" width="180" alt="Rose perfume bottle"><br><sub>Perfume</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="public/demo-products/shoes/01.jpg" width="180" alt="Blush heels"><br><sub>Shoes</sub></td>
+    <td align="center"><img src="public/demo-products/bags/01.jpg" width="180" alt="Brown top-handle bag"><br><sub>Bags</sub></td>
+    <td align="center"><img src="public/demo-products/accessories/01.jpg" width="180" alt="Gold pendant necklace"><br><sub>Accessories</sub></td>
+    <td align="center"><img src="public/demo-products/makeup/01.jpg" width="180" alt="Red lipstick"><br><sub>Makeup</sub></td>
+  </tr>
+</table>
+
 ---
 
 ## Overview
@@ -67,11 +86,13 @@ zeouf is split into **two distinct sections**:
 
 ### Storefront
 - Category-based product listing: **Women, Men, Perfume, Shoes, Accessories, Bags, Makeup**
-- Dynamic subcategories (e.g. `/kadin/elbise`, `/erkek/takim`)
+- Dynamic subcategories (e.g. `/women/dress`, `/men/suits`)
 - Full-text product search
 - Add to cart (persisted in localStorage)
 - Favorites / wishlist (synced with Supabase for signed-in users)
 - Product detail page with size selection, image gallery, "Complete Your Look" cross-sell, and reviews
+- Color swatches for products with verified color-specific photography
+- Email restock alerts for unavailable items and sizes
 - Customer registration and login via Supabase Auth
 - Star ratings and customer reviews
 - Sale/discount banner
@@ -166,7 +187,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 ```
 
-The full schema lives in [supabase_schema.sql](supabase_schema.sql).
+The full schema lives in [supabase_schema.sql](supabase_schema.sql). Apply [supabase_demo_catalog_migration.sql](supabase_demo_catalog_migration.sql) afterward to add color/order option fields and the private restock request table.
 
 ### Existing Supabase projects
 
@@ -234,11 +255,13 @@ Open `/admin` and use the value configured in `DEV_CREATE_USER_KEY`. The optiona
 
 ### Populate admin demo data
 
-After running `npm run seed:products`, run the following with your Supabase service-role key configured in `.env.local`:
+After applying the demo catalog migration, run `npm run seed:products` to add 20 new demo items per existing product category. The 280 products use generated contact-sheet crops in `public/demo-products/`; prices and inventory are demo values. The seed skips existing product names and removes incorrect color variants from previously seeded demo rows without changing their stock. Then run the following with your Supabase service-role key configured in `.env.local`:
 
 ```bash
 npm run seed:admin-data
 ```
+
+To deliver restock alerts, configure `RESEND_API_KEY` and a verified `RESTOCK_FROM_EMAIL`. Requests are saved when mail delivery is not configured; alerts are sent when an administrator changes the matching stock from zero to a positive quantity.
 
 This creates or reuses a demo customer, three sample orders, four approved reviews, and realistic product stock. It is intended for local or demo environments only.
 
@@ -375,22 +398,24 @@ Don't forget to add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KE
 | `SUPABASE_SERVICE_ROLE_KEY` | Only for test endpoints | Server-only key used by `/api/test/*` routes — never expose to the client |
 | `DEV_CREATE_USER_KEY` | Admin/dev only | Password for `/admin` and protection key for the dev user endpoint; keep server-side |
 | `DEV_ADMIN_USERNAME` | Optional | Username restriction for custom admin API clients; the browser admin form uses password-only login |
+| `RESEND_API_KEY` | Optional | Resend API key used to deliver restock alerts |
+| `RESTOCK_FROM_EMAIL` | Optional | Verified sender address for Resend restock alerts |
 
 ---
 
 ## Routing
 
-Category routes use Turkish URL slugs (the underlying product data is Turkish), while all UI copy is in English:
+The storefront uses English copy and English URLs. Legacy Turkish category URLs redirect to the English equivalents:
 
 | Route | Category |
 |---|---|
-| `/kadin` | Women |
-| `/erkek` | Men |
-| `/ayakkabi` | Shoes |
-| `/canta` | Bags |
-| `/aksesuar` | Accessories |
-| `/parfum` | Perfume |
-| `/makyaj` | Makeup |
+| `/women` | Women |
+| `/men` | Men |
+| `/shoes` | Shoes |
+| `/bags` | Bags |
+| `/accessories` | Accessories |
+| `/perfume` | Perfume |
+| `/makeup` | Makeup |
 
 ---
 

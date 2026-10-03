@@ -87,7 +87,7 @@ export default function FavoritesPage() {
                 Add products to your favorites to find them easily later and make purchases.
               </p>
               <Link 
-                href="/kadin" 
+                href="/women"
                 className="px-10 py-4 bg-black text-white text-[11px] tracking-[0.25em] uppercase font-medium hover:bg-neutral-800 transition-all duration-500 shadow-lg shadow-black/10"
               >
                 Discover Collection

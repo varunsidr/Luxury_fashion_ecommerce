@@ -10,30 +10,30 @@ const heroSlides = [
     video: "/rose.mp4",
     label: "Women's Collection",
     sub: "Spring / Summer 2026",
-    href: "/kadin",
+    href: "/women",
     cta: "Discover the Collection",
   },
   {
     video: "/jungkook.mp4",
     label: "Men's Collection",
     sub: "Spring / Summer 2026",
-    href: "/erkek",
+    href: "/men",
     cta: "Discover the Collection",
   },
 ];
 
 const splitBanner = [
-  { image: "/kadin-product-1.jpg",  label: "WOMEN", sub: "Spring / Summer 2026", href: "/kadin" },
-  { image: "/erkek-takim-1-b.jpg",  label: "MEN", sub: "Spring / Summer 2026", href: "/erkek" },
+  { image: "/kadin-product-1.jpg",  label: "WOMEN", sub: "Spring / Summer 2026", href: "/women" },
+  { image: "/erkek-takim-1-b.jpg",  label: "MEN", sub: "Spring / Summer 2026", href: "/men" },
 ];
 
 const featured = [
-  { image: "/canta-5.jpg",        title: "Birkin 30",          category: "Bags",    href: "/canta" },
-  { image: "/ayakkabi-1.jpg",     title: "Opyum Sandalet",     category: "Shoes", href: "/ayakkabi" },
-  { image: "/aksesuar-3.jpg",     title: "Diamond Watch",      category: "Accessories", href: "/aksesuar" },
-  { image: "/kadin-ceket-1.jpg",  title: "Corset Leather Jacket",  category: "Women",    href: "/kadin/ceket" },
-  { image: "/parfum-2.jpg",       title: "Coco Mademoiselle", category: "Perfume",   href: "/parfum" },
-  { image: "/erkek-takim-3.jpg",  title: "Navy Double-breasted",  category: "Men",    href: "/erkek/takim" },
+  { image: "/canta-5.jpg",        title: "Birkin 30",          category: "Bags",    href: "/bags" },
+  { image: "/ayakkabi-1.jpg",     title: "Opyum Sandal",       category: "Shoes", href: "/shoes" },
+  { image: "/aksesuar-3.jpg",     title: "Diamond Watch",      category: "Accessories", href: "/accessories" },
+  { image: "/kadin-ceket-1.jpg",  title: "Corset Leather Jacket",  category: "Women",    href: "/women/jacket" },
+  { image: "/parfum-2.jpg",       title: "Coco Mademoiselle", category: "Perfume",   href: "/perfume" },
+  { image: "/erkek-takim-3.jpg",  title: "Navy Double-Breasted", category: "Men", href: "/men/suits" },
 ];
 
 export default function Home() {
@@ -135,7 +135,7 @@ export default function Home() {
               <span className="text-white/20">◆</span>
               <span className="text-[10px] tracking-[0.4em] text-white/40 uppercase">Spring / Summer 2026</span>
               <span className="text-white/20">◆</span>
-              <span className="text-[10px] tracking-[0.4em] text-white/40 uppercase">EL&apos;S</span>
+              <span className="text-[10px] tracking-[0.4em] text-white/40 uppercase">zeouf</span>
               <span className="text-white/20">◆</span>
             </span>
           ))}
@@ -219,7 +219,7 @@ export default function Home() {
             Women&apos;s Blouse<br />& Shirt
           </h2>
           <Link
-            href="/kadin/bluz"
+            href="/women/blouse"
             className="group flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase border-b border-white/50 pb-1 hover:border-white transition-colors duration-300"
           >
             View Collection
@@ -254,7 +254,7 @@ export default function Home() {
                 <span className="text-neutral-300 text-xl">◆</span>
                 <span className="text-[28px] md:text-[44px] lg:text-[64px] font-light font-playfair italic text-neutral-300">Style</span>
                 <span className="text-neutral-300 text-xl">◆</span>
-                <span className="text-[28px] md:text-[44px] lg:text-[64px] font-light font-playfair text-neutral-800">EL&apos;S</span>
+                <span className="text-[28px] md:text-[44px] lg:text-[64px] font-light font-playfair text-neutral-800">zeouf</span>
                 <span className="text-neutral-300 text-xl">◆</span>
               </span>
             ))}

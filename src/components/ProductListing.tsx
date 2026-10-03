@@ -77,16 +77,16 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
   const matchesProductFilter = (product: Product) => {
     if (isMainCategoryOnly) return matchesMainCategory(product);
 
-    if (subCategorySlug === "yeni") {
+    if (subCategorySlug === "yeni" || subCategorySlug === "new-arrivals") {
       return matchesMainCategory(product) && normalizeValue(product.tag).includes("new");
     }
 
-    if (subCategorySlug === "cok-satan") {
+    if (subCategorySlug === "cok-satan" || subCategorySlug === "best-sellers") {
       const tag = normalizeValue(product.tag);
       return matchesMainCategory(product) && (tag.includes("best") || tag.includes("featured") || tag.includes("populer"));
     }
 
-    if (subCategorySlug === "koleksiyon") {
+    if (subCategorySlug === "koleksiyon" || subCategorySlug === "collection") {
       return matchesMainCategory(product);
     }
 

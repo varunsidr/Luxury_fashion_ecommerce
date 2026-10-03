@@ -11,9 +11,9 @@ export const MAIN_CATEGORY_LABELS: Record<string, string> = {
 };
 
 export const MAIN_CATEGORY_ROUTES: Record<string, string> = {
-  Women: "kadin", Men: "erkek", Perfume: "parfum", Shoes: "ayakkabi", Bags: "canta",
-  Accessories: "aksesuar", Makeup: "makyaj", "Kad\u0131n": "kadin", Erkek: "erkek", "Parf\u00fcm": "parfum",
-  "Ayakkab\u0131": "ayakkabi", "\u00c7anta": "canta", Aksesuar: "aksesuar", Makyaj: "makyaj",
+  Women: "women", Men: "men", Perfume: "perfume", Shoes: "shoes", Bags: "bags",
+  Accessories: "accessories", Makeup: "makeup", "Kad\u0131n": "women", Erkek: "men", "Parf\u00fcm": "perfume",
+  "Ayakkab\u0131": "shoes", "\u00c7anta": "bags", Aksesuar: "accessories", Makyaj: "makeup",
 };
 
 export const MAIN_CATEGORY_ALIASES: Record<string, string[]> = {
@@ -44,21 +44,33 @@ export const ERKEK_CATEGORIES: Record<string, CategoryDef> = {
 
 export function getCategoryBySlug(mainCategory: string, slug: string): CategoryDef | undefined {
   const normMain = mainCategory.toLowerCase().replace(/ı/g, 'i');
-  if (normMain === "kadin" || normMain === "women") return KADIN_CATEGORIES[slug];
-  if (normMain === "erkek" || normMain === "men") return ERKEK_CATEGORIES[slug];
+  if (normMain === "kadin" || normMain === "women") {
+    const englishSlugs: Record<string, string> = {
+      dress: "elbise", blouse: "bluz", jacket: "ceket", skirt: "etek", trousers: "pantolon",
+      "new-arrivals": "yeni", "best-sellers": "cok-satan", collection: "koleksiyon",
+    };
+    return KADIN_CATEGORIES[englishSlugs[slug] ?? slug];
+  }
+  if (normMain === "erkek" || normMain === "men") {
+    const englishSlugs: Record<string, string> = {
+      suits: "takim", shirts: "gomlek", trousers: "pantolon", jacket: "ceket",
+      "new-arrivals": "yeni", "best-sellers": "cok-satan", collection: "koleksiyon",
+    };
+    return ERKEK_CATEGORIES[englishSlugs[slug] ?? slug];
+  }
   return undefined;
 }
 
 // Product `category` values are stored in English (e.g. "Men's Suit", "Women's Dress"),
-// but storefront routes use Turkish slugs. This maps one to the other for product links.
+// Product links and visible storefront URLs use English slugs.
 const CATEGORY_PREFIX_TO_ROUTE_SLUG: { prefix: string; slug: string }[] = [
-  { prefix: "Women", slug: "kadin" },
-  { prefix: "Men", slug: "erkek" },
-  { prefix: "Shoes", slug: "ayakkabi" },
-  { prefix: "Bags", slug: "canta" },
-  { prefix: "Accessories", slug: "aksesuar" },
-  { prefix: "Perfume", slug: "parfum" },
-  { prefix: "Makeup", slug: "makyaj" },
+  { prefix: "Women", slug: "women" },
+  { prefix: "Men", slug: "men" },
+  { prefix: "Shoes", slug: "shoes" },
+  { prefix: "Bags", slug: "bags" },
+  { prefix: "Accessories", slug: "accessories" },
+  { prefix: "Perfume", slug: "perfume" },
+  { prefix: "Makeup", slug: "makeup" },
 ];
 
 export function getStorefrontSlugForCategory(category: string): string {

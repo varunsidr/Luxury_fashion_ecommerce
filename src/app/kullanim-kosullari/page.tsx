@@ -65,7 +65,7 @@ export default function TermsPage() {
         </div>
 
         <div className="mt-16 pt-10 border-t border-neutral-100 flex items-center justify-between">
-          <p className="text-[11px] text-neutral-400">© 2026 EL&apos;S — Elif Kaynar</p>
+          <p className="text-[11px] text-neutral-400">© 2026 zeouf</p>
           <Link
             href="/"
             className="text-[10px] tracking-[0.3em] uppercase text-neutral-400 hover:text-neutral-800 transition-colors duration-300"

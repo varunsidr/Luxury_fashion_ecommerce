@@ -16,6 +16,13 @@ export interface Product {
   details?: string | null;
   measurements?: string | null;
   shippingReturns?: string | null;
+  color_options?: ProductColorOption[] | null;
+}
+
+export interface ProductColorOption {
+  name: string;
+  hex: string;
+  image_url?: string;
 }
 
 export interface ProductSizeStock {

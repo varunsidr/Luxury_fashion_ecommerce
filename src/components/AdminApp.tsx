@@ -270,17 +270,21 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   async function updateSizeStock(productId: string, size: string, stock: number) {
     if (stock < 0) return;
     const existing = sizeStocks.find((s) => s.product_id === productId && s.size === size);
-    if (existing) {
-      await supabase.from("product_size_stock").update({ stock }).eq("id", existing.id);
-      setSizeStocks((prev) => prev.map((s) => s.id === existing.id ? { ...s, stock } : s));
-    } else {
-      const { data } = await supabase
-        .from("product_size_stock")
-        .insert({ product_id: productId, size, stock })
-        .select()
-        .single();
-      if (data) setSizeStocks((prev) => [...prev, data]);
-    }
+    const response = await fetch("/api/admin/stock", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId, size, stock }) });
+    if (!response.ok) return;
+    const result = await response.json();
+    if (existing) setSizeStocks((prev) => prev.map((s) => s.id === existing.id ? { ...s, stock } : s));
+    else setSizeStocks((prev) => [...prev, { id: `${productId}-${size}`, product_id: productId, size, stock }]);
+    setProducts((previous) => previous.map((product) => product.id === productId ? { ...product, stock: result.stock } : product));
+    if (stock > 0) await notifyRestockRequests(productId, size);
+  }
+
+  async function notifyRestockRequests(productId: string, size?: string) {
+    await fetch("/api/admin/restock-alerts/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, size: size ?? null }),
+    });
   }
 
   function getSizeStock(productId: string, size: string) {
@@ -367,7 +371,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
       {/* Sidebar */}
       <aside className="w-56 bg-neutral-900 flex flex-col flex-shrink-0">
         <div className="px-6 py-6 border-b border-neutral-800">
-          <p className="text-white text-[13px] tracking-[0.25em] font-light">EL&apos;S</p>
+          <p className="text-white text-[13px] tracking-[0.25em] font-light">zeouf</p>
           <p className="text-neutral-500 text-[9px] tracking-[0.3em] uppercase mt-0.5">Admin Panel</p>
           <a href="/" className="inline-flex items-center gap-1.5 mt-3 text-neutral-500 hover:text-neutral-300 transition-colors text-[9px] tracking-[0.2em] uppercase">
             ← Back to Site
@@ -402,7 +406,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
           <div className="mx-auto max-w-[1440px] p-6 sm:p-8 xl:p-10">
             <div className="mb-9 flex flex-wrap items-end justify-between gap-5 border-b border-neutral-200 pb-7">
               <div>
-                <p className="mb-2 text-[10px] uppercase tracking-[0.3em] text-neutral-400">EL&apos;S · Store overview</p>
+                <p className="mb-2 text-[10px] uppercase tracking-[0.3em] text-neutral-400">zeouf · Store overview</p>
                 <h1 className="font-playfair text-[32px] font-normal text-neutral-900">Good day.</h1>
                 <p className="mt-2 text-[13px] text-neutral-500">Here&apos;s what&apos;s happening with your store.</p>
               </div>
@@ -642,7 +646,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                       <tr key={`${row.product.id}-${row.size}`}>
                         <td className="px-4 py-3 text-[12px] text-neutral-800">{row.product.name}</td>
                         <td className="px-4 py-3 text-[11px] text-neutral-500">{row.size}</td>
-                        <td className="px-4 py-3">{row.overall ? <input type="number" min="0" defaultValue={row.stock} onBlur={async (event) => { const stock = Number(event.target.value); if (stock < 0) return; await supabase.from("products").update({ stock }).eq("id", row.product.id); setProducts((previous) => previous.map((product) => product.id === row.product.id ? { ...product, stock } : product)); }} className="w-20 border-b border-neutral-200 py-1 text-[12px] outline-none focus:border-black" /> : <input type="number" min="0" defaultValue={row.stock} onBlur={(event) => updateSizeStock(row.product.id, row.size, Number(event.target.value))} className="w-20 border-b border-neutral-200 py-1 text-[12px] outline-none focus:border-black" />}</td>
+                        <td className="px-4 py-3">{row.overall ? <input type="number" min="0" defaultValue={row.stock} onBlur={async (event) => { const stock = Number(event.target.value); if (stock < 0) return; const response = await fetch("/api/admin/stock", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId: row.product.id, stock }) }); if (!response.ok) return; const result = await response.json(); setProducts((previous) => previous.map((product) => product.id === row.product.id ? { ...product, stock: result.stock } : product)); if (stock > 0) await notifyRestockRequests(row.product.id); }} className="w-20 border-b border-neutral-200 py-1 text-[12px] outline-none focus:border-black" /> : <input type="number" min="0" defaultValue={row.stock} onBlur={(event) => updateSizeStock(row.product.id, row.size, Number(event.target.value))} className="w-20 border-b border-neutral-200 py-1 text-[12px] outline-none focus:border-black" />}</td>
                         <td className="px-4 py-3 text-[10px] uppercase tracking-wide text-neutral-400">{row.stock === 0 ? "Out of stock" : row.stock < 5 ? "Low stock" : "Available"}</td>
                       </tr>
                     ))}

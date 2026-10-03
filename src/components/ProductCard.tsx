@@ -7,6 +7,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
 import { useCurrency } from "@/context/CurrencyContext";
 import { getStorefrontSlugForCategory } from "@/lib/categories";
+import { useState } from "react";
 
 interface ProductCardProps {
   product: {
@@ -20,10 +21,11 @@ interface ProductCardProps {
     sizes?: string[] | null;
     stock?: number | null;
     size_stock?: { size: string; stock: number }[];
+    color_options?: { name: string; hex: string; image_url?: string }[] | null;
   };
 }
 
-const translateDisplayText = (value?: string | null) => {
+export const translateDisplayText = (value?: string | null) => {
   if (!value) return value ?? "";
 
   return value
@@ -81,13 +83,59 @@ const translateDisplayText = (value?: string | null) => {
     .replace(/Kum/g, "Sand")
     .replace(/Çizgili/g, "Striped")
     .replace(/Zümrüt/g, "Emerald")
-    .replace(/Şık/g, "Stylish");
+    .replace(/Şık/g, "Stylish")
+    .replace(/Koyu Kahve/g, "Dark Brown")
+    .replace(/Koyu Bej/g, "Dark Beige")
+    .replace(/Kesimli/g, "Tailored")
+    .replace(/Koyu/g, "Dark")
+    .replace(/Kahve/g, "Brown")
+    .replace(/Bluz/g, "Blouse")
+    .replace(/Ekru|Krem/g, "Cream")
+    .replace(/Drapeli/g, "Draped")
+    .replace(/Motorcu/g, "Biker")
+    .replace(/Kapitone/g, "Quilted")
+    .replace(/Zincirli/g, "Chain")
+    .replace(/Fiyonklu/g, "Bow")
+    .replace(/Monokrom/g, "Monochrome")
+    .replace(/Jakar/g, "Jacquard")
+    .replace(/Yün/g, "Wool")
+    .replace(/Pamuklu/g, "Cotton")
+    .replace(/Likit/g, "Liquid")
+    .replace(/Işıltılı/g, "Shimmering")
+    .replace(/Far/g, "Eyeshadow")
+    .replace(/Bilekten Bağlamalı/g, "Ankle-Strap")
+    .replace(/Bileklik/g, "Bracelet")
+    .replace(/Kargo/g, "Cargo")
+    .replace(/Kesim/g, "Cut")
+    .replace(/Kömür/g, "Charcoal")
+    .replace(/İnci/g, "Pearl")
+    .replace(/Bordo/g, "Burgundy")
+    .replace(/Beltli/g, "Belted")
+    .replace(/Organik/g, "Organic")
+    .replace(/Pamuk/g, "Cotton")
+    .replace(/Bebe/g, "Baby")
+    .replace(/Topuklu/g, "Heeled")
+    .replace(/Bebek Mavi/g, "Baby Blue")
+    .replace(/Jakar/g, "Jacquard")
+    .replace(/Kruvaze/g, "Double-Breasted")
+    .replace(/Keten/g, "Linen")
+    .replace(/Saten/g, "Satin")
+    .replace(/Deri/g, "Leather")
+    .replace(/Süet/g, "Suede")
+    .replace(/Altın/g, "Gold")
+    .replace(/Gözlüğü/g, "Glasses")
+    .replace(/Güneş/g, "Sun")
+    .replace(/Bagssı/g, "Bag")
+    .replace(/Baby Blue Heeled/g, "Baby Blue Pumps");
 };
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { addItem } = useCart();
   const { formatPrice } = useCurrency();
+  const isDemoProduct = product.image_url.startsWith("/demo-products/");
+  const colorOptions = isDemoProduct ? [] : product.color_options ?? [];
+  const [selectedColor, setSelectedColor] = useState(colorOptions[0] ?? null);
   const isFav = isFavorite(product.id);
   const displayCategory = translateDisplayText(product.category);
   const displayName = translateDisplayText(product.name);
@@ -99,7 +147,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     : Number(product.stock ?? 0) > 0;
 
   return (
-    <div className="group relative" data-testid="product-card" data-product-id={product.id}>
+    <div className="group relative transition-transform duration-500 hover:-translate-y-1 motion-safe:animate-[catalog-enter_450ms_ease-out_both]" data-testid="product-card" data-product-id={product.id}>
       {/* Favorite Button */}
       <button
         onClick={(e) => {
@@ -128,10 +176,10 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
           <Image
-            src={product.image_url}
-            alt={product.name}
+            src={selectedColor?.image_url ?? product.image_url}
+            alt={displayName}
             fill
-            className={`object-cover object-top transition-transform duration-700 group-hover:scale-105 ${hasStock ? "" : "grayscale-[35%]"}`}
+            className={`object-cover object-top origin-top transition-transform duration-700 ${isDemoProduct ? "scale-[1.08] group-hover:scale-[1.12]" : "group-hover:scale-105"} ${hasStock ? "" : "grayscale-[35%]"}`}
           />
           {!hasStock && <span className="absolute inset-x-0 top-1/2 z-10 mx-auto w-fit -translate-y-1/2 border border-white/50 bg-black/75 px-5 py-3 text-[9px] font-medium uppercase tracking-[0.28em] text-white backdrop-blur-sm">Out of stock</span>}
         </Link>
@@ -139,7 +187,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {hasStock && <button
           onClick={() => {
             if (product.sizes?.length) return;
-            addItem({ id: product.id, name: product.name, price: product.price, image_url: product.image_url, category: product.category, size: null });
+            addItem({ id: product.id, name: displayName, price: product.price, image_url: selectedColor?.image_url ?? product.image_url, category: product.category, size: null, color: selectedColor?.name ?? null });
           }}
           className={`absolute inset-x-0 bottom-0 bg-black/80 py-3 text-center transition-transform duration-400 ${product.sizes?.length ? "hidden" : "translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0"}`}
           data-testid="product-card-add-to-cart"
@@ -155,6 +203,26 @@ export default function ProductCard({ product }: ProductCardProps) {
           </Link>
         ) : null}
       </div>
+
+      {colorOptions.length > 0 && (
+        <div className="mb-2 flex items-center gap-2" aria-label={`${colorOptions.length} colors available`}>
+          <div className="flex items-center gap-1.5">
+            {colorOptions.map((color) => (
+              <button
+                key={color.name}
+                type="button"
+                title={color.name}
+                aria-label={`Show ${color.name} ${displayName}`}
+                aria-pressed={selectedColor?.name === color.name}
+                onClick={() => setSelectedColor(color)}
+                className={`h-3.5 w-3.5 rounded-full border border-black/15 transition-transform hover:scale-125 ${selectedColor?.name === color.name ? "ring-1 ring-black ring-offset-1" : ""}`}
+                style={{ backgroundColor: color.hex }}
+              />
+            ))}
+          </div>
+          <span className="text-[9px] uppercase tracking-[0.12em] text-neutral-400">{colorOptions.length} colors</span>
+        </div>
+      )}
 
       <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="block">
         <div className="flex flex-col gap-1">

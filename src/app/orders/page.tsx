@@ -11,6 +11,8 @@ type OrderItem = {
   id: string;
   quantity: number;
   unit_price: number;
+  size?: string | null;
+  color?: string | null;
   product_id: string | null;
   products?: { name: string; image_url: string } | null;
 };
@@ -52,7 +54,7 @@ export default function OrdersPage() {
 
       const { data, error: ordersError } = await supabase
         .from("orders")
-        .select("id, total, status, payment_method, placed_at, order_items(id, quantity, unit_price, product_id, products(name, image_url))")
+        .select("id, total, status, payment_method, placed_at, order_items(id, quantity, unit_price, product_id, size, color, products(name, image_url))")
         .eq("user_id", userId)
         .order("placed_at", { ascending: false });
 

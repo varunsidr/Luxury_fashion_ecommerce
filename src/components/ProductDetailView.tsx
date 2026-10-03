@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, Minus, Plus, ChevronDown, X, Star } from "lucide-react";
@@ -9,7 +9,8 @@ import { useCart } from "@/context/CartContext";
 import { useCurrency } from "@/context/CurrencyContext";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
-import { Product } from "@/lib/productTypes";
+import { translateDisplayText } from "@/components/ProductCard";
+import { Product, ProductColorOption } from "@/lib/productTypes";
 
 interface Review {
   id: string;
@@ -41,67 +42,21 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
   const { addItem } = useCart();
   const { formatPrice } = useCurrency();
   const isFav = isFavorite(product.id.toString());
-  const displayCategory = product.category
-    ? product.category
-        .replace(/Kadın/g, "Women")
-        .replace(/Erkek/g, "Men")
-        .replace(/Elbise/g, "Dress")
-        .replace(/Bluz/g, "Blouse")
-        .replace(/Gömlek/g, "Shirt")
-        .replace(/Pantolon/g, "Trousers")
-        .replace(/Etek/g, "Skirt")
-        .replace(/Ceket/g, "Jacket")
-        .replace(/Takım/g, "Suit")
-        .replace(/Ayakkabı/g, "Shoes")
-        .replace(/Çanta/g, "Bag")
-        .replace(/Aksesuar/g, "Accessories")
-        .replace(/Parfüm/g, "Perfume")
-        .replace(/Makyaj/g, "Makeup")
-        .replace(/Çok Satan/g, "Best Seller")
-        .replace(/Öne Çıkan/g, "Featured")
-        .replace(/Yeni/g, "New")
-        .replace(/Klasik/g, "Classic")
-        .replace(/Avangart/g, "Avant-garde")
-    : "";
+  const displayCategory = translateDisplayText(product.category);
   const [schemaCopyStatus, setSchemaCopyStatus] = useState<string | null>(null);
-  const displayProductName = product.name
-    ? product.name
-        .replace(/Kadın/g, "Women")
-        .replace(/Erkek/g, "Men")
-        .replace(/Elbise/g, "Dress")
-        .replace(/Bluz/g, "Blouse")
-        .replace(/Gömlek/g, "Shirt")
-        .replace(/Pantolon/g, "Trousers")
-        .replace(/Etek/g, "Skirt")
-        .replace(/Ceket/g, "Jacket")
-        .replace(/Takım/g, "Suit")
-        .replace(/Ayakkabı/g, "Shoes")
-        .replace(/Çanta/g, "Bag")
-        .replace(/Aksesuar/g, "Accessories")
-        .replace(/Parfüm/g, "Perfume")
-        .replace(/Makyaj/g, "Makeup")
-        .replace(/Süet/g, "Suede")
-        .replace(/Keten/g, "Linen")
-        .replace(/Deri/g, "Leather")
-        .replace(/Pırlanta/g, "Diamond")
-        .replace(/Saat/g, "Watch")
-        .replace(/Gözlüğü/g, "Glasses")
-        .replace(/Göz Kalemi/g, "Eyeliner")
-        .replace(/Ruj/g, "Lipstick")
-        .replace(/Kapatıcı/g, "Concealer")
-        .replace(/Fondöten/g, "Foundation")
-        .replace(/Allık/g, "Blush")
-        .replace(/Dudak/g, "Lip")
-        .replace(/Parlatıcı/g, "Gloss")
-        .replace(/Koleksiyon/g, "Collection")
-        .replace(/Yazlık/g, "Summer")
-    : "";
+  const displayProductName = translateDisplayText(product.name);
+  const isDemoProduct = product.image_url.startsWith("/demo-products/");
+  const colorOptions = isDemoProduct ? [] : product.color_options ?? [];
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<ProductColorOption | null>(colorOptions[0] ?? null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [notifyEmail, setNotifyEmail] = useState("");
+  const [notifyStatus, setNotifyStatus] = useState("");
+  const [notifySubmitting, setNotifySubmitting] = useState(false);
 
   // Size-based stock
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
@@ -162,6 +117,32 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
       ? null
       : Number(product.stock ?? 0);
   const isOutOfStock = availableStock !== null && availableStock <= 0;
+  const isProductOutOfStock = (product.sizes?.length ?? 0) > 0
+    ? sizeStocks.length > 0 ? sizeStocks.every((entry) => Number(entry.stock) <= 0) : Number(product.stock ?? 0) <= 0
+    : Number(product.stock ?? 0) <= 0;
+
+  async function requestRestockNotice(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setNotifySubmitting(true);
+    setNotifyStatus("");
+    try {
+      const response = await fetch("/api/restock-notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.id, email: notifyEmail, size: selectedSize, color: selectedColor?.name ?? null }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? "Could not save your request.");
+      setNotifyStatus(result.emailConfigured
+        ? "You're on the list. We'll email you when it's available."
+        : "Your request is saved. Email alerts need to be enabled by the store first.");
+      setNotifyEmail("");
+    } catch (error) {
+      setNotifyStatus(error instanceof Error ? error.message : "Could not save your request.");
+    } finally {
+      setNotifySubmitting(false);
+    }
+  }
 
   useEffect(() => {
     if (availableStock !== null && availableStock > 0) {
@@ -196,7 +177,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
     };
 
     // Immediately show the user's review optimistically
-    setReviews((prev) => [tempReview as any, ...prev]);
+    setReviews((prev) => [tempReview, ...prev]);
     setReviewForm({ name: "", rating: 0, comment: "" });
     setImagePreviews([]);
     setReviewImages([]);
@@ -291,7 +272,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
       await navigator.clipboard.writeText(text);
       setSchemaCopyStatus('copied');
       setTimeout(() => setSchemaCopyStatus(null), 3000);
-    } catch (err: any) {
+    } catch {
       setSchemaCopyStatus('error');
       setTimeout(() => setSchemaCopyStatus(null), 3000);
     }
@@ -301,7 +282,10 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
     : 0;
 
-  const images: string[] = product.images?.length ? product.images : [product.image_url];
+  const images: string[] = isDemoProduct ? [product.image_url] : product.images?.length ? product.images : [product.image_url];
+  const colorImages = colorOptions.map((color) => color.image_url).filter((url): url is string => Boolean(url));
+  const galleryImages = colorImages.length ? [...new Set(colorImages)] : images;
+  const displayImage = galleryImages[selectedImage] ?? product.image_url;
   const sizes: string[] = product.sizes ?? [];
   const asLines = (value: string | null | undefined, fallback: string[]) =>
     value ? value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean) : fallback;
@@ -341,7 +325,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
             {" "}&rsaquo;{" "}
             <Link href={`/${mainCategory.toLowerCase().replace(/ı/g, 'i')}`} className="hover:text-black transition-colors">{mainCategory === 'Kadın' ? 'Women' : mainCategory === 'Erkek' ? 'Men' : mainCategory}</Link>
             {" "}&rsaquo;{" "}
-            <span className="text-neutral-600">{product.name}</span>
+            <span className="text-neutral-600">{displayProductName}</span>
           </p>
         </div>
       </div>
@@ -373,10 +357,10 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
               {/* Main image */}
               <div className="relative flex-1 aspect-[3/4] overflow-hidden bg-neutral-50">
                 <Image
-                  src={images[selectedImage]}
-                  alt={product.name}
+                  src={displayImage}
+                  alt={displayProductName}
                   fill
-                  className="object-cover object-top"
+                  className={`object-cover object-top origin-top ${isDemoProduct ? "scale-[1.08]" : ""}`}
                   priority
                 />
               </div>
@@ -413,6 +397,23 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
               <p className="text-[18px] font-medium text-neutral-900 mb-8">
                 {formatPrice(product.price)}
               </p>
+
+              {colorOptions.length > 0 && (
+                <div className="mb-8">
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Color</span>
+                    <span className="text-[11px] text-neutral-500">{selectedColor?.name}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {colorOptions.map((color) => (
+                      <button key={color.name} type="button" onClick={() => { setSelectedColor(color); if (color.image_url) setSelectedImage(Math.max(0, galleryImages.indexOf(color.image_url))); }}
+                        aria-label={`Select ${color.name}`} aria-pressed={selectedColor?.name === color.name}
+                        className={`h-8 w-8 rounded-full border border-black/15 transition-transform hover:scale-110 ${selectedColor?.name === color.name ? "ring-1 ring-black ring-offset-2" : ""}`}
+                        style={{ backgroundColor: color.hex }} />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {product.description && (
                 <p className="text-[13px] text-neutral-500 font-light leading-relaxed mb-8">
@@ -467,6 +468,19 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                 </div>
               )}
 
+              {(isProductOutOfStock || isOutOfStock) && (
+                <form onSubmit={requestRestockNotice} className="mb-8 border border-neutral-200 bg-neutral-50 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-700">Out of stock</p>
+                  <p className="mt-1 text-xs font-light text-neutral-500">Get an email when this {selectedSize ? "size" : "item"} is back.</p>
+                  <div className="mt-3 flex gap-2">
+                    <input type="email" required value={notifyEmail} onChange={(event) => setNotifyEmail(event.target.value)} placeholder="Your email address"
+                      aria-label="Email address for restock notification" className="min-w-0 flex-1 border-b border-neutral-300 bg-transparent px-1 py-2 text-xs outline-none focus:border-black" />
+                    <button type="submit" disabled={notifySubmitting} className="bg-black px-4 py-2 text-[9px] uppercase tracking-[0.16em] text-white disabled:opacity-50">{notifySubmitting ? "Saving" : "Notify me"}</button>
+                  </div>
+                  {notifyStatus && <p role="status" className="mt-3 text-xs text-neutral-600">{notifyStatus}</p>}
+                </form>
+              )}
+
               {/* Quantity */}
               <div className="mb-8">
                 <span className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase mb-3 block">Quantity</span>
@@ -495,7 +509,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
               {/* Add to cart + Fav */}
               <div className="flex gap-3 mb-8">
                 <button
-                  onClick={() => !isOutOfStock && (sizes.length === 0 || selectedSize) && addItem({ id: product.id.toString(), name: product.name, price: product.price, image_url: images[0], category: product.category, size: selectedSize }, quantity)}
+                  onClick={() => !isOutOfStock && (sizes.length === 0 || selectedSize) && addItem({ id: product.id.toString(), name: displayProductName, price: product.price, image_url: displayImage, category: product.category, size: selectedSize, color: selectedColor?.name ?? null }, quantity)}
                   disabled={isOutOfStock || (availableStock !== null && quantity > availableStock) || (sizes.length > 0 && !selectedSize)}
                   data-testid="product-detail-add-to-cart"
                   className={`flex-1 py-3.5 text-[11px] tracking-[0.25em] uppercase font-medium transition-colors duration-300 ${

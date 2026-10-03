@@ -66,7 +66,7 @@ export default function CheckoutPage() {
         Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
-        items: items.map(({ id, quantity }) => ({ id, quantity })),
+        items: items.map(({ id, quantity, size, color }) => ({ id, quantity, size, color })),
         shippingAddress: form,
         paymentMethod,
       }),
@@ -114,7 +114,9 @@ export default function CheckoutPage() {
           <section>
             <p className="text-[10px] uppercase tracking-[0.4em] text-neutral-400">Checkout</p>
             <h1 className="mt-3 font-playfair text-4xl font-light text-neutral-900">Complete your order</h1>
-            <p className="mt-3 text-sm font-light text-neutral-500">Demo checkout. No real payment will be charged.</p>
+            <p className="mt-3 border border-neutral-200 bg-white p-4 text-sm font-light leading-relaxed text-neutral-600">
+              Demo checkout only: no payment is charged and no order is shipped. Orders may be saved in the demo database and reduce demo stock. Use fictional contact and address details.
+            </p>
 
             {!userId && (
               <div className="mt-8 border border-neutral-200 bg-white p-5 text-sm text-neutral-600">
@@ -157,8 +159,8 @@ export default function CheckoutPage() {
                   </label>
                   <label className={`cursor-pointer border p-4 text-sm transition-colors ${paymentMethod === "cash_on_delivery" ? "border-black" : "border-neutral-200"}`}>
                     <input type="radio" name="payment" value="cash_on_delivery" checked={paymentMethod === "cash_on_delivery"} onChange={() => setPaymentMethod("cash_on_delivery")} className="sr-only" />
-                    <span className="block font-medium">Cash on delivery</span>
-                    <span className="mt-1 block text-xs font-light text-neutral-400">Pay when your order arrives</span>
+                    <span className="block font-medium">Simulated cash on delivery</span>
+                    <span className="mt-1 block text-xs font-light text-neutral-400">Demo order only; no delivery is arranged</span>
                   </label>
                 </div>
                 {paymentMethod === "card_demo" && (
@@ -170,7 +172,7 @@ export default function CheckoutPage() {
               {error && <p className="border border-red-200 bg-red-50 p-4 text-sm text-red-600">{error}</p>}
               <button type="submit" disabled={submitting || !userId || items.length === 0} className="flex w-full items-center justify-center gap-2 bg-black py-4 text-[10px] font-medium uppercase tracking-[0.25em] text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
                 {submitting && <Loader2 size={14} className="animate-spin" />}
-                {paymentMethod === "card_demo" ? "Simulate payment" : "Place order"}
+                {paymentMethod === "card_demo" ? "Simulate payment" : "Place demo order"}
               </button>
             </form>
           </section>
@@ -182,10 +184,10 @@ export default function CheckoutPage() {
             </div>
             <div className="divide-y divide-neutral-100">
               {items.map((item) => (
-                <div key={`${item.id}-${item.size}`} className="flex justify-between gap-4 py-5 text-sm">
+                <div key={`${item.id}-${item.size}-${item.color ?? ""}`} className="flex justify-between gap-4 py-5 text-sm">
                   <div>
                     <p className="font-playfair text-base text-neutral-900">{item.name}</p>
-                    <p className="mt-1 text-xs text-neutral-400">{item.size ? `Size ${item.size} · ` : ""}Qty {item.quantity}</p>
+                    <p className="mt-1 text-xs text-neutral-400">{item.size ? `Size ${item.size} · ` : ""}{item.color ? `Color ${item.color} · ` : ""}Qty {item.quantity}</p>
                   </div>
                   <span className="whitespace-nowrap text-sm">{formatPrice(item.price * item.quantity)}</span>
                 </div>

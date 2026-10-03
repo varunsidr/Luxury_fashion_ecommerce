@@ -14,32 +14,32 @@ import { useCurrency } from "@/context/CurrencyContext";
 const navLinks = [
   {
     label: "WOMEN",
-    href: "/kadin",
+    href: "/women",
     mega: {
       columns: [
         {
           title: "Clothing",
           links: [
-            { label: "All Women", href: "/kadin" },
-            { label: "Dress", href: "/kadin/elbise" },
-            { label: "Blouse & Shirt", href: "/kadin/bluz" },
-            { label: "Jacket", href: "/kadin/ceket" },
-            { label: "Skirt", href: "/kadin/etek" },
-            { label: "Trousers", href: "/kadin/pantolon" },
+            { label: "All Women", href: "/women" },
+            { label: "Dress", href: "/women/dress" },
+            { label: "Blouse & Shirt", href: "/women/blouse" },
+            { label: "Jacket", href: "/women/jacket" },
+            { label: "Skirt", href: "/women/skirt" },
+            { label: "Trousers", href: "/women/trousers" },
           ],
         },
         {
           title: "Outerwear",
           links: [
-            { label: "Jacket", href: "/kadin/ceket" },
+            { label: "Jacket", href: "/women/jacket" },
           ],
         },
         {
           title: "Highlights",
           links: [
-            { label: "New Arrivals", href: "/kadin/yeni" },
-            { label: "Best Sellers", href: "/kadin/cok-satan" },
-            { label: "Spring / Summer 2026", href: "/kadin/koleksiyon" },
+            { label: "New Arrivals", href: "/women/new-arrivals" },
+            { label: "Best Sellers", href: "/women/best-sellers" },
+            { label: "Spring / Summer 2026", href: "/women/collection" },
           ],
         },
       ],
@@ -49,30 +49,30 @@ const navLinks = [
   },
   {
     label: "MEN",
-    href: "/erkek",
+    href: "/men",
     mega: {
       columns: [
         {
           title: "Clothing",
           links: [
-            { label: "All Men", href: "/erkek" },
-            { label: "Suit", href: "/erkek/takim" },
-            { label: "Shirt", href: "/erkek/gomlek" },
-            { label: "Trousers", href: "/erkek/pantolon" },
+            { label: "All Men", href: "/men" },
+            { label: "Suit", href: "/men/suits" },
+            { label: "Shirt", href: "/men/shirts" },
+            { label: "Trousers", href: "/men/trousers" },
           ],
         },
         {
           title: "Outerwear",
           links: [
-            { label: "Jacket", href: "/erkek/ceket" },
+            { label: "Jacket", href: "/men/jacket" },
           ],
         },
         {
           title: "Highlights",
           links: [
-            { label: "New Arrivals", href: "/erkek/yeni" },
-            { label: "Best Sellers", href: "/erkek/cok-satan" },
-            { label: "Spring / Summer 2026", href: "/erkek/koleksiyon" },
+            { label: "New Arrivals", href: "/men/new-arrivals" },
+            { label: "Best Sellers", href: "/men/best-sellers" },
+            { label: "Spring / Summer 2026", href: "/men/collection" },
           ],
         },
       ],
@@ -80,11 +80,11 @@ const navLinks = [
       imageLabel: "Men's Collection",
     },
   },
-  { label: "PERFUME", href: "/parfum", mega: null },
-  { label: "SHOES", href: "/ayakkabi", mega: null },
-  { label: "ACCESSORIES", href: "/aksesuar", mega: null },
-  { label: "BAGS", href: "/canta", mega: null },
-  { label: "MAKEUP", href: "/makyaj", mega: null },
+  { label: "PERFUME", href: "/perfume", mega: null },
+  { label: "SHOES", href: "/shoes", mega: null },
+  { label: "ACCESSORIES", href: "/accessories", mega: null },
+  { label: "BAGS", href: "/bags", mega: null },
+  { label: "MAKEUP", href: "/makeup", mega: null },
 ];
 
 export default function Navbar() {
@@ -108,7 +108,7 @@ export default function Navbar() {
     if (!q) return;
     setSearchOpen(false);
     setSearchQuery("");
-    router.push(`/arama?q=${encodeURIComponent(q)}`);
+    router.push(`/search?q=${encodeURIComponent(q)}`);
   };
 
   useEffect(() => {
@@ -350,7 +350,7 @@ export default function Navbar() {
 
             {/* Favorites — sadece desktop */}
             <Link
-              href="/favorilerim"
+              href="/favorites"
                 className="relative p-1.5 transition-all duration-300 hover:scale-110 group hidden md:block"
                 aria-label="Favorites"
                 data-testid="navbar-favorites-link"
@@ -529,7 +529,7 @@ export default function Navbar() {
             <h2
               className="text-[20px] tracking-[0.35em] font-medium font-playfair"
             >
-              EL&apos;S
+              zeouf
             </h2>
             <button
               onClick={() => setMobileMenuOpen(false)}
@@ -571,7 +571,7 @@ export default function Navbar() {
               {user ? <LogOut size={20} strokeWidth={1.5} /> : <User size={20} strokeWidth={1.5} />}
             </button>
             <Link
-              href="/favorilerim"
+              href="/favorites"
               onClick={() => setMobileMenuOpen(false)}
               className="relative p-2 transition-all duration-300 hover:scale-110"
               aria-label="Favorites"
@@ -681,7 +681,7 @@ export default function Navbar() {
                     Welcome
                   </h3>
                   <p className="text-[12px] text-neutral-400 font-light mb-10">
-                    Sign in to your EL&apos;S account
+                    Sign in to your zeouf account
                   </p>
 
                   <form onSubmit={handleLogin} className="flex flex-col gap-5" data-testid="navbar-login-form">
@@ -756,7 +756,7 @@ export default function Navbar() {
 
                   <p className="text-[11px] text-neutral-400 font-light mt-4 leading-relaxed">
                     By signing in you agree to the{" "}
-                    <Link href="/kullanim-kosullari" onClick={() => setLoginOpen(false)} className="underline underline-offset-2 hover:text-neutral-700 transition-colors">
+                    <Link href="/terms" onClick={() => setLoginOpen(false)} className="underline underline-offset-2 hover:text-neutral-700 transition-colors">
                       Terms of Service
                     </Link>.
                   </p>
@@ -774,7 +774,7 @@ export default function Navbar() {
                     Register
                   </h3>
                   <p className="text-[12px] text-neutral-400 font-light mb-10">
-                    Join EL&apos;S
+                    Join zeouf
                   </p>
 
                   <form onSubmit={handleRegister} className="flex flex-col gap-5" data-testid="navbar-register-form">
@@ -878,7 +878,7 @@ export default function Navbar() {
 
                   <p className="text-[11px] text-neutral-400 font-light mt-4 leading-relaxed">
                     By registering you accept the{" "}
-                    <Link href="/kullanim-kosullari" onClick={() => setLoginOpen(false)} className="underline underline-offset-2 hover:text-neutral-700 transition-colors">
+                    <Link href="/terms" onClick={() => setLoginOpen(false)} className="underline underline-offset-2 hover:text-neutral-700 transition-colors">
                       Terms of Service
                     </Link>.
                   </p>
@@ -898,7 +898,7 @@ export default function Navbar() {
           {/* Bottom */}
           <div className="px-8 py-6 border-t border-neutral-100 text-center">
             <p className="text-[10px] tracking-[0.1em] text-neutral-400">
-              By signing in you accept the <Link href="/kullanim-kosullari" onClick={() => setLoginOpen(false)} className="underline hover:text-black transition-colors">Terms of Service</Link>.
+              By signing in you accept the <Link href="/terms" onClick={() => setLoginOpen(false)} className="underline hover:text-black transition-colors">Terms of Service</Link>.
             </p>
           </div>
         </div>
@@ -939,7 +939,7 @@ export default function Navbar() {
             ) : (
               <ul className="divide-y divide-neutral-100">
                 {items.map((item) => (
-                  <li key={`${item.id}-${item.size}`} data-testid="navbar-cart-item" className="flex gap-4 px-8 py-5">
+                  <li key={`${item.id}-${item.size}-${item.color ?? ""}`} data-testid="navbar-cart-item" className="flex gap-4 px-8 py-5">
                     <div className="relative w-20 aspect-[3/4] flex-shrink-0 bg-neutral-50 overflow-hidden">
                       <Image src={item.image_url} alt={item.name} fill className="object-cover object-top" />
                     </div>
@@ -950,14 +950,15 @@ export default function Navbar() {
                         {item.size && (
                           <p className="text-[11px] text-neutral-400 mt-0.5">Size: {item.size}</p>
                         )}
+                        {item.color && <p className="text-[11px] text-neutral-400 mt-0.5">Color: {item.color}</p>}
                       </div>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center border border-neutral-200">
-                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center hover:bg-neutral-50 transition-colors text-neutral-500">
+                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1, item.color)} className="w-7 h-7 flex items-center justify-center hover:bg-neutral-50 transition-colors text-neutral-500">
                             −
                           </button>
                           <span className="w-8 text-center text-[12px]">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)} className="w-7 h-7 flex items-center justify-center hover:bg-neutral-50 transition-colors text-neutral-500">
+                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1, item.color)} className="w-7 h-7 flex items-center justify-center hover:bg-neutral-50 transition-colors text-neutral-500">
                             +
                           </button>
                         </div>
@@ -965,7 +966,7 @@ export default function Navbar() {
                           <p className="text-[13px] font-medium">
                             {formatPrice(item.price * item.quantity)}
                           </p>
-                          <button onClick={() => removeItem(item.id, item.size)} className="text-neutral-300 hover:text-red-400 transition-colors">
+                          <button onClick={() => removeItem(item.id, item.size, item.color)} className="text-neutral-300 hover:text-red-400 transition-colors">
                             <X size={14} strokeWidth={1.5} />
                           </button>
                         </div>

@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getClientAddress, isRateLimited } from "@/lib/rateLimit";
 
 type CheckoutBody = {
-  items?: Array<{ id?: unknown; quantity?: unknown }>;
+  items?: Array<{ id?: unknown; quantity?: unknown; size?: unknown; color?: unknown }>;
   shippingAddress?: {
     fullName?: unknown;
     phone?: unknown;
@@ -49,18 +49,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Your cart or shipping details are invalid." }, { status: 400 });
   }
 
-  const normalizedItems: Array<{ id: string; quantity: number }> = [];
+  const normalizedItems: Array<{ id: string; quantity: number; size: string | null; color: string | null }> = [];
   for (const item of items) {
     const id = text(item?.id, 100);
     const quantity = Number(item?.quantity);
+    const size = text(item?.size, 30) || null;
+    const color = text(item?.color, 40) || null;
     if (!id || !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
       return NextResponse.json({ error: "A cart item is invalid." }, { status: 400 });
     }
-    const existing = normalizedItems.find((entry) => entry.id === id);
+    const existing = normalizedItems.find((entry) => entry.id === id && entry.size === size && entry.color === color);
     if (existing) {
       existing.quantity += quantity;
       if (existing.quantity > 20) return NextResponse.json({ error: "A cart item exceeds the quantity limit." }, { status: 400 });
-    } else normalizedItems.push({ id, quantity });
+    } else normalizedItems.push({ id, quantity, size, color });
   }
 
   const shippingAddress = {
@@ -88,7 +90,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not verify product stock. Please try again." }, { status: 503 });
   }
   const stockById = new Map((inventory ?? []).map((product) => [String(product.id), Number(product.stock ?? 0)]));
-  if (normalizedItems.some((item) => (stockById.get(item.id) ?? 0) < item.quantity)) {
+  const sizedItems = normalizedItems.filter((item) => item.size);
+  const { data: sizeInventory, error: sizeInventoryError } = sizedItems.length
+    ? await admin.from("product_size_stock").select("product_id, size, stock").in("product_id", [...new Set(sizedItems.map((item) => item.id))])
+    : { data: [], error: null };
+  if (sizeInventoryError) return NextResponse.json({ error: "Could not verify size stock. Please try again." }, { status: 503 });
+  const stockBySize = new Map((sizeInventory ?? []).map((row) => [`${row.product_id}:${row.size}`, Number(row.stock ?? 0)]));
+  if (normalizedItems.some((item) => item.size
+    ? (stockBySize.get(`${item.id}:${item.size}`) ?? 0) < item.quantity
+    : (stockById.get(item.id) ?? 0) < item.quantity)) {
     return NextResponse.json({ error: "One or more items are no longer in stock. Update your cart and try again." }, { status: 409 });
   }
 
