@@ -181,7 +181,7 @@ function validateLinks(root, path, input) {
 }
 
 function summaryText(input, model) {
-  return input.replace(/(maps|contains) (?:\*\*)?\d+(?:\*\*)? requirements across (?:\*\*)?\d+(?:\*\*)? modules/g,
+  return input.replace(/(maps|contains) (?:\*\*)?\d+(?:\*\*)? requirements across (?:\*\*)?\d+(?:\*\*)? modules(?:\*\*)?/g,
     (_, verb) => `${verb} ${model.rows.length} requirements across ${model.modules} modules`)
     .replace(/\*\*\d+ source-level gap findings\*\*/g, `**${model.gaps.size} source-level gap findings**`)
     .replace(/records \d+ source-level gaps/g, `records ${model.gaps.size} source-level gaps`)

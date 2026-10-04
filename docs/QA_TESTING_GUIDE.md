@@ -1,6 +1,6 @@
 # zeouf — QA coverage and test-generation guide
 
-**Baseline:** 2 October 2026; repository source over `bafc692` including working-tree changes. This guide accompanies [BRD.md](BRD.md) and [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv). It contains test designs, not execution results.
+**Baseline:** Source over `3ba7f1c`; documentation tooling coverage updated 4 October 2026. Exact source inputs and reviewer assertions are recorded in requirements-source-snapshot.json and requirements-reviews.json. This guide accompanies [BRD.md](BRD.md) and [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv). It contains test designs, not execution results.
 
 ## 1. Start here
 
@@ -198,3 +198,8 @@ Use requirement execution summaries such as `Not executed`, `Passed`, `Failed`, 
 
 Record absent features as exclusions or target requirements, never imaginary working cases. Record migration/config blockers separately from defects, and require owner decisions for undefined behavior. Revisit impacted cases when schema, options, ownership, rate limits, routes or copy change. Retain test history across BRD/CSV updates.
 
+### Documentation regression coverage (OPS-06)
+
+Run `npm run docs:test` with Node.js 20 or later. The suite creates isolated temporary documentation/source fixtures and removes only those fixtures; no Supabase, Docker, credentials or live data are required. It covers CSV quoting and multiline/manual/custom fields, unchanged results, changed/retired requirement archives, Needs retest after source review, invalid IDs/ranges/source codes, stale generated files, absent snapshots, unreviewed source changes, mismatched review evidence, broken links, retired-ID reuse and idempotent synchronization. Fingerprint scenarios cover line-ending normalization, deleted inputs and exclusion of local secrets/build output.
+
+Then run `npm run docs:check` against the real repository and `npm run build`. A missing review or source drift must fail the documentation gate even after `docs:sync`; synchronization is not approval. Review requires a descriptive summary plus the actual affected IDs, or an explanation using `--no-functional-change`. Commit generated history, snapshot and review log together with the code/docs. These checks prove documentation tooling behavior; they do not establish passing website acceptance, database readiness, migration correctness or mail delivery. Keep the existing application gaps and execution statuses until separately tested.

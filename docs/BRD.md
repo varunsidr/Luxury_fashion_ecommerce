@@ -2,10 +2,10 @@
 
 | Document control | Value |
 |---|---|
-| Version | 1.0 |
+| Version | 1.1 |
 | Prepared | 2 October 2026 |
 | Product | zeouf — Luxury Fashion & Lifestyle |
-| Baseline | Working-tree source reviewed over commit `bafc692`, including existing uncommitted changes |
+| Baseline | Source baseline over commit `3ba7f1c`; documentation tooling reviewed on 4 October 2026. Exact reviewed inputs are recorded in requirements-source-snapshot.json and requirements-reviews.json. |
 | Status | Draft for business and QA review; no stakeholder sign-off recorded |
 | Audience | Customers, product owner, administrators, developers, manual testers, and test-generation tools |
 | Evidence | Repository inspection. No live website, database, email delivery, or end-to-end execution was verified for this document. |
@@ -169,7 +169,7 @@ flowchart LR
 
 **Priority:** P0 = access/data/order integrity; P1 = core customer/admin function; P2 = secondary presentation or convenience. These are suggested QA priorities, pending owner review. Source codes resolve in section 14. The CSV mirrors these rows and leaves execution/test-link fields open.
 
-The catalogue contains **111 requirements across 19 modules** (including nonfunctional requirements), with **24 source-level gap findings** tracked in section 12.
+The catalogue contains 112 requirements across 19 modules (including nonfunctional requirements), with **24 source-level gap findings** tracked in section 12.
 
 ### 6.1 Home, navigation, and routes
 
@@ -364,6 +364,7 @@ The catalogue contains **111 requirements across 19 modules** (including nonfunc
 | OPS-03 | P1 | C | Test seed-user shall create a confirmed test user or reset an existing matched user's password, guarded by nonproduction plus separate test secret; inputs or configured defaults are required. | TESTAPI | New/existing user, missing fields, auth/production |
 | OPS-04 | P1 | C | Dev create-user shall be disabled in production, require x-dev-key when configured, and cap counted dev_auto users at ten; it shall not overwrite non-dev accounts. | DEVUSER | Limit boundary, existing dev/non-dev, helper fallback |
 | OPS-05 | P2 | I | Schema endpoint shall return base SQL as plain text or not-found; database-error copy action uses it. It does not include all migrations or fix the database automatically. | SCHEMAAPI, DETAIL | Schema available/missing, clipboard failure |
+| OPS-06 | P1 | I | Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed. | REQTOOLS | Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions |
 
 ## 7. Business rules and validation
 
@@ -512,6 +513,8 @@ For a fresh test database, review/apply the base schema, review ownership migrat
 
 `npm run seed:products` adds/skips catalog data by name; it is not a reset. The repository documents 280 demo additions (20 per existing database category), but total live count must be measured after seeding. `npm run seed:admin-data` supplies three sample orders and four approved reviews and changes stock; those are demo fixtures, not deterministic empty-state cleanup. Local Docker PostgreSQL is useful for schema/seed work but does not alone provide Supabase Auth/Storage/API/RLS session behavior.
 
+Build prerequisites include current generated documentation and an explicit source review. After inspecting source and updating the BRD/QA guide, run `npm run docs:sync`, then `npm run docs:review -- --summary "Describe the inspected change" --requirements "affected IDs"`, and `npm run docs:check`. Use `--no-functional-change` only when the inspected change has no functional/documentation impact. Commit the CSV, requirements-history.json, requirements-source-snapshot.json and requirements-reviews.json with the relevant code/docs. `npm run docs:test` verifies tooling with isolated temporary fixtures; it does not validate live commerce, database policies or email delivery.
+
 ## 12. Known gaps and business decisions
 
 These are source findings, not executed defect reproductions. Owners and resolution dates are unassigned. A known gap is not permission to mark the corresponding intended requirement passed. Link resulting defect IDs into the RTM after reproduction.
@@ -563,7 +566,7 @@ Documentation creation does not establish that the application meets these crite
 
 ## 14. Source index
 
-Source paths identify implementation evidence; reopen them after changes. The working tree had existing modifications, so commit hash alone does not reproduce this baseline.
+Source paths identify implementation evidence; reopen them after changes. The recorded source snapshot identifies the reviewed baseline, including changes beyond the named commit. Source observations and documentation review remain separate from executed acceptance evidence.
 
 | Code | Evidence files |
 |---|---|
@@ -610,6 +613,7 @@ Source paths identify implementation evidence; reopen them after changes. The wo
 | TESTAPI | [Test reset](../src/app/api/test/reset/route.ts), [test seed-user](../src/app/api/test/seed-user/route.ts) |
 | DEVUSER | [Dev user API](../src/app/api/dev/create-user/route.ts) |
 | SCHEMAAPI | [Schema API](../src/app/api/schema/route.ts) |
+| REQTOOLS | [Requirements synchronizer and review gate](../scripts/requirements.mjs), [regression tests](../scripts/requirements.test.mjs), [npm scripts](../package.json), [requirements workflow](../.github/workflows/requirements.yml) |
 
 ## 15. Glossary and sign-off
 

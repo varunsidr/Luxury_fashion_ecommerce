@@ -1,0 +1,502 @@
+[
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-06",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "English URLs and their legacy redirects/rewrites shall resolve to the intended page, including mapped legacy clothing slugs.",
+      "source_codes": "ROUTE",
+      "qa_focus": "Direct URL, encoded query, redirect destination",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-02",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Verified color options shall expose named swatches and applicable images; selected color accompanies cart line. Products under /demo-products/ shall hide colors and use one demo photograph.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Color/image correspondence, no-color/demo fixtures",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-03",
+      "module": "Product cards and details",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Sized products shall require a chosen available size before add; unavailable sizes are disabled. Missing stock rows and selecting an unavailable size for an alert need resolution (G-09).",
+      "source_codes": "DETAIL",
+      "qa_focus": "No size, stock 0, missing row, mixed stock",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-04",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Detail quantity shall start at one, not decrease below one, clamp to known positive available stock, and disable add/increase when the known limit is reached.",
+      "source_codes": "DETAIL",
+      "qa_focus": "1, stock limit, size change, unknown stock",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-08",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "In-stock unsized cards shall allow quick-add; sized cards shall send the user to choose size; out-of-stock cards shall display unavailable status and hide add controls.",
+      "source_codes": "CARD",
+      "qa_focus": "Sized/unsized/out-of-stock and signed-out actions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-02",
+      "module": "Cart",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Lines shall be identified by product ID + size + color; matching tuples merge quantities and differing options create distinct lines.",
+      "source_codes": "CART",
+      "qa_focus": "Same/different options, null/missing color, repeated add",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-03",
+      "module": "Cart",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Drawer shall show image/name/options/quantity/line total; plus/minus updates quantity; a quantity below one or explicit remove deletes the line.",
+      "source_codes": "CART, NAV",
+      "qa_focus": "Remove at one, variant-specific deletion, total changes",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-03",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Request shall contain 1–50 raw item entries and each normalized variant quantity shall be an integer 1–20; duplicate tuples merge and merged quantity above 20 fails.",
+      "source_codes": "CHECKOUT",
+      "qa_focus": "0/1/50/51 lines, quantity 0/1/20/21/fraction, duplicates",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-05",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Server shall fetch current inventory and use database price snapshots, ignoring browser-supplied prices/totals; selected size inventory applies when size is sent.",
+      "source_codes": "CHECKOUT, DEMOMIG",
+      "qa_focus": "Price tampering, stale price, removed product",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-06",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "A successful transaction shall create one pending order and all lines with quantity, unit price, size/color; decrement inventory and set total to sum of snapshots.",
+      "source_codes": "CHECKOUT, DEMOMIG",
+      "qa_focus": "Sized/unsized/multi-line transactions, shared color stock",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-07",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Insufficient stock at precheck or transaction shall return conflict; transaction failure shall leave no partial order/lines/stock decrement. Competing orders must not oversell.",
+      "source_codes": "CHECKOUT, DEMOMIG",
+      "qa_focus": "Last unit concurrency, later-line failure, DB failure",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-09",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Order service shall reject unsupported size/color and prevent duplicate orders from replay; current validation lacks catalog-option enforcement and idempotency (G-08, G-14).",
+      "source_codes": "CHECKOUT, DEMOMIG",
+      "qa_focus": "Invalid option, sized item without size, repeated identical POST",
+      "known_gap_ids": "G-08; G-14",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-01",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Available alert UI shall accept email for an unavailable item/selected size and save product/email/size/color without customer authentication; invalid email/product shall fail. Specific unavailable-size selection is a UI gap (G-09).",
+      "source_codes": "DETAIL, RESTOCK",
+      "qa_focus": "Guest, whole-product versus size request, invalid product/email",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-02",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Email shall be trimmed/lowercased; duplicate pending product/email/size/color requests shall return already_subscribed; otherwise create one pending record and token.",
+      "source_codes": "RESTOCK, DEMOMIG",
+      "qa_focus": "Case, null options, concurrent duplicate uniqueness",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-03",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Response/UI shall distinguish saved-with-mail-enabled from saved-with-mail-disabled; absent delivery configuration shall keep pending requests.",
+      "source_codes": "RESTOCK, DETAIL, NOTIFY",
+      "qa_focus": "Mail on/off, missing database, queued response",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-04",
+      "module": "Restock alerts",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin positive stock save can trigger up to 100 pending product requests, filtering by size when supplied, and mark successful sends notified; true stock/transition checks, retry scheduling and robust deduplication are incomplete (G-12).",
+      "source_codes": "ADMIN, NOTIFY",
+      "qa_focus": "Size eligibility, provider failure, repeated/concurrent batches",
+      "known_gap_ids": "G-12",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-05",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "GET/POST token unsubscribe shall delete the matching alert and return plain confirmation; malformed token fails, well-formed already-removed token is still successful; public clients cannot directly read the alert table.",
+      "source_codes": "UNSUB, DEMOMIG",
+      "qa_focus": "Valid/repeated/malformed token, privacy/RLS",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-01",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock view shall expose one row per configured size or one Overall row for unsized products; edits save on field blur through protected stock PATCH.",
+      "source_codes": "ADMIN, STOCKAPI",
+      "qa_focus": "Sized/unsized, blur versus typing, expired cookie",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-02",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock API shall reject negative/noninteger values; size save shall upsert product/size row and recalculate product stock from all stored size rows.",
+      "source_codes": "STOCKAPI",
+      "qa_focus": "0/1/4/5, negative/fraction, missing/existing row",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-04",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Size/overall inventory shall remain consistent on failures/concurrent saves; current multi-request stock update is not atomic and size membership is not enforced (G-18).",
+      "source_codes": "STOCKAPI, ADMIN",
+      "qa_focus": "Failure between writes, concurrent edits, unsupported size",
+      "known_gap_ids": "G-08; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-01",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Footer newsletter shall require an email-shaped value, then show preview-only/no-save/no-send feedback. There shall be no implied successful real subscription.",
+      "source_codes": "FOOTER, INFO",
+      "qa_focus": "Invalid/valid email, no network subscription/write",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-02",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Footer shall link all categories, favorites, privacy, terms and maintainer GitHub; information pages shall provide return-home navigation.",
+      "source_codes": "FOOTER, INFO",
+      "qa_focus": "All destinations and external link attributes",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Checkout/privacy/terms shall explain demo limits and stored demo data; generic shipping/returns copy and confirmation wording need alignment (G-22).",
+      "source_codes": "INFO, DETAIL, CHECKOUTUI",
+      "qa_focus": "Content consistency and fictional data guidance",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:23:17.331Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T09:24:40.787Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  }
+]
