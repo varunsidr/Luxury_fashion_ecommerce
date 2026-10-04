@@ -2,10 +2,10 @@
 
 | Document control | Value |
 |---|---|
-| Version | 1.2 |
+| Version | 1.3 |
 | Prepared | 2 October 2026 |
 | Product | zeouf — Luxury Fashion & Lifestyle |
-| Baseline | Storefront polish and registration/admin logout/cart recovery reviewed over commit `3a58270` on 4 October 2026. Exact reviewed inputs are recorded in requirements-source-snapshot.json and requirements-reviews.json. |
+| Baseline | Storefront polish and registration/admin logout/cart recovery in `f6b916d`; README setup/capability corrections and refreshed screenshots reviewed on 4 October 2026. Exact reviewed inputs are recorded in requirements-source-snapshot.json and requirements-reviews.json. |
 | Status | Draft for business and QA review; no stakeholder sign-off recorded |
 | Audience | Customers, product owner, administrators, developers, manual testers, and test-generation tools |
 | Evidence | Repository inspection. No live website, database, email delivery, or end-to-end execution was verified for this document. |
@@ -263,7 +263,7 @@ The catalogue contains 113 requirements across 19 modules (including nonfunction
 | CHK-01 | P0 | C | Order submission shall require valid customer bearer token and nonempty cart; UI disables guest/empty submission and API rejects invalid/expired sessions. | CHECKOUT, CHECKOUTUI | Guest, expired token, forged user ID, empty cart |
 | CHK-02 | P1 | C | All five shipping fields shall be nonempty after server trimming: full name, phone, address, city, postal code; current server truncation limits in section 7 apply. | CHECKOUT, CHECKOUTUI | Missing/whitespace fields, limits, numeric-looking strings |
 | CHK-03 | P0 | C | Request shall contain 1–50 raw item entries and each normalized variant quantity shall be an integer 1–20; duplicate tuples merge and merged quantity above 20 fails. | CHECKOUT | 0/1/50/51 lines, quantity 0/1/20/21/fraction, duplicates |
-| CHK-04 | P1 | D | Checkout shall offer demo card and simulated cash on delivery, clearly state no charge/delivery, and collect/send no card details. Current card flow adds a roughly 1.2-second simulation delay; no decline branch exists. | CHECKOUTUI, CHECKOUT | Both methods, request payload, stale decline copy G-11 |
+| CHK-04 | P1 | D | Checkout shall offer demo card and simulated cash on delivery, clearly state no charge/delivery, and collect/send no card details. Current card flow adds a roughly 1.2-second simulation delay; no decline branch exists. README describes these limits; the UI approval-or-decline label remains misleading (G-11). | CHECKOUTUI, CHECKOUT, PROJECTDOCS | Both methods, request payload, README/current UI distinction, stale UI decline copy G-11 |
 | CHK-05 | P0 | C | Server shall fetch current inventory and use database price snapshots, ignoring browser-supplied prices/totals; selected size inventory applies when size is sent. | CHECKOUT, DEMOMIG | Price tampering, stale price, removed product |
 | CHK-06 | P0 | C | A successful transaction shall create one pending order and all lines with quantity, unit price, size/color; decrement inventory and set total to sum of snapshots. | CHECKOUT, DEMOMIG | Sized/unsized/multi-line transactions, shared color stock |
 | CHK-07 | P0 | C | Insufficient stock at precheck or transaction shall return conflict; transaction failure shall leave no partial order/lines/stock decrement. Competing orders must not oversell. | CHECKOUT, DEMOMIG | Last unit concurrency, later-line failure, DB failure |
@@ -536,7 +536,7 @@ All 24 finding IDs are retained for history. G-01 and G-13 record their resoluti
 | G-08 | Checkout accepts missing size on a sized product and arbitrary color text; stock API accepts arbitrary size text. Routing helper does not enforce product category path. | CHK-09, PDP-01, STK-04 | Validate catalog options/category behavior; add target tests. |
 | G-09 | Zero-stock size buttons are disabled and cannot be selected to subscribe for that size; missing size stock can be treated as unknown and permit add in detail. | PDP-03, RST-01 | Separate option selection for notification from purchasability; define missing-row behavior. |
 | G-10 | One local cart key still persists across sign-out/accounts; no database cart sync or automatic post-login replay. The 4 October 2026 sprint fixes unguarded JSON, invalid rows, missing/null variant equivalence, initial read/write racing and unavailable-storage failures. | CART-01, CART-04 | Account/browser ownership policy remains open; preserve shared-cart baseline and recovery regression coverage. |
-| G-11 | README fictional card-number approval/decline instructions are stale; current UI has no card fields or decline branch despite approval-or-decline wording. | CHK-04 | Align copy/docs to current simulation, or define new decline behavior separately. |
+| G-11 | Historical README fictional card-number approval/decline instructions were corrected on 4 October 2026. Current UI still says approval or decline despite having no card fields or decline branch. | CHK-04 | Documentation portion resolved; align the remaining UI label with the current simulation, or define new decline behavior separately. |
 | G-12 | Notify is triggered on any positive stock save, not verified zero→positive transition. It checks no inventory itself; size-less request can send all sizes; batch limit/retry/concurrent deduplication can leave wrong/missed/duplicate alerts. | RST-04 | Define eligible recipients, scheduling, batching, failure/duplicate guarantees. |
 | G-13 | Historical finding: sidebar logout left the browser cookie valid. Resolved in the 4 October 2026 sprint by awaiting cookie-clearing POST, then clearing UI state and redirecting. | ADM-03 | Retain history; regression verifies real local signed cookie removal, subsequent 401 and failed-request retry. Copied-token revocation is outside this fix. |
 | G-14 | Checkout has no idempotency key/replay protection; identical valid POST can create another order. | CHK-09 | Define retry semantics and duplicate-order prevention. |
@@ -621,6 +621,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | SCHEMAAPI | [Schema API](../src/app/api/schema/route.ts) |
 | REQTOOLS | [Requirements synchronizer and review gate](../scripts/requirements.mjs), [regression tests](../scripts/requirements.test.mjs), [npm scripts](../package.json), [requirements workflow](../.github/workflows/requirements.yml) |
 | UITEST | [Isolated browser-test configuration](../playwright.config.ts), [storefront/auth/cart/logout regressions](../tests/storefront.spec.ts), [browser CI](../.github/workflows/storefront.yml) |
+| PROJECTDOCS | [Repository README, setup instructions and capability limits](../README.md), [current homepage preview](../screenshots/home.png), [fully loaded homepage](../screenshots/home-full.png), [women's listing](../screenshots/kadin.png), [perfume listing](../screenshots/parfum.png) |
 
 ## 15. Glossary and sign-off
 

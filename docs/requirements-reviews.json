@@ -195,5 +195,39 @@
     ],
     "source_digest": "068a53fcc4ccbee7d6bbdd345d307f0a0ed74a26187f81883a59e50629e04b8d",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T11:23:02.114Z",
+    "summary": "Reviewed README and refreshed fully loaded current storefront/admin previews using isolated local fixtures. Corrected clone URL, migration/environment/CI instructions, search and admin capability claims, browser-cart limits and simulated checkout description. Documented screenshot provenance; preserved remaining G-11 UI copy and other open gaps. Website behavior is unchanged.",
+    "requirement_ids": [
+      "NAV-01",
+      "NAV-02",
+      "NAV-03",
+      "SEA-02",
+      "CART-04",
+      "CHK-04",
+      "CHK-07",
+      "ADM-02",
+      "ADM-03",
+      "REV-06",
+      "REV-07",
+      "RST-04",
+      "PRD-02",
+      "PRD-04",
+      "STK-04",
+      "CNT-03",
+      "CNT-04",
+      "OPS-01",
+      "OPS-02",
+      "OPS-06",
+      "OPS-07",
+      "NFR-02"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md"
+    ],
+    "source_digest": "9c209bc1862a0e01ac74c2f69af2e2323afcfc531ea4fee361000d83b48bce14",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

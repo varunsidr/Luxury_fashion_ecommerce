@@ -1281,5 +1281,469 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:01.837Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CHK-04",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Checkout shall offer demo card and simulated cash on delivery, clearly state no charge/delivery, and collect/send no card details. Current card flow adds a roughly 1.2-second simulation delay; no decline branch exists.",
+      "source_codes": "CHECKOUTUI, CHECKOUT",
+      "qa_focus": "Both methods, request payload, stale decline copy G-11",
+      "known_gap_ids": "G-11",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-01",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Home shall show women/men hero content and matching links, with one active local video or still poster, manual slide selection and pause/play. Automatic change occurs about every six seconds while at least 10% visible, tab visible, unpaused and reduced motion disabled. Offscreen/hidden/paused media stops; reduced motion uses still imagery and manual selection.",
+      "source_codes": "HOME",
+      "qa_focus": "Active-only playback, posters, manual selection, pause, offscreen/hidden tab, reduced motion",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-02",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Two collection panels, seven category links, six editorial tiles and the blouse edit shall navigate to configured category/subcategory destinations. The compact homepage uses consistent typography/spacing and explicit demo copy; editorial tiles remain curated category links.",
+      "source_codes": "HOME",
+      "qa_focus": "Every CTA/destination, 375/768/1440 widths, image loading",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-03",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Desktop navigation shall expose seven categories and women's/men's subcategory/highlight menus, with pointer hover and keyboard-operable expanded-state disclosure controls. Escape closes menus; closed menu links are inert.",
+      "source_codes": "NAV, CATDEF",
+      "qa_focus": "Hover, disclosure click/Enter, Escape, inert links, current route",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "SEA-02",
+      "module": "Search",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Results shall combine case-insensitive name and category substring queries and deduplicate by product ID.",
+      "source_codes": "SEARCH, DBCLIENT",
+      "qa_focus": "Name-only/category-only/both matches, case, no matches",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-04",
+      "module": "Cart",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Browser cart shall restore before writing els-cart. Malformed JSON/nonarrays recover to empty; invalid lines are removed while valid lines remain, with recovery feedback. Restored lines require nonempty display fields, supported photo URLs, finite nonnegative numeric prices, positive safe-integer quantities and valid options. Read/write storage failures keep an in-memory bag with a persistence notice. Account separation/sign-out clearing remain unresolved (G-10); no cart_items synchronization exists.",
+      "source_codes": "CART, CARTSTORE, NAV",
+      "qa_focus": "Initial load/reload, mixed invalid rows, duplicate variants, unavailable/quota-limited storage, two accounts",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-04",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Checkout shall offer demo card and simulated cash on delivery, clearly state no charge/delivery, and collect/send no card details. Current card flow adds a roughly 1.2-second simulation delay; no decline branch exists. README describes these limits; the UI approval-or-decline label remains misleading (G-11).",
+      "source_codes": "CHECKOUTUI, CHECKOUT, PROJECTDOCS",
+      "qa_focus": "Both methods, request payload, README/current UI distinction, stale UI decline copy G-11",
+      "known_gap_ids": "G-11",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-07",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Insufficient stock at precheck or transaction shall return conflict; transaction failure shall leave no partial order/lines/stock decrement. Competing orders must not oversell.",
+      "source_codes": "CHECKOUT, DEMOMIG",
+      "qa_focus": "Last unit concurrency, later-line failure, DB failure",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-06",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin review navigation shall provide a coherent moderation experience; direct pending page and sidebar all-review read-only view currently differ, and form results return JSON (G-05).",
+      "source_codes": "ADMIN, MODPAGE, MODAPI",
+      "qa_focus": "Both entry paths, form submission and return flow",
+      "known_gap_ids": "G-05",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-07",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin shall be able to save/remove a reply and customers shall read persisted reply text; helper functions exist without visible reply controls and reply columns are missing from supplied schema/migrations (G-03, G-05).",
+      "source_codes": "ADMIN, DETAIL, SCHEMA, REVIEWMIG",
+      "qa_focus": "No false success, reply persistence, public display",
+      "known_gap_ids": "G-03; G-05; G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-04",
+      "module": "Restock alerts",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin positive stock save can trigger up to 100 pending product requests, filtering by size when supplied, and mark successful sends notified; true stock/transition checks, retry scheduling and robust deduplication are incomplete (G-12).",
+      "source_codes": "ADMIN, NOTIFY",
+      "qa_focus": "Size eligibility, provider failure, repeated/concurrent batches",
+      "known_gap_ids": "G-12",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-02",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Server mutations/private reads shall require admin authority independent of local UI flag; product writes and reply helpers do not use that authority in current implementation (G-06).",
+      "source_codes": "ADMIN, ADMINAUTH, ADMINAPIS, SCHEMA",
+      "qa_focus": "Fake local flag, expired/forged cookie, customer-only session",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-03",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Sidebar logout shall POST the cookie-clearing endpoint and wait for success before removing the local flag and replacing the route with /admin. Failed requests preserve the session and display retry feedback. After successful logout the same browser's protected APIs deny access. This clears the browser cookie; copied signed tokens retain their original expiry.",
+      "source_codes": "ADMIN, ADMINLOGOUT",
+      "qa_focus": "Cookie/flag after sidebar logout, API rejection, request failure/retry, endpoint contracts",
+      "known_gap_ids": "G-13",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-02",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Add/edit shall save name/category/price/overall stock/description/sizes/main image/image list and reflect persisted values; current anonymous-client writes lack admin write policies (G-06).",
+      "source_codes": "ADMIN, SCHEMA",
+      "qa_focus": "Create/edit/reload, permission denied, failed save feedback",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-04",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Product image form shall append pasted URL or one uploaded image per selection, set first image as main, and promote first remaining image when one is removed; uploads use product-images bucket.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Multiple sequential adds, delete first/last, upload failure/host",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-04",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Size/overall inventory shall remain consistent on failures/concurrent saves; current multi-request stock update is not atomic and size membership is not enforced (G-18).",
+      "source_codes": "STOCKAPI, ADMIN",
+      "qa_focus": "Failure between writes, concurrent edits, unsupported size",
+      "known_gap_ids": "G-08; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Home/checkout/privacy/terms shall explain demo limits and stored demo data; generic shipping/returns copy and confirmation wording need alignment (G-22).",
+      "source_codes": "HOME, INFO, DETAIL, CHECKOUTUI",
+      "qa_focus": "Content consistency and fictional data guidance",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-04",
+      "module": "Content and operational utilities",
+      "priority": "P2",
+      "implementation_state": "T",
+      "requirement_and_acceptance": "Holiday countdown component exists but is not mounted by current pages; enabling it needs scope confirmation. It counts to local-browser 31 Dec 2026 23:59:59, clamps at zero, and applies no discount.",
+      "source_codes": "SALE, SHELL",
+      "qa_focus": "Exclude from current UI pass criteria; future timer tests",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-01",
+      "module": "Content and operational utilities",
+      "priority": "P2",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "GET health shall return status ok and timestamp; it is application liveness, not a database/service readiness proof.",
+      "source_codes": "HEALTH",
+      "qa_focus": "JSON and timestamp, no inferred DB health",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-02",
+      "module": "Content and operational utilities",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Test reset shall be nonproduction and test-secret protected; it attempts catalog/favorite/cart/review cleanup and reseed but omits orders/local storage and ignores delete errors (G-23).",
+      "source_codes": "TESTAPI",
+      "qa_focus": "Production 404, wrong secret 401, partial reset",
+      "known_gap_ids": "G-23",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and storefront CI shall exercise Chromium regressions using a dedicated localhost:3100 development server with fixture admin credentials and disabled live Supabase/mail integration. Existing servers shall not be reused. Browser configuration, test sources and workflow changes require documentation review. Test traces/screenshots shall support debugging; mocked signup and local cookie checks are not live commerce/provider acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, CI execution/artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:23:02.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-02",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Service-role, admin, mail and test secrets shall stay server-side; QA utilities shall remain blocked in production and admin cookie shall carry intended secure attributes.",
+      "source_codes": "ADMINAUTH, TESTAPI, DEVUSER, CHECKOUT",
+      "qa_focus": "Client bundle/network/log secret exposure, production guards",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

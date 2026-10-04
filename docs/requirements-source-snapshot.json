@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "reviewed_at": "2026-10-04T11:04:12.114Z",
+  "reviewed_at": "2026-10-04T11:23:02.114Z",
   "files": {
     ".env.example": "3e5d80561f78c5490468c973a776474643fc6d0953186044378482ec82b02a7a",
     ".github/workflows/ci-local.yml": "def9628741d7200e015816bf0a04dd1424d5e207ee84ab9d0e438064e395dc20",
     ".github/workflows/requirements.yml": "3a7969aaa9259e132586acb81fa08347de8b879c7e055859702885d3361725ed",
     ".github/workflows/storefront.yml": "f7968c4d881d2ac3f4d1f0595a827fa954994de66213be8cbbdb9e8112470136",
-    "README.md": "489049c6bc61517dcc3d32068ae62dbbf44f44246356f063deda953820a6dd90",
+    "README.md": "3276d6a0c440afe01b5e44a016f23798200c7bdf74a539a19209ac9153e03634",
     "SECURITY.md": "f9022c772075d302cdf48d620f8015957714f06a9b64e0365b0e998a544c3c1b",
     "architecture.md": "941604ab1d92a41b51d65773b6c6cd5d5fd6d76fbd5780f4b380d1345400c508",
     "docker-compose.yml": "c5e3ebfed805864afa927a7e213056ff3b484a21434c63b8118680b9dc286657",

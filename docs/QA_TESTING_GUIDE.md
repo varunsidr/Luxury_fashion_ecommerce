@@ -191,8 +191,10 @@ Special boundaries:
 - Adding to cart requires sign-in; cart is browser-local and not account-bound.
 - Search is name/category substring matching with deduplication.
 - Colors share stock; demo photograph products hide color options.
-- Public pending-review visibility, confirmation matching, admin writes/logout,
+- Public pending-review visibility, admin writes, account cart ownership,
   notification eligibility, inventory synchronization and order replay have gaps.
+- Password confirmation and browser-cookie admin logout have scoped regression
+  coverage; retain their resolved finding history without claiming full acceptance.
 - Settings, user View, newsletter and unused countdown have documented limits.
 - Checkout server truncates long shipping strings and uses current DB prices.
 - A health response or reset response does not prove database readiness/cleanup.
@@ -221,3 +223,9 @@ Install dependencies with `npm ci`, install Chromium using `npx playwright insta
 Coverage includes 16 local cases for restoration/normalization, malformed/unavailable storage, quantity persistence/reload, mismatch/blank/matching confirmation, real browser-cookie removal and failed logout retry, GET logout origin/cookie attributes, manual/reduced-motion/offscreen media, six editorial destinations, mobile clothing menus, desktop disclosure, drawer focus/Escape, photo failure and keyboard card actions, and mobile/tablet overflow. Screenshots/traces are under ignored `test-results/`; browser CI uploads those artifacts. Turbopack uses an explicit project root; when inspecting a visual change, confirm the built CSS matches source before evaluating screenshots. Await page hydration and reset scroll to the top before capturing full-page screenshots after interactions.
 
 These cases do not cover live Supabase signup/RLS/checkout, copied-token revocation, complete cart ownership policy, all keyboard/screen-reader paths or WCAG conformance. Verify hidden-tab media behavior, quota-limited writes, reveal/tab-reset behavior and provider failures in separate scenarios as needed. Keep overall requirement statuses separate from passing scoped regression cases; preserve G-01/G-13 history and the unresolved portion of G-10.
+
+### README previews and capability accuracy
+
+The README screenshots were refreshed from the `f6b916d` UI on 4 October 2026 using isolated fallback data, INR currency and reduced motion. Desktop previews use 1440px width; category captures include product names/prices. The dashboard uses local catalog data and an empty order-response fixture. Captures wait for fonts and visible images to load; full-page capture first scrolls through every section and checks all image loads before returning to the top. The development indicator is hidden only during capture. These images are presentation references, not evidence of live Supabase permissions, stock synchronization or mail delivery.
+
+Review README links/images, English route labels, setup/migration sequence, current feature limitations and the checkout description when updating previews. CHK-04 has no card-number input or number-based decline simulation; the README portion of G-11 is corrected, while the misleading approval-or-decline UI label remains unresolved. The old database diagram is explicitly historical and must not substitute for the checked-in SQL migrations.
