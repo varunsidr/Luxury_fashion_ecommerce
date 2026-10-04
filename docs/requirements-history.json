@@ -1745,5 +1745,255 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.005Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CAT-07",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall initially reveal at most 24 matches and load 24 more per click; count shall describe matching versus collection totals; loading and empty/no-filter-match states shall appear appropriately.",
+      "source_codes": "LIST",
+      "qa_focus": "0/1/24/25/48/49 products, final batch, clear all",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.005Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CAT-08",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall use local products when Supabase is unconfigured or product fetch fails; fallback browsing shall not imply that order/auth services work.",
+      "source_codes": "LIST, DBCLIENT",
+      "qa_focus": "Unconfigured versus configured service failure",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.005Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and storefront CI shall exercise Chromium regressions using a dedicated localhost:3100 development server with fixture admin credentials and disabled live Supabase/mail integration. Existing servers shall not be reused. Browser configuration, test sources and workflow changes require documentation review. Test traces/screenshots shall support debugging; mocked signup and local cookie checks are not live commerce/provider acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, CI execution/artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.283Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-06",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "English URLs and their legacy redirects/rewrites shall resolve to the intended page, including mapped legacy clothing slugs.",
+      "source_codes": "ROUTE",
+      "qa_focus": "Direct URL, encoded query, redirect destination",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.283Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-01",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listings shall restrict products to the selected category/subcategory using configured English categories and normalized matching; women's and men's collections remain distinct.",
+      "source_codes": "LIST, CATDEF",
+      "qa_focus": "All 14 database categories, alias/normalization cases",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.283Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-07",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall initially reveal at most 24 matches and load 24 more per click; count shall describe matching versus collection totals. Pending requests show Loading collection, distinct from genuine empty collections and no-filter-match results.",
+      "source_codes": "LIST",
+      "qa_focus": "Pending request, 0/1/24/25/48/49 products, final batch, clear all",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.283Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-08",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall use local products when Supabase is unconfigured or product fetch fails. Configured product and stock operations each have an eight-second deadline and cancel on cleanup. Product failure/timeout shows identified demo fallback and Retry collection; stock-only failure/timeout retains live products with availability warning and retry. Successful retry clears feedback; a successful empty product response stays empty. Fallback browsing does not establish working order/auth services.",
+      "source_codes": "LIST, DBCLIENT, CATREQUEST",
+      "qa_focus": "Product/stock slow, error and empty responses; timeout, cancellation, retry, genuine empty versus demo fallback",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.283Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.283Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.283Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.283Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-05",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "T",
+      "requirement_and_acceptance": "Proposed accessibility target is WCAG 2.2 AA; assess keyboard operation, meaningful labels, focus placement/trapping/restoration, contrast, announcements and reduced motion. Existing labels are not proof of conformance.",
+      "source_codes": "NAV, DETAIL, HOME, LIST",
+      "qa_focus": "Keyboard-only/screen-reader audits, modal focus, hidden controls",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:05:08.283Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-06",
+      "module": "Nonfunctional requirements",
+      "priority": "P2",
+      "implementation_state": "T",
+      "requirement_and_acceptance": "Agree measurable performance targets and dataset/network conditions before benchmarking; evaluate initial rendering, campaign-media weight, large catalogs and admin full-dataset reads. No current SLA is supplied.",
+      "source_codes": "HOME, LIST, ADMIN, REGION",
+      "qa_focus": "Representative load, slow network, long lists, image sizes",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

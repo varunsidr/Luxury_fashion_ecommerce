@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import Link from "next/link";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { localProducts } from "@/lib/localProducts";
 import ProductCard from "@/components/ProductCard";
@@ -8,12 +9,16 @@ import { Loader2, ChevronRight, SlidersHorizontal, X } from "lucide-react";
 import { useCurrency } from "@/context/CurrencyContext";
 import { getCategoryBySlug, MAIN_CATEGORY_ALIASES, MAIN_CATEGORY_LABELS, MAIN_CATEGORY_ROUTES } from "@/lib/categories";
 import { normalizeCatalogText, Product } from "@/lib/productTypes";
+import { catalogRequest } from "@/lib/catalogRequest";
 
 interface ProductListingProps {
   mainCategory: string; // e.g., "Kadın", "Erkek", "Parfüm"
   subCategory?: string; // e.g., "Elbise", "Gömlek"
   subCategorySlug?: string;
 }
+
+type CatalogResponse<T> = { data: T[] | null; error: unknown };
+type StockRow = { product_id: string; size: string; stock: number };
 
 function getPriceSuggestions(prices: number[], currency: "INR" | "USD") {
   const sorted = prices.filter((price) => Number.isFinite(price) && price > 0).sort((a, b) => a - b);
@@ -44,6 +49,8 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [visibleCount, setVisibleCount] = useState(24);
+  const [catalogNotice, setCatalogNotice] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Handle Turkish İ/ı vs I/i mapping for keys
   const mainCategoryKey = mainCategory.toLowerCase().replace(/ı/g, 'i');
@@ -60,7 +67,7 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
 
   const normalizeValue = normalizeCatalogText;
 
-  const matchesMainCategory = (product: Product) => {
+  const matchesMainCategory = useCallback((product: Product) => {
     const productCategory = normalizeValue(product.category);
     const target = normalizeValue(dataCategoryPrefix);
 
@@ -72,9 +79,9 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
       const categoryTokens = productCategory.split(/[\s/&-]+/).filter(Boolean);
       return categoryTokens.includes(normalizeValue(alias));
     });
-  };
+  }, [dataCategoryPrefix, normalizeValue]);
 
-  const matchesProductFilter = (product: Product) => {
+  const matchesProductFilter = useCallback((product: Product) => {
     if (isMainCategoryOnly) return matchesMainCategory(product);
 
     if (subCategorySlug === "yeni" || subCategorySlug === "new-arrivals") {
@@ -97,61 +104,72 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
     return Boolean(subCategoryName) && (productCategory === targetCategory ||
       productCategory.includes(targetCategory) ||
       productCategory.includes(subCategoryName));
-  };
+  }, [isMainCategoryOnly, matchesMainCategory, subCategorySlug, dbCategory, categoryDef?.name, subCategory, normalizeValue]);
 
-  const filterProducts = (items: Product[]) => items.filter((product) => matchesProductFilter(product));
-
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const useLocal = !isSupabaseConfigured || !supabase;
-      if (useLocal) {
-        const filtered = filterProducts(localProducts);
-        setProducts(filtered);
-        setLoading(false);
-        return;
-      }
-
-      let query = supabase.from("products").select("*");
-
-      if (isMainCategoryOnly) {
-        query = query.ilike("category", `%${dataCategoryPrefix}%`);
-      } else if (subCategorySlug === "yeni") {
-        query = query.ilike("category", `%${dataCategoryPrefix}%`).ilike("tag", "%New%");
-      } else if (subCategorySlug === "cok-satan") {
-        query = query.ilike("category", `%${dataCategoryPrefix}%`).or("tag.ilike.%Best%,tag.ilike.%Featured%,tag.ilike.%Populer%");
-      } else if (subCategorySlug === "koleksiyon") {
-        query = query.ilike("category", `%${dataCategoryPrefix}%`);
-      } else {
-        query = query.ilike("category", `%${dbCategory}%`);
-      }
-
-      const [{ data, error }, { data: stockRows }] = await Promise.all([
-        query,
-        supabase.from("product_size_stock").select("product_id,size,stock"),
-      ]);
-
-      if (error) {
-        console.warn("Supabase fetch failed, using local catalog fallback.", error);
-        const filtered = filterProducts(localProducts);
-        setProducts(filtered);
-      } else {
-        const stockByProduct = new Map<string, Array<{ size: string; stock: number }>>();
-        for (const row of stockRows ?? []) stockByProduct.set(row.product_id, [...(stockByProduct.get(row.product_id) ?? []), { size: row.size, stock: Number(row.stock) }]);
-        setProducts(filterProducts(((data ?? []) as Product[]).map((p) => ({ ...p, size_stock: stockByProduct.get(String(p.id)) ?? [] }))));
-      }
-    } catch (err) {
-      console.error("Fetch error, falling back to local catalog:", err);
-      const filtered = filterProducts(localProducts);
-      setProducts(filtered);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filterProducts = useCallback((items: Product[]) => items.filter(matchesProductFilter), [matchesProductFilter]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [mainCategory, subCategorySlug, dbCategory, isMainCategoryOnly]);
+    let active = true;
+    const controller = new AbortController();
+    const fetchProducts = async () => {
+      // Defer mount updates so the effect only starts/stops external work.
+      await Promise.resolve();
+      if (!active) return;
+      setLoading(true);
+      setCatalogNotice(null);
+      try {
+        const useLocal = !isSupabaseConfigured || !supabase;
+        if (useLocal) {
+          const filtered = filterProducts(localProducts);
+          setProducts(filtered);
+          return;
+        }
+
+        let query = supabase.from("products").select("*");
+
+        if (isMainCategoryOnly) {
+          query = query.ilike("category", `%${dataCategoryPrefix}%`);
+        } else if (subCategorySlug === "yeni") {
+          query = query.ilike("category", `%${dataCategoryPrefix}%`).ilike("tag", "%New%");
+        } else if (subCategorySlug === "cok-satan") {
+          query = query.ilike("category", `%${dataCategoryPrefix}%`).or("tag.ilike.%Best%,tag.ilike.%Featured%,tag.ilike.%Populer%");
+        } else if (subCategorySlug === "koleksiyon") {
+          query = query.ilike("category", `%${dataCategoryPrefix}%`);
+        } else {
+          query = query.ilike("category", `%${dbCategory}%`);
+        }
+
+        const [productResult, stockResult] = await Promise.allSettled([
+          catalogRequest<CatalogResponse<Product>>((signal) => query.abortSignal(signal), controller.signal),
+          catalogRequest<CatalogResponse<StockRow>>((signal) => supabase.from("product_size_stock").select("product_id,size,stock").abortSignal(signal), controller.signal),
+        ]);
+        if (!active) return;
+        if (productResult.status === "rejected") throw productResult.reason;
+        const { data, error } = productResult.value;
+        if (error) {
+          throw error;
+        } else {
+          const stockRows = stockResult.status === "fulfilled" && !stockResult.value.error ? stockResult.value.data : [];
+          if (stockResult.status === "rejected" || stockResult.value.error) {
+            setCatalogNotice("Some size availability could not be loaded. Check availability on the product page or retry.");
+          }
+          const stockByProduct = new Map<string, Array<{ size: string; stock: number }>>();
+          for (const row of stockRows ?? []) stockByProduct.set(row.product_id, [...(stockByProduct.get(row.product_id) ?? []), { size: row.size, stock: Number(row.stock) }]);
+          setProducts(filterProducts((data ?? []).map((p) => ({ ...p, size_stock: stockByProduct.get(String(p.id)) ?? [] }))));
+        }
+      } catch (err) {
+        if (!active) return;
+        console.error("Fetch error, falling back to local catalog:", err);
+        const filtered = filterProducts(localProducts);
+        setProducts(filtered);
+        setCatalogNotice("We couldn't load the live collection. You're browsing demo products; purchases require the store connection.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    void fetchProducts();
+    return () => { active = false; controller.abort(); };
+  }, [subCategorySlug, dbCategory, isMainCategoryOnly, dataCategoryPrefix, filterProducts, retryCount]);
 
   useEffect(() => {
     setMinPrice("");
@@ -187,7 +205,7 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
       displayPrice >= (minPrice === "" ? 0 : Number(minPrice)) && displayPrice <= (maxPrice === "" ? Infinity : Number(maxPrice));
   }), [products, brand, size, inStockOnly, minPrice, maxPrice, hasAvailableStock, convertPrice]);
   const getSortedProducts = () => {
-    let sorted = [...filteredProducts];
+    const sorted = [...filteredProducts];
     if (sortBy === "price-low") {
       sorted.sort((a, b) => a.price - b.price || a.name.localeCompare(b.name));
     } else if (sortBy === "price-high") {
@@ -208,7 +226,7 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col gap-2 mb-4">
              <div className="flex items-center gap-2 text-[10px] tracking-[0.35em] text-neutral-400 uppercase">
-                <a href="/" className="hover:text-black transition-colors font-medium">Home</a>
+                <Link href="/" className="hover:text-black transition-colors font-medium">Home</Link>
                 <ChevronRight size={10} strokeWidth={3} />
                 {subCategorySlug ? (
                   <>
@@ -276,6 +294,10 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
               <label className="flex h-9 cursor-pointer items-center gap-2.5 text-[11px] text-neutral-700 md:ml-auto"><input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} className="h-4 w-4 accent-neutral-900" /> In stock only</label>
             </div>
           </div>
+          {!loading && catalogNotice && <div role="status" className="mt-5 flex flex-wrap items-center justify-between gap-3 border border-neutral-200 bg-[var(--store-surface)] p-4 text-sm leading-6 text-neutral-700">
+            <p>{catalogNotice}</p>
+            <button type="button" onClick={() => setRetryCount((count) => count + 1)} className="min-h-10 border-b border-neutral-500 px-2 text-xs font-medium">Retry collection</button>
+          </div>}
           
         </div>
       </div>
@@ -286,7 +308,7 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
           {loading ? (
             <div className="flex flex-col items-center justify-center py-32 gap-6" data-testid="product-listing-loading">
               <Loader2 className="animate-spin text-neutral-200" size={48} />
-              <p className="text-[9px] tracking-[0.4em] text-neutral-400 uppercase font-light">Collection coming soon</p>
+              <p role="status" className="text-[9px] tracking-[0.4em] text-neutral-400 uppercase font-light">Loading collection…</p>
             </div>
           ) : sortedProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-12 animate-in fade-in slide-in-from-bottom-2 duration-1000" data-testid="product-listing-grid">

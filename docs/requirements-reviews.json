@@ -229,5 +229,35 @@
     ],
     "source_digest": "9c209bc1862a0e01ac74c2f69af2e2323afcfc531ea4fee361000d83b48bce14",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T12:05:08.283Z",
+    "summary": "Replaced misleading coming-soon loading copy with Loading collection. Bounded product and stock operations to eight seconds with cancellation; identified demo fallback and retry on product failure, retained live products with feedback on stock failure, and preserved genuinely empty collections. Reviewed six configured-client catalog regressions, sequential fixture CI and isolated test cache/types alongside the existing storefront suite.",
+    "requirement_ids": [
+      "CAT-01",
+      "CAT-07",
+      "CAT-08",
+      "NAV-06",
+      "OPS-06",
+      "OPS-07",
+      "NFR-03",
+      "NFR-05",
+      "NFR-06"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      ".github/workflows/storefront.yml",
+      "README.md",
+      "next.config.ts",
+      "package.json",
+      "playwright.catalog.config.ts",
+      "playwright.config.ts",
+      "src/components/ProductListing.tsx",
+      "src/lib/catalogRequest.ts",
+      "tests/catalog.spec.ts",
+      "tsconfig.json"
+    ],
+    "source_digest": "d299a28354baf41bed058381370c6c9b545a912fce1ac8be29f4e085c23d22ff",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

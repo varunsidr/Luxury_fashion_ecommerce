@@ -4,10 +4,12 @@ import { defineConfig } from "@playwright/test";
 // Never reuse a server that might be connected to the user's actual database.
 export default defineConfig({
   testDir: "./tests",
+  testMatch: "storefront.spec.ts",
   timeout: 30_000,
   workers: 1,
   retries: 0,
   reporter: "list",
+  outputDir: "test-results/storefront",
   use: {
     baseURL: "http://localhost:3100",
     browserName: "chromium",
@@ -21,6 +23,7 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 60_000,
     env: {
+      ISOLATED_BROWSER_TESTS: "1",
       NEXT_PUBLIC_SUPABASE_URL: "https://your-project.supabase.co",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "your-anon-key",
       NEXT_PUBLIC_SITE_URL: "http://localhost:3100",

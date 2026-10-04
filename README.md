@@ -320,11 +320,12 @@ GitHub Actions checks requirements documentation, local PostgreSQL seed/build/he
 ```bash
 npx playwright install chromium
 npm run test:ui
+npm run test:catalog
 npm run docs:test
 npm run docs:check
 ```
 
-The browser suite launches its own localhost:3100 server with live Supabase/mail disabled. See [docs/QA_TESTING_GUIDE.md](docs/QA_TESTING_GUIDE.md) for fixtures, coverage, and remaining manual checks.
+Each browser suite launches its own localhost:3100 server with live Supabase/mail disabled and a separate `.next-browser-tests` cache. Run them sequentially. The catalog suite intercepts a reserved `.invalid` fixture domain to exercise configured-client loading, timeout, fallback, and retry states without a live database. See [docs/QA_TESTING_GUIDE.md](docs/QA_TESTING_GUIDE.md) for fixtures, coverage, and remaining manual checks.
 
 ### Demo checkout
 

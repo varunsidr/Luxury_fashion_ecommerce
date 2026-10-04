@@ -14,6 +14,7 @@
     "docs:watch": "node scripts/requirements.mjs watch",
     "docs:test": "node --test scripts/requirements.test.mjs",
     "test:ui": "playwright test",
+    "test:catalog": "playwright test --config=playwright.catalog.config.ts",
     "seed:products": "node --env-file=.env.local migrate-products.js",
     "seed:admin-data": "node --env-file=.env.local scripts/seed_admin_data.js",
     "upload:images": "node upload-images.js",

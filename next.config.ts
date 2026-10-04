@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  distDir: process.env.ISOLATED_BROWSER_TESTS === "1" ? ".next-browser-tests" : ".next",
   turbopack: { root: process.cwd() },
   images: {
     remotePatterns: [

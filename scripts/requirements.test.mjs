@@ -177,10 +177,11 @@ test('browser configuration, regression tests and CI workflows are included in s
   mkdirSync(join(root, 'tests'));
   mkdirSync(join(root, '.github/workflows'), { recursive: true });
   writeFileSync(join(root, 'playwright.config.ts'), 'export default {};\n');
+  writeFileSync(join(root, 'playwright.catalog.config.ts'), 'export default {};\n');
   writeFileSync(join(root, 'tests/cart.spec.ts'), '// fixture\n');
   writeFileSync(join(root, '.github/workflows/storefront.yml'), 'name: fixture\n');
   const inputs = sourceFingerprints(root);
-  for (const path of ['playwright.config.ts', 'tests/cart.spec.ts', '.github/workflows/storefront.yml']) {
+  for (const path of ['playwright.config.ts', 'playwright.catalog.config.ts', 'tests/cart.spec.ts', '.github/workflows/storefront.yml']) {
     assert.ok(inputs[path], `${path} must require review when changed`);
   }
 });

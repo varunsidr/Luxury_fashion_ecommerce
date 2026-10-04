@@ -2,10 +2,10 @@
 
 | Document control | Value |
 |---|---|
-| Version | 1.3 |
+| Version | 1.4 |
 | Prepared | 2 October 2026 |
 | Product | zeouf — Luxury Fashion & Lifestyle |
-| Baseline | Storefront polish and registration/admin logout/cart recovery in `f6b916d`; README setup/capability corrections and refreshed screenshots reviewed on 4 October 2026. Exact reviewed inputs are recorded in requirements-source-snapshot.json and requirements-reviews.json. |
+| Baseline | Storefront and README updates through `2c3f723`; honest collection loading, request deadlines, retry/fallback feedback and configured-client regression coverage reviewed on 4 October 2026. Exact reviewed inputs are recorded in requirements-source-snapshot.json and requirements-reviews.json. |
 | Status | Draft for business and QA review; no stakeholder sign-off recorded |
 | Audience | Customers, product owner, administrators, developers, manual testers, and test-generation tools |
 | Evidence | Repository inspection. No live website, database, email delivery, or end-to-end execution was verified for this document. |
@@ -193,8 +193,8 @@ The catalogue contains 113 requirements across 19 modules (including nonfunction
 | CAT-04 | P1 | I | Price filters shall apply inclusive displayed-currency min/max bounds through two sliders and suggested Under tiers; sliders shall not cross; currency changes clear price bounds. | LIST, CURRENCY | Boundary prices, tier rounding, currency change |
 | CAT-05 | P1 | I | In stock only shall keep unsized products with positive stock and sized products with available size stock; selected size shall constrain availability when stock rows exist. | LIST | Stock 0/1, mixed sizes, missing size rows |
 | CAT-06 | P1 | I | Sort shall offer Recommended, Price Low to High, Price High to Low, and New Arrivals; listing price ties use name; New Arrivals prioritizes new tags then date then name. Recommended retains incoming order. | LIST | Equal price/date, missing date/tag |
-| CAT-07 | P1 | I | Listing shall initially reveal at most 24 matches and load 24 more per click; count shall describe matching versus collection totals; loading and empty/no-filter-match states shall appear appropriately. | LIST | 0/1/24/25/48/49 products, final batch, clear all |
-| CAT-08 | P1 | I | Listing shall use local products when Supabase is unconfigured or product fetch fails; fallback browsing shall not imply that order/auth services work. | LIST, DBCLIENT | Unconfigured versus configured service failure |
+| CAT-07 | P1 | I | Listing shall initially reveal at most 24 matches and load 24 more per click; count shall describe matching versus collection totals. Pending requests show Loading collection, distinct from genuine empty collections and no-filter-match results. | LIST | Pending request, 0/1/24/25/48/49 products, final batch, clear all |
+| CAT-08 | P1 | I | Listing shall use local products when Supabase is unconfigured or product fetch fails. Configured product and stock operations each have an eight-second deadline and cancel on cleanup. Product failure/timeout shows identified demo fallback and Retry collection; stock-only failure/timeout retains live products with availability warning and retry. Successful retry clears feedback; a successful empty product response stays empty. Fallback browsing does not establish working order/auth services. | LIST, DBCLIENT, CATREQUEST | Product/stock slow, error and empty responses; timeout, cancellation, retry, genuine empty versus demo fallback |
 
 ### 6.3 Search
 
@@ -365,7 +365,7 @@ The catalogue contains 113 requirements across 19 modules (including nonfunction
 | OPS-04 | P1 | C | Dev create-user shall be disabled in production, require x-dev-key when configured, and cap counted dev_auto users at ten; it shall not overwrite non-dev accounts. | DEVUSER | Limit boundary, existing dev/non-dev, helper fallback |
 | OPS-05 | P2 | I | Schema endpoint shall return base SQL as plain text or not-found; database-error copy action uses it. It does not include all migrations or fix the database automatically. | SCHEMAAPI, DETAIL | Schema available/missing, clipboard failure |
 | OPS-06 | P1 | I | Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed. | REQTOOLS | Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions |
-| OPS-07 | P1 | I | npm run test:ui and storefront CI shall exercise Chromium regressions using a dedicated localhost:3100 development server with fixture admin credentials and disabled live Supabase/mail integration. Existing servers shall not be reused. Browser configuration, test sources and workflow changes require documentation review. Test traces/screenshots shall support debugging; mocked signup and local cookie checks are not live commerce/provider acceptance evidence. | UITEST, REQTOOLS | Reproducible fixtures, no live mutations, CI execution/artifacts, source review |
+| OPS-07 | P1 | I | npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence. | UITEST, REQTOOLS | Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review |
 
 ## 7. Business rules and validation
 
@@ -581,6 +581,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | ROUTE | [Redirects/rewrites](../next.config.ts) |
 | CATDEF | [Categories](../src/lib/categories.ts), [product types/normalization](../src/lib/productTypes.ts) |
 | LIST | [Product listing](../src/components/ProductListing.tsx) |
+| CATREQUEST | [Catalog operation deadline and cancellation](../src/lib/catalogRequest.ts) |
 | CARD | [Product card](../src/components/ProductCard.tsx) |
 | DETAIL | [Product detail](../src/components/ProductDetailView.tsx) |
 | DETAILROUTE | [Women's dynamic route](../src/app/kadin/%5Bslug%5D/page.tsx), [men's dynamic route](../src/app/erkek/%5Bslug%5D/page.tsx), [shoe dynamic route](../src/app/ayakkabi/%5Bslug%5D/page.tsx); analogous routes for bags/accessories/perfume/makeup |
@@ -620,7 +621,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | DEVUSER | [Dev user API](../src/app/api/dev/create-user/route.ts) |
 | SCHEMAAPI | [Schema API](../src/app/api/schema/route.ts) |
 | REQTOOLS | [Requirements synchronizer and review gate](../scripts/requirements.mjs), [regression tests](../scripts/requirements.test.mjs), [npm scripts](../package.json), [requirements workflow](../.github/workflows/requirements.yml) |
-| UITEST | [Isolated browser-test configuration](../playwright.config.ts), [storefront/auth/cart/logout regressions](../tests/storefront.spec.ts), [browser CI](../.github/workflows/storefront.yml) |
+| UITEST | [Isolated browser-test configuration](../playwright.config.ts), [configured-catalog fixture configuration](../playwright.catalog.config.ts), [storefront/auth/cart/logout regressions](../tests/storefront.spec.ts), [catalog loading/recovery regressions](../tests/catalog.spec.ts), [browser CI](../.github/workflows/storefront.yml) |
 | PROJECTDOCS | [Repository README, setup instructions and capability limits](../README.md), [current homepage preview](../screenshots/home.png), [fully loaded homepage](../screenshots/home-full.png), [women's listing](../screenshots/kadin.png), [perfume listing](../screenshots/parfum.png) |
 
 ## 15. Glossary and sign-off

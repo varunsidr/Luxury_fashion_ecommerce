@@ -235,7 +235,7 @@ export function sourceFingerprints(root) {
   for (const dir of ['src', 'scripts', 'supabase', 'tests', '.github/workflows']) walk(dir);
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     if (entry.isFile() && (/\.sql$/.test(entry.name) || [
-      'package.json', 'package-lock.json', 'next.config.ts', 'middleware.ts', 'tsconfig.json', 'playwright.config.ts',
+      'package.json', 'package-lock.json', 'next.config.ts', 'middleware.ts', 'tsconfig.json', 'playwright.config.ts', 'playwright.catalog.config.ts',
       'postcss.config.mjs', 'migrate-products.js', 'upload-images.js',
       '.env.example', 'docker-compose.yml', 'README.md', 'architecture.md', 'SECURITY.md',
     ].includes(entry.name))) files.push(entry.name);
