@@ -228,6 +228,14 @@ For CAT-07/CAT-08, hold requests with CAT-SLOW and assert Loading collection rat
 
 These cases do not cover live Supabase signup/RLS/checkout, copied-token revocation, complete cart ownership policy, all keyboard/screen-reader paths or WCAG conformance. Verify hidden-tab media behavior, quota-limited writes, reveal/tab-reset behavior and provider failures in separate scenarios as needed. Keep overall requirement statuses separate from passing scoped regression cases; preserve G-01/G-13 history and the unresolved portion of G-10.
 
+### Deployed-site browsing checks (OPS-08)
+
+After installing Chromium, run `npm run test:live`. The default target is the public Vercel storefront; PLAYWRIGHT_BASE_URL can select another accessible HTTP(S) origin without credentials, path, query or fragment. This configuration has no webServer entry and launches no localhost process. Fresh browser contexts use reduced motion, no saved authentication state, one worker and no retries. Live results belong to the deployed revision/environment at execution time; record that revision separately from local fixture results.
+
+The 13 cases check homepage/manual hero links, all seven populated collections without loading/empty/fallback warnings, name/category search, card-to-detail correspondence, mobile clothing navigation/overflow, privacy/terms accessibility and admin login rendering. The context intercepts and blocks non-GET/HEAD/OPTIONS methods plus known helper/logout paths, and asserts that no blocked request was attempted. No login, signup, checkout, favorite, review, restock, seed/reset or admin write is submitted. State-changing scenarios continue to use the isolated local suites or a separately scoped staging environment with dedicated identities.
+
+Failures retain screenshots/traces under test-results/live. This opt-in suite does not run in the push workflow, which may execute before the new deployment is ready. Healthy browsing does not prove live authentication, purchase/stock integrity, email delivery, admin authorization or complete site acceptance. An empty or deliberately unavailable demo catalog is a failed populated-collection smoke assumption, not proof of a loading defect.
+
 ### README previews and capability accuracy
 
 The README screenshots were refreshed from the `f6b916d` UI on 4 October 2026 using isolated fallback data, INR currency and reduced motion. Desktop previews use 1440px width; category captures include product names/prices. The dashboard uses local catalog data and an empty order-response fixture. Captures wait for fonts and visible images to load; full-page capture first scrolls through every section and checks all image loads before returning to the top. The development indicator is hidden only during capture. These images are presentation references, not evidence of live Supabase permissions, stock synchronization or mail delivery.

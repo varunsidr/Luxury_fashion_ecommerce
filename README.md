@@ -327,6 +327,23 @@ npm run docs:check
 
 Each browser suite launches its own localhost:3100 server with live Supabase/mail disabled and a separate `.next-browser-tests` cache. Run them sequentially. The catalog suite intercepts a reserved `.invalid` fixture domain to exercise configured-client loading, timeout, fallback, and retry states without a live database. See [docs/QA_TESTING_GUIDE.md](docs/QA_TESTING_GUIDE.md) for fixtures, coverage, and remaining manual checks.
 
+### Test the deployed site
+
+```bash
+npm run test:live
+```
+
+This command opens Chromium against `https://zeouf-luxury-fashion-ecommerce.vercel.app` without starting a local server. It checks public browsing in fresh browser contexts: homepage, all seven collections, search, product details, mobile navigation, information pages, and admin login rendering. State-changing requests are blocked; it does not submit login, signup, orders, reviews, favorites, restock requests, or admin changes. The existing local suites still cover fixture-based account/logout and failure scenarios.
+
+For a visible browser, use `npm run test:live -- --headed`. To target another accessible deployment in PowerShell:
+
+```powershell
+$env:PLAYWRIGHT_BASE_URL = "https://your-preview.vercel.app"
+npm run test:live
+```
+
+The override must be an HTTP(S) origin without credentials, path, query, or fragment. Live artifacts are saved in `test-results/live/`. This suite is optional and separate from push CI, which can run before a Vercel deployment is ready.
+
 ### Demo checkout
 
 Checkout offers a demo card method and simulated cash on delivery. It has no card-number fields or approval/decline-number rules, never charges a payment, and ships nothing. A signed-in customer submits fictional contact/address details; successful checkout saves a demo order and reduces demo inventory. The card method adds a short simulated processing delay.

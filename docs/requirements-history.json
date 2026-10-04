@@ -1995,5 +1995,65 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-04T12:41:36.081Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:41:36.081Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T12:41:36.081Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-08",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:live shall run optional Chromium public-browsing checks against the deployed Vercel origin, with PLAYWRIGHT_BASE_URL accepting another HTTP(S) origin without credentials/path/query/fragment. No local server is launched or authenticated storage reused. The suite checks homepage, seven populated collections without fallback warnings, search, product detail, mobile navigation, information pages and admin login rendering. It blocks mutating HTTP methods and known helper/logout paths, and fails attempted writes. It does not authenticate, submit commerce/customer/admin changes or establish their acceptance. Artifacts use test-results/live; live checks remain separate from deployment-racing push CI.",
+      "source_codes": "LIVETEST, REQTOOLS",
+      "qa_focus": "Correct target, no local startup, public data available, state-changing requests blocked, separate artifacts and acceptance limits",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

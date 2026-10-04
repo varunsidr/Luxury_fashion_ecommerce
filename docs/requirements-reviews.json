@@ -259,5 +259,23 @@
     ],
     "source_digest": "d299a28354baf41bed058381370c6c9b545a912fce1ac8be29f4e085c23d22ff",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T12:41:36.081Z",
+    "summary": "Added optional deployed-site Playwright command with validated target origin, no local web server, fresh public browsing contexts and blocked state-changing requests. Reviewed 13 passing public smoke cases against deployed 4cd0c10, separate artifacts and acceptance limits; retained isolated local fixture suites and kept live execution separate from push CI.",
+    "requirement_ids": [
+      "OPS-06",
+      "OPS-07",
+      "OPS-08"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md",
+      "package.json",
+      "playwright.live.config.ts",
+      "tests/live.spec.ts"
+    ],
+    "source_digest": "04be43d723547f24db039ddca1839f74b39639b9eb7f3f7a1751ea2680988545",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

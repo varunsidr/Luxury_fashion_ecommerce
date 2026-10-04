@@ -2,13 +2,13 @@
 
 | Document control | Value |
 |---|---|
-| Version | 1.4 |
+| Version | 1.5 |
 | Prepared | 2 October 2026 |
 | Product | zeouf — Luxury Fashion & Lifestyle |
-| Baseline | Storefront and README updates through `2c3f723`; honest collection loading, request deadlines, retry/fallback feedback and configured-client regression coverage reviewed on 4 October 2026. Exact reviewed inputs are recorded in requirements-source-snapshot.json and requirements-reviews.json. |
+| Baseline | Collection-loading fix through `4cd0c10`; optional deployed-site Playwright browsing checks and target configuration reviewed on 4 October 2026. Exact reviewed inputs are recorded in requirements-source-snapshot.json and requirements-reviews.json. |
 | Status | Draft for business and QA review; no stakeholder sign-off recorded |
 | Audience | Customers, product owner, administrators, developers, manual testers, and test-generation tools |
-| Evidence | Repository inspection. No live website, database, email delivery, or end-to-end execution was verified for this document. |
+| Evidence | Repository inspection and 13 scoped public-browsing Playwright checks passed against the deployed `4cd0c10` storefront on 4 October 2026. This does not establish full acceptance, authenticated mutations, database permissions or email delivery. |
 
 ## Contents
 
@@ -169,7 +169,7 @@ flowchart LR
 
 **Priority:** P0 = access/data/order integrity; P1 = core customer/admin function; P2 = secondary presentation or convenience. These are suggested QA priorities, pending owner review. Source codes resolve in section 14. The CSV mirrors these rows and leaves execution/test-link fields open.
 
-The catalogue contains 113 requirements across 19 modules (including nonfunctional requirements), with **24 source-level gap findings** tracked in section 12.
+The catalogue contains 114 requirements across 19 modules (including nonfunctional requirements), with **24 source-level gap findings** tracked in section 12.
 
 ### 6.1 Home, navigation, and routes
 
@@ -366,6 +366,7 @@ The catalogue contains 113 requirements across 19 modules (including nonfunction
 | OPS-05 | P2 | I | Schema endpoint shall return base SQL as plain text or not-found; database-error copy action uses it. It does not include all migrations or fix the database automatically. | SCHEMAAPI, DETAIL | Schema available/missing, clipboard failure |
 | OPS-06 | P1 | I | Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed. | REQTOOLS | Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions |
 | OPS-07 | P1 | I | npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence. | UITEST, REQTOOLS | Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review |
+| OPS-08 | P1 | I | npm run test:live shall run optional Chromium public-browsing checks against the deployed Vercel origin, with PLAYWRIGHT_BASE_URL accepting another HTTP(S) origin without credentials/path/query/fragment. No local server is launched or authenticated storage reused. The suite checks homepage, seven populated collections without fallback warnings, search, product detail, mobile navigation, information pages and admin login rendering. It blocks mutating HTTP methods and known helper/logout paths, and fails attempted writes. It does not authenticate, submit commerce/customer/admin changes or establish their acceptance. Artifacts use test-results/live; live checks remain separate from deployment-racing push CI. | LIVETEST, REQTOOLS | Correct target, no local startup, public data available, state-changing requests blocked, separate artifacts and acceptance limits |
 
 ## 7. Business rules and validation
 
@@ -622,6 +623,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | SCHEMAAPI | [Schema API](../src/app/api/schema/route.ts) |
 | REQTOOLS | [Requirements synchronizer and review gate](../scripts/requirements.mjs), [regression tests](../scripts/requirements.test.mjs), [npm scripts](../package.json), [requirements workflow](../.github/workflows/requirements.yml) |
 | UITEST | [Isolated browser-test configuration](../playwright.config.ts), [configured-catalog fixture configuration](../playwright.catalog.config.ts), [storefront/auth/cart/logout regressions](../tests/storefront.spec.ts), [catalog loading/recovery regressions](../tests/catalog.spec.ts), [browser CI](../.github/workflows/storefront.yml) |
+| LIVETEST | [Deployed-site browser configuration](../playwright.live.config.ts), [public browsing smoke checks](../tests/live.spec.ts), [run commands and target override](../README.md) |
 | PROJECTDOCS | [Repository README, setup instructions and capability limits](../README.md), [current homepage preview](../screenshots/home.png), [fully loaded homepage](../screenshots/home-full.png), [women's listing](../screenshots/kadin.png), [perfume listing](../screenshots/parfum.png) |
 
 ## 15. Glossary and sign-off
