@@ -13,6 +13,7 @@
     "docs:review": "node scripts/requirements.mjs review",
     "docs:watch": "node scripts/requirements.mjs watch",
     "docs:test": "node --test scripts/requirements.test.mjs",
+    "test:ui": "playwright test",
     "seed:products": "node --env-file=.env.local migrate-products.js",
     "seed:admin-data": "node --env-file=.env.local scripts/seed_admin_data.js",
     "upload:images": "node upload-images.js",
@@ -25,12 +26,12 @@
     "@supabase/supabase-js": "^2.101.1",
     "lucide-react": "^1.7.0",
     "next": "16.2.1",
+    "pg": "^8.11.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
-    ,
-    "pg": "^8.11.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

@@ -1,6 +1,6 @@
 # zeouf — QA coverage and test-generation guide
 
-**Baseline:** Source over `3ba7f1c`; documentation tooling coverage updated 4 October 2026. Exact source inputs and reviewer assertions are recorded in requirements-source-snapshot.json and requirements-reviews.json. This guide accompanies [BRD.md](BRD.md) and [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv). It contains test designs, not execution results.
+**Baseline:** Storefront polish, password confirmation, admin logout and cart recovery over `3a58270`, reviewed 4 October 2026. Exact source inputs and reviewer assertions are recorded in requirements-source-snapshot.json and requirements-reviews.json. This guide accompanies [BRD.md](BRD.md) and [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv). Test designs are separate from executed evidence.
 
 ## 1. Start here
 
@@ -62,6 +62,11 @@ Use fictional identities and addresses. Resolve database UUIDs from created fixt
 | P-TAXONOMY | At least one product per 14 database categories with distinct names/brands | Category boundaries and searches |
 | P-LARGE | Collection of 49 known matching products plus some nonmatches | 24→48→49 batching/filter counts |
 | P-TIES | Equal-price products, equal-date products, missing date/tag/brand | Deterministic sort and option hiding |
+| CART-VALID / CART-LEGACY | Stored browser line with quantity two; duplicate missing/null color lines and a distinct named color | Initial hydration, reload, normalization and variant-specific edits |
+| CART-BROKEN / CART-MIXED | Malformed JSON/nonarray, or valid lines mixed with blank IDs, invalid prices/quantities/options/photo URLs | Recover without crash, preserve valid items, display notice |
+| STORAGE-BLOCKED / STORAGE-FULL | Browser localStorage getter/write throws SecurityError/QuotaExceededError | Keep in-memory bag; show persistence notice |
+| MEDIA-STILL / IMG-FAILED | Reduced-motion browser; one aborted product image request | Still hero/manual navigation; card image failure feedback |
+| A-LOCAL-COOKIE | Fixture admin login on isolated localhost server with service role disabled | Real signed cookie logout and post-logout denial; no live DB writes |
 | F-A / F-B | Different favorite sets for U-A and U-B | Database ownership/counts |
 | R-PENDING / R-APPROVED | Known ratings, comments, ownership and approval flags | Public visibility, moderation, averages |
 | R-WITHIMAGE | Valid image URLs attached to a review | Persistence versus public image presentation |
@@ -112,9 +117,14 @@ These are starting cases. Expected unmet target behavior is explicitly marked; d
 | TC-CAT-005-01 | CAT-03, CAT-05 | Given P-SIZED and selected S with In stock only, when filters apply, then this product is excluded; selected M includes it. | Baseline |
 | TC-CAT-007-01 | CAT-07 | Given 49 matching products, when listing opens and Load More is clicked twice, then visible counts are 24/48/49 and the final button is absent. | Baseline |
 | TC-SEA-002-01 | SEA-02 | Given a product matching both name and category query, when searching different-case text, then it occurs once in results. | Baseline |
-| TC-AUTH-002-01 | AUTH-02 | Given registration fields with password A and confirmation B, when submitting, then signup is blocked before any create request. Current code lacks comparison. | Target; G-01 |
+| TC-AUTH-002-01 | AUTH-02 | Given password A and confirmation B, when submitting, then mismatch alert appears and neither helper nor signup runs. Blank confirmation is required; matching values proceed without sending confirmation and clear it after success/tab change. | Baseline; resolved G-01 |
 | TC-CART-002-01 | CART-02, CART-05 | Given U-A and P-COLOR, when adding M/red twice and L/red once, then two lines exist with quantities 2/1 and correct subtotal. | Baseline |
 | TC-CART-004-01 | CART-04, AUTH-06 | Given U-A's stored cart, when signing out and signing in as U-B in the same browser, then record the current shared cart; separately test the owner-approved account separation target. | Baseline finding plus pending target; G-10 |
+| TC-CART-004-02 | CART-02, CART-04, CART-05 | Given a saved line and mixed invalid rows, when loading and editing quantity then reloading, then valid items/totals persist and invalid rows do not crash rendering. Missing/null color variants merge; invalid JSON recovers with notice. | Baseline recovery; account ownership remains G-10 |
+| TC-CART-004-03 | CART-04, NFR-03 | Given blocked reads or full/unavailable writes, when loading and using the bag, then in-memory controls remain usable and a persistence notice appears. | Baseline |
+| TC-NAV-001-01 | NAV-01, NAV-02 | Given desktop/mobile or reduced motion, when switching/pausing hero or scrolling away, then matching links/posters appear, only one active clip exists and hidden/offscreen/reduced-motion playback stops; each editorial destination resolves. | Baseline |
+| TC-NAV-005-01 | NAV-03, NAV-04, NAV-05 | Given keyboard/mobile navigation, when opening clothing menus or an account/cart/search drawer, then subcategory links work, Tab stays in the active dialog, Escape closes it and focus returns to the trigger; closed drawers are inert. | Baseline |
+| TC-PDP-001-01 | PDP-01, PDP-08 | Given in-stock/out-of-stock/sized/unsized products, when loading, aborting an image, hovering, focusing or touching a card, then information remains readable, failure feedback appears and only valid actions are offered. | Baseline |
 | TC-CHK-003-01 | CHK-03 | Given a valid session/address and two identical entries of quantities 10/11, when POSTing checkout, then 400 occurs and no order/stock write exists. | Baseline |
 | TC-CHK-005-01 | CHK-05, CHK-06 | Given P-UNSIZED database price 1,000 and a forged client price 1, when buying two, then saved unit price is 1,000, total 2,000 and stock 3. | Baseline |
 | TC-CHK-007-01 | CHK-07 | Given P-LAST stock one and two independently authenticated customers, when both buy simultaneously, then exactly one succeeds and one conflicts; stock is zero and only one complete order exists. | Baseline; verify transaction |
@@ -128,7 +138,7 @@ These are starting cases. Expected unmet target behavior is explicitly marked; d
 | TC-RST-004-01 | RST-04 | Given S and M requests and only M stock restored, when notifying M, then only eligible M/whole-item requests are delivered; re-run, provider failure and size-less notification are checked separately. | Target eligibility plus baseline batching; G-12 |
 | TC-RST-005-01 | RST-05 | Given a valid alert token, when using its unsubscribe URL twice, then record is absent and both valid-shape requests return confirmation; malformed token returns 400. | Baseline |
 | TC-ADM-002-01 | ADM-02, AOR-01, STK-01 | Given admin_auth=1 without signed cookie, when calling admin order/stock APIs, then both deny authorization and no writes occur. | Baseline APIs; P0 |
-| TC-ADM-003-01 | ADM-03 | Given a logged-in administrator, when using sidebar Sign Out then calling a private API, then access should be denied. Current sidebar retains valid cookie. | Target; G-13 |
+| TC-ADM-003-01 | ADM-03 | Given a signed admin cookie, when sidebar logout succeeds, then cookie and local flag are absent, route is /admin and a private API returns 401. Failed logout retains state and allows retry. GET logout redirects 303 on the request origin; POST returns no-store JSON. | Baseline; resolved G-13 |
 | TC-PRD-002-01 | PRD-02, ADM-02 | Given the checked-in base write policies and cookie-only administrator, when saving a catalog change, then verify persistence on reload and capture the permissions failure instead of trusting closed form. | Known-gap reproduction; G-06 |
 | TC-STK-002-01 | STK-02, ADM-04 | Given P-SIZED S=0/M=4/L=5, when saving M=2 through stock API, then M is 2 and product stock is 7; refresh dashboard and verify inventory. | Baseline |
 | TC-AOR-003-01 | AOR-03, ORD-02 | Given a pending U-A order, when admin sets processing, then persisted status and U-A history after reload show Processing. | Baseline |
@@ -203,3 +213,11 @@ Record absent features as exclusions or target requirements, never imaginary wor
 Run `npm run docs:test` with Node.js 20 or later. The suite creates isolated temporary documentation/source fixtures and removes only those fixtures; no Supabase, Docker, credentials or live data are required. It covers CSV quoting and multiline/manual/custom fields, unchanged results, changed/retired requirement archives, Needs retest after source review, invalid IDs/ranges/source codes, stale generated files, absent snapshots, unreviewed source changes, mismatched review evidence, broken links, retired-ID reuse and idempotent synchronization. Fingerprint scenarios cover line-ending normalization, deleted inputs and exclusion of local secrets/build output.
 
 Then run `npm run docs:check` against the real repository and `npm run build`. A missing review or source drift must fail the documentation gate even after `docs:sync`; synchronization is not approval. Review requires a descriptive summary plus the actual affected IDs, or an explanation using `--no-functional-change`. Commit generated history, snapshot and review log together with the code/docs. These checks prove documentation tooling behavior; they do not establish passing website acceptance, database readiness, migration correctness or mail delivery. Keep the existing application gaps and execution statuses until separately tested.
+
+### Storefront browser regressions (OPS-07)
+
+Install dependencies with `npm ci`, install Chromium using `npx playwright install chromium`, then run `npm run test:ui`. The suite owns port 3100 and refuses a running server. Its configuration overrides public Supabase settings with placeholders, disables service-role/mail credentials and uses a nonproduction fixture admin password. Signup responses and currency are mocked; the admin login/logout endpoints and cookie authorization checks execute locally. No live account, product, order or email is created.
+
+Coverage includes 16 local cases for restoration/normalization, malformed/unavailable storage, quantity persistence/reload, mismatch/blank/matching confirmation, real browser-cookie removal and failed logout retry, GET logout origin/cookie attributes, manual/reduced-motion/offscreen media, six editorial destinations, mobile clothing menus, desktop disclosure, drawer focus/Escape, photo failure and keyboard card actions, and mobile/tablet overflow. Screenshots/traces are under ignored `test-results/`; browser CI uploads those artifacts. Turbopack uses an explicit project root; when inspecting a visual change, confirm the built CSS matches source before evaluating screenshots. Await page hydration and reset scroll to the top before capturing full-page screenshots after interactions.
+
+These cases do not cover live Supabase signup/RLS/checkout, copied-token revocation, complete cart ownership policy, all keyboard/screen-reader paths or WCAG conformance. Verify hidden-tab media behavior, quota-limited writes, reveal/tab-reset behavior and provider failures in separate scenarios as needed. Keep overall requirement statuses separate from passing scoped regression cases; preserve G-01/G-13 history and the unresolved portion of G-10.

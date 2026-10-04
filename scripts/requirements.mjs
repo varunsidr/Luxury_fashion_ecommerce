@@ -223,7 +223,7 @@ export function sync(root, options = {}) {
 // Code/config/schema inputs only. No local secrets, node_modules, build output or binaries.
 export function sourceFingerprints(root) {
   const files = [];
-  const extension = /\.(?:ts|tsx|js|jsx|mjs|css|json|sql|toml)$/;
+  const extension = /\.(?:ts|tsx|js|jsx|mjs|css|json|sql|toml|yml|yaml)$/;
   const walk = (dir) => {
     if (!existsSync(join(root, dir))) return;
     for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
@@ -232,10 +232,10 @@ export function sourceFingerprints(root) {
       else if (entry.isFile() && extension.test(path) && !/^scripts\/requirements(?:\.test)?\.mjs$/.test(path)) files.push(path);
     }
   };
-  for (const dir of ['src', 'scripts', 'supabase']) walk(dir);
+  for (const dir of ['src', 'scripts', 'supabase', 'tests', '.github/workflows']) walk(dir);
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     if (entry.isFile() && (/\.sql$/.test(entry.name) || [
-      'package.json', 'next.config.ts', 'middleware.ts', 'tsconfig.json',
+      'package.json', 'package-lock.json', 'next.config.ts', 'middleware.ts', 'tsconfig.json', 'playwright.config.ts',
       'postcss.config.mjs', 'migrate-products.js', 'upload-images.js',
       '.env.example', 'docker-compose.yml', 'README.md', 'architecture.md', 'SECURITY.md',
     ].includes(entry.name))) files.push(entry.name);
@@ -308,7 +308,7 @@ function watchDocs(root) {
   };
   const schedule = () => { clearTimeout(timer); timer = setTimeout(update, 300); };
   const watchers = [watch(root, { recursive: false }, schedule)];
-  for (const dir of ['docs', 'src', 'scripts', 'supabase']) {
+  for (const dir of ['docs', 'src', 'scripts', 'supabase', 'tests', '.github/workflows']) {
     if (existsSync(join(root, dir))) watchers.push(watch(join(root, dir), { recursive: true }, schedule));
   }
   const stop = () => { clearTimeout(timer); for (const watcher of watchers) watcher.close(); };

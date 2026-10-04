@@ -498,5 +498,788 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NAV-01",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Home shall show women/men campaign slides with matching collection links; automatic slide change occurs about every six seconds and is skipped when reduced motion is requested.",
+      "source_codes": "HOME",
+      "qa_focus": "Timers, manual slide controls, video loading, reduced motion",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NAV-02",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Collection panels and six curated feature tiles shall navigate to their configured category/subcategory destinations; editorial images are not live stock-driven product recommendations.",
+      "source_codes": "HOME",
+      "qa_focus": "Every CTA and destination",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NAV-03",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Desktop navigation shall expose all seven categories and women's/men's subcategory/highlight menus.",
+      "source_codes": "NAV, CATDEF",
+      "qa_focus": "Hover/menu open-close and click",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NAV-04",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Mobile navigation shall open/close and expose category links and expandable clothing menus.",
+      "source_codes": "NAV",
+      "qa_focus": "Touch, narrow screen, menu dismissal",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NAV-05",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Header shall expose account, search, favorites and cart; logo returns home; drawers/overlays can be closed through their available close/backdrop actions.",
+      "source_codes": "NAV, SHELL",
+      "qa_focus": "State transitions, counts, overlay stacking",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PDP-01",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards/detail shall present product name, price and image, optional brand/tag/category, and a product link; detail shall use gallery thumbnails when multiple applicable photographs exist.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Single/multiple/missing images, supported remote host",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PDP-08",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "In-stock unsized cards shall allow quick-add; sized cards shall send the user to choose size; out-of-stock cards shall display unavailable status and hide add controls.",
+      "source_codes": "CARD",
+      "qa_focus": "Sized/unsized/out-of-stock and signed-out actions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AUTH-02",
+      "module": "Customer account",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Password confirmation shall match the password before registration; current required confirmation field is not compared or stored (G-01).",
+      "source_codes": "NAV",
+      "qa_focus": "Equal/unequal/blank confirmation, reveal toggle",
+      "known_gap_ids": "G-01",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CART-02",
+      "module": "Cart",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Lines shall be identified by product ID + size + color; matching tuples merge quantities and differing options create distinct lines.",
+      "source_codes": "CART",
+      "qa_focus": "Same/different options, null/missing color, repeated add",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CART-04",
+      "module": "Cart",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Browser cart shall persist under els-cart; user-specific separation, sign-out clearing, corrupted-state recovery, and safe hydration need decisions/fixes (G-10). No cart_items synchronization is implemented.",
+      "source_codes": "CART",
+      "qa_focus": "Refresh, malformed storage, two accounts, initial load",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ADM-03",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin Sign Out shall revoke browser admin access; sidebar currently only removes local flag while logout endpoint clears cookie (G-13).",
+      "source_codes": "ADMIN, ADMINLOGOUT",
+      "qa_focus": "API after sidebar logout versus endpoint logout",
+      "known_gap_ids": "G-13",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes"
+    ],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Checkout/privacy/terms shall explain demo limits and stored demo data; generic shipping/returns copy and confirmation wording need alignment (G-22).",
+      "source_codes": "INFO, DETAIL, CHECKOUTUI",
+      "qa_focus": "Content consistency and fictional data guidance",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:11.839Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider errors, retry",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-01",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Home shall show women/men hero content and matching links, with one active local video or still poster, manual slide selection and pause/play. Automatic change occurs about every six seconds while at least 10% visible, tab visible, unpaused and reduced motion disabled. Offscreen/hidden/paused media stops; reduced motion uses still imagery and manual selection.",
+      "source_codes": "HOME",
+      "qa_focus": "Active-only playback, posters, manual selection, pause, offscreen/hidden tab, reduced motion",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-02",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Two collection panels, seven category links, six editorial tiles and the blouse edit shall navigate to configured category/subcategory destinations. The compact homepage uses consistent typography/spacing and explicit demo copy; editorial tiles remain curated category links.",
+      "source_codes": "HOME",
+      "qa_focus": "Every CTA/destination, 375/768/1440 widths, image loading",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-03",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Desktop navigation shall expose seven categories and women's/men's subcategory/highlight menus, with pointer hover and keyboard-operable expanded-state disclosure controls. Escape closes menus; closed menu links are inert.",
+      "source_codes": "NAV, CATDEF",
+      "qa_focus": "Hover, disclosure click/Enter, Escape, inert links, current route",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-04",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Mobile navigation shall open/close, expose seven category links and expandable women's/men's clothing/highlight sections, and close after navigation or Escape.",
+      "source_codes": "NAV",
+      "qa_focus": "Touch, narrow screen, subcategories, dismissal and focus restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-05",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Header shall expose account, search, favorites and cart; logo returns home. Active account/cart/search/mobile dialogs lock background scrolling, contain keyboard focus, and support Escape/close/backdrop dismissal with focus restoration; closed drawers are inert.",
+      "source_codes": "NAV, SHELL",
+      "qa_focus": "Dialog roles, Tab/Shift+Tab, Escape, counts, scroll lock, focus restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-01",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards/detail shall present name, price, image, optional brand/tag/category and product links; detail uses applicable gallery thumbnails. Cards use consistent crops and responsive image sizes, show loading placeholders, and retain readable product information with Image unavailable feedback after photo failure.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Single/multiple/missing images, supported remote host, loading/failure state",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-08",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "In-stock unsized cards shall allow Add to bag; sized cards link to size selection; out-of-stock cards display unavailable status and omit purchase controls. Actions are visible on touch layouts and reveal on hover or keyboard focus on desktop; favorite controls remain visible with pressed state.",
+      "source_codes": "CARD",
+      "qa_focus": "Sized/unsized/out-of-stock, guest prompt, touch/keyboard/hover actions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-01",
+      "module": "Customer account",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Register shall collect required full name/email/password and call Supabase signup with name metadata; success switches to Sign In and explains email verification when applicable.",
+      "source_codes": "NAV, SCHEMA",
+      "qa_focus": "Required/email validation, duplicate signup, provider policy",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-02",
+      "module": "Customer account",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Controlled password confirmation shall match the exact password before either development helper or Supabase signup. Blank confirmation is required; mismatch shows an alert and makes no create request. Confirmation clears on successful registration or account-tab change and is not sent to the provider.",
+      "source_codes": "NAV",
+      "qa_focus": "Equal/unequal/blank confirmation, reveal toggle, request absence/payload, tab change",
+      "known_gap_ids": "G-01",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-04",
+      "module": "Customer account",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Password visibility shall toggle in account forms without changing the entered password; Sign In/Register tabs shall be available.",
+      "source_codes": "NAV",
+      "qa_focus": "Toggle, switch tab, stale feedback",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-07",
+      "module": "Customer account",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Development registration may first try confirmed-user creation; on failure/unavailability it shall fall back to normal signup. Production helper shall be disabled.",
+      "source_codes": "NAV, DEVUSER",
+      "qa_focus": "Protected helper failure, normal signup, production",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-01",
+      "module": "Cart",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Add shall require a customer session; a visitor receives an account prompt without addition; successful add opens drawer. The interrupted action is not automatically replayed after login.",
+      "source_codes": "CART, NAV",
+      "qa_focus": "Guest/customer, post-login retry",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-02",
+      "module": "Cart",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Lines shall be identified by product ID + size + color; missing/empty/null options normalize to null. Matching tuples merge quantities and differing options create distinct lines, including recovered legacy lines.",
+      "source_codes": "CART, CARTSTORE",
+      "qa_focus": "Same/different options, null/missing color, repeated add, legacy restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-03",
+      "module": "Cart",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Drawer shall show image/name/options/quantity/line total; plus/minus updates quantity; a quantity below one or explicit remove deletes the line.",
+      "source_codes": "CART, NAV",
+      "qa_focus": "Remove at one, variant-specific deletion, total changes",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-04",
+      "module": "Cart",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Browser cart shall restore before writing els-cart. Malformed JSON/nonarrays recover to empty; invalid lines are removed while valid lines remain, with recovery feedback. Restored lines require nonempty display fields, supported photo URLs, finite nonnegative numeric prices, positive safe-integer quantities and valid options. Read/write storage failures keep an in-memory bag with a persistence notice. Account separation/sign-out clearing remain unresolved (G-10); no cart_items synchronization exists.",
+      "source_codes": "CART, CARTSTORE, NAV",
+      "qa_focus": "Initial load/reload, mixed invalid rows, duplicate variants, unavailable/quota-limited storage, two accounts",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-05",
+      "module": "Cart",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Item badge equals sum of quantities; base subtotal equals sum of stored line price × quantity, displayed through currency formatter. Checkout determines authoritative current prices.",
+      "source_codes": "CART, NAV, CHECKOUT",
+      "qa_focus": "Multiple lines, rounding, changed database price",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-03",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Sidebar logout shall POST the cookie-clearing endpoint and wait for success before removing the local flag and replacing the route with /admin. Failed requests preserve the session and display retry feedback. After successful logout the same browser's protected APIs deny access. This clears the browser cookie; copied signed tokens retain their original expiry.",
+      "source_codes": "ADMIN, ADMINLOGOUT",
+      "qa_focus": "Cookie/flag after sidebar logout, API rejection, request failure/retry, endpoint contracts",
+      "known_gap_ids": "G-13",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Home/checkout/privacy/terms shall explain demo limits and stored demo data; generic shipping/returns copy and confirmation wording need alignment (G-22).",
+      "source_codes": "HOME, INFO, DETAIL, CHECKOUTUI",
+      "qa_focus": "Content consistency and fictional data guidance",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and storefront CI shall exercise Chromium regressions using a dedicated localhost:3100 development server with fixture admin credentials and disabled live Supabase/mail integration. Existing servers shall not be reused. Browser configuration, test sources and workflow changes require documentation review. Test traces/screenshots shall support debugging; mocked signup and local cookie checks are not live commerce/provider acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, CI execution/artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-04",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "T",
+      "requirement_and_acceptance": "Agree and verify responsive support at 375px mobile, 768px tablet and 1440px desktop, with no clipped essential controls; proposed browsers are current Chromium, Firefox and WebKit.",
+      "source_codes": "NAV, LIST, DETAIL, ADMIN",
+      "qa_focus": "Touch/hover differences, drawers, tables, horizontal scroll",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-05",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "T",
+      "requirement_and_acceptance": "Proposed accessibility target is WCAG 2.2 AA; assess keyboard operation, meaningful labels, focus placement/trapping/restoration, contrast, announcements and reduced motion. Existing labels are not proof of conformance.",
+      "source_codes": "NAV, DETAIL, HOME, LIST",
+      "qa_focus": "Keyboard-only/screen-reader audits, modal focus, hidden controls",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T11:04:12.114Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-06",
+      "module": "Nonfunctional requirements",
+      "priority": "P2",
+      "implementation_state": "T",
+      "requirement_and_acceptance": "Agree measurable performance targets and dataset/network conditions before benchmarking; evaluate initial rendering, campaign-media weight, large catalogs and admin full-dataset reads. No current SLA is supplied.",
+      "source_codes": "HOME, LIST, ADMIN, REGION",
+      "qa_focus": "Representative load, slow network, long lists, image sizes",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

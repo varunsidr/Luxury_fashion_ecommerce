@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, User, Heart, ShoppingBag, Menu, X, Mail, Lock, Eye, EyeOff, LogOut, Loader2 } from "lucide-react";
+import { Search, User, Heart, ShoppingBag, Menu, X, Mail, Lock, Eye, EyeOff, LogOut, Loader2, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
 import { useAuthPrompt } from "@/context/AuthPromptContext";
 import { useCurrency } from "@/context/CurrencyContext";
+import type { User as Customer } from "@supabase/supabase-js";
 
 const navLinks = [
   {
@@ -89,6 +90,7 @@ const navLinks = [
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
@@ -98,6 +100,9 @@ export default function Navbar() {
   const [showPassword, setShowPassword] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const loginRef = useRef<HTMLDivElement>(null);
+  const cartRef = useRef<HTMLDivElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -118,25 +123,25 @@ export default function Navbar() {
   }, [searchOpen]);
 
   // Auth States
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<Customer | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [registerSuccess, setRegisterSuccess] = useState<string | null>(null);
 
   const { favoritesCount } = useFavorites();
-  const { items, totalCount, totalPrice, removeItem, updateQuantity, cartOpen, setCartOpen } = useCart();
+  const { items, totalCount, totalPrice, removeItem, updateQuantity, cartOpen, setCartOpen, cartNotice } = useCart();
   const { formatPrice } = useCurrency();
   const { promptMessage, clearPrompt } = useAuthPrompt();
 
   useEffect(() => {
     if (!promptMessage) return;
-    setAuthTab("register");
-    setLoginOpen(true);
+    const frame = requestAnimationFrame(() => { setAuthTab("register"); setLoginOpen(true); });
     const t = setTimeout(() => clearPrompt(), 3500);
-    return () => clearTimeout(t);
+    return () => { cancelAnimationFrame(frame); clearTimeout(t); };
   }, [promptMessage, clearPrompt]);
 
   useEffect(() => {
@@ -146,13 +151,13 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     
     // Check initial session
-    supabase.auth.getSession().then((result: any) => {
+    supabase.auth.getSession().then((result: { data: { session: { user: Customer } | null } }) => {
       const session = result?.data?.session;
       setUser(session?.user ?? null);
-    });
+    }).catch(() => setUser(null));
 
     // Listen for auth changes
-    const sessionResult: any = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+    const sessionResult = supabase.auth.onAuthStateChange((_event: string, session: { user: Customer } | null) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         setLoginOpen(false); // Close modal on success
@@ -162,7 +167,7 @@ export default function Navbar() {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      subscription.unsubscribe();
+      subscription?.unsubscribe?.();
     };
   }, []);
 
@@ -201,8 +206,13 @@ export default function Navbar() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    setRegisterSuccess(null);
+    if (!confirmPassword || password !== confirmPassword) {
+      setError("Passwords do not match. Please enter the same password in both fields.");
+      return;
+    }
+    setLoading(true);
     // Try dev auto-create endpoint first (dev convenience). If it fails or is unavailable, fall back to normal signup.
     try {
       const devHeaders: Record<string, string> = { 'content-type': 'application/json' };
@@ -218,12 +228,13 @@ export default function Navbar() {
             setAuthTab('login');
             setEmail('');
             setPassword('');
+            setConfirmPassword('');
             setFullName('');
             setLoading(false);
             return;
           }
       }
-    } catch (err) {
+    } catch {
       // ignore and fall back to normal signup
     }
 
@@ -243,6 +254,7 @@ export default function Navbar() {
       setAuthTab("login");
       setEmail("");
       setPassword("");
+      setConfirmPassword("");
       setFullName("");
     }
     setLoading(false);
@@ -252,6 +264,42 @@ export default function Navbar() {
     await supabase.auth.signOut();
     setUser(null);
   };
+
+  const switchAuthTab = (tab: "login" | "register") => {
+    setAuthTab(tab);
+    setError(null);
+    setRegisterSuccess(null);
+    setConfirmPassword("");
+  };
+
+  useEffect(() => {
+    const panel = searchOpen ? searchRef.current : loginOpen ? loginRef.current : cartOpen ? cartRef.current : mobileMenuOpen ? mobileRef.current : null;
+    if (!panel) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusable = () => [...panel.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), input:not(:disabled), summary, [tabindex="0"]')]
+      .filter((element) => element.getClientRects().length > 0);
+    const timer = setTimeout(() => (focusable()[0] ?? panel).focus(), 0);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setLoginOpen(false); setCartOpen(false); setMobileMenuOpen(false); setSearchOpen(false); setMegaOpen(null); clearPrompt();
+      }
+      if (event.key === "Tab") {
+        const elements = focusable();
+        const first = elements[0], last = elements.at(-1);
+        if (!first) { event.preventDefault(); panel.focus(); }
+        else if (event.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      clearTimeout(timer); document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [searchOpen, loginOpen, cartOpen, mobileMenuOpen, clearPrompt, setCartOpen]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -264,7 +312,7 @@ export default function Navbar() {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [loginOpen]);
+  }, [loginOpen, clearPrompt]);
 
   return (
     <>
@@ -285,18 +333,20 @@ export default function Navbar() {
       </div>
 
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out overflow-hidden ${scrolled
-            ? "bg-white/95 backdrop-blur-md shadow-[0_1px_0_rgba(0,0,0,0.06)]"
-            : "bg-white"
+        className={`storefront-header fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${scrolled
+            ? "bg-[#fdfcf9]/95 backdrop-blur-md shadow-[0_1px_0_rgba(0,0,0,0.06)]"
+            : "bg-[#fdfcf9]"
           }`}
       >
         {/* Top bar: Logo centered, icons on right */}
-        <div className="relative flex items-center justify-center px-6 md:px-10 lg:px-16 py-4 md:py-5">
+        <div className="relative flex h-[70px] items-center justify-center px-5 md:px-10 lg:px-16">
           {/* Mobile menu toggle - left */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="absolute left-6 md:hidden p-1 transition-transform duration-300 hover:scale-110"
             aria-label="Menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
             data-testid="navbar-mobile-menu-toggle"
           >
             {mobileMenuOpen ? (
@@ -307,17 +357,17 @@ export default function Navbar() {
           </button>
 
           {/* Brand Logo */}
-          <Link href="/" className="group relative">
-            <h1
-              className="text-[22px] md:text-[28px] lg:text-[32px] tracking-[0.35em] font-medium select-none font-playfair"
+          <Link href="/" className="group relative" aria-label="zeouf home">
+            <span
+              className="text-[25px] md:text-[32px] tracking-[0.25em] font-normal select-none font-playfair"
             >
               zeouf
-            </h1>
+            </span>
             <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-black transition-all duration-500 group-hover:w-full" />
           </Link>
 
           {/* Utility Icons - right */}
-          <div className="absolute right-6 md:right-10 lg:right-16 flex items-center gap-3 md:gap-5">
+          <div className="absolute right-4 md:right-8 lg:right-14 flex items-center gap-1 md:gap-2">
             <button
               onClick={() => setSearchOpen(true)}
               className="relative p-1.5 transition-all duration-300 hover:scale-110 group"
@@ -337,7 +387,7 @@ export default function Navbar() {
               >
                 {user ? (
                   <>
-                    <span className="text-[10px] tracking-wider text-neutral-600 hidden lg:block">
+                    <span className="max-w-32 truncate text-[11px] text-neutral-600 hidden lg:block">
                       {user.user_metadata?.full_name || user.email}
                     </span>
                     <LogOut size={19} strokeWidth={1.5} className="transition-colors duration-300 group-hover:text-red-500" />
@@ -381,14 +431,15 @@ export default function Navbar() {
         </div>
 
         {/* Separator line */}
-        <div className="h-[1px] bg-neutral-200 mx-6 md:mx-10 lg:mx-16" />
+        <div className="h-px bg-[var(--store-line)] mx-6 md:mx-10 lg:mx-16" />
 
         {/* Navigation links - desktop */}
-        <nav className="hidden md:block overflow-x-auto">
-          <ul className="flex items-center justify-center gap-6 lg:gap-10 px-6 md:px-10 lg:px-16 py-3">
+        <nav className="hidden md:block" aria-label="Main navigation">
+          <ul className="flex h-10 items-center justify-center gap-3 lg:gap-7 px-5 md:px-7">
             {navLinks.map((link) => (
               <li
                 key={link.href}
+                className="flex items-center"
                 onMouseEnter={() => {
                   if (megaTimeout.current) clearTimeout(megaTimeout.current);
                   setMegaOpen(link.mega ? link.href : null);
@@ -403,7 +454,8 @@ export default function Navbar() {
               >
                 <Link
                   href={link.href}
-                  className="relative px-2.5 lg:px-3.5 py-2 text-[10.5px] lg:text-[11px] tracking-[0.18em] font-medium text-neutral-800 transition-colors duration-300 hover:text-black whitespace-nowrap group"
+                  className={`relative px-1.5 py-2.5 text-[11px] tracking-[0.12em] transition-colors hover:text-black whitespace-nowrap group ${pathname.startsWith(link.href) ? "text-[var(--store-accent)]" : "text-neutral-700"}`}
+                  aria-current={pathname === link.href ? "page" : undefined}
                   data-testid={`navbar-nav-link-${link.href}`}
                 >
                   {link.label}
@@ -412,6 +464,10 @@ export default function Navbar() {
                       }`}
                   />
                 </Link>
+                {link.mega && <button type="button" onClick={() => setMegaOpen(megaOpen === link.href ? null : link.href)}
+                  onKeyDown={(event) => { if (event.key === "Escape") setMegaOpen(null); }}
+                  aria-label={`Browse ${link.label.toLowerCase()} categories`} aria-expanded={megaOpen === link.href}
+                  aria-controls={`mega-menu-${link.href.slice(1)}`} className="!min-w-6 !min-h-8 text-neutral-500"><ChevronDown size={12} /></button>}
               </li>
             ))}
           </ul>
@@ -426,15 +482,16 @@ export default function Navbar() {
 
       {/* Search Overlay */}
       {searchOpen && (
-        <div className="fixed inset-0 z-[60] flex flex-col">
-          <div className="bg-white border-b border-neutral-200 px-6 md:px-10 lg:px-16 py-5 flex items-center gap-4 shadow-sm">
+        <div className="fixed inset-0 z-[80] flex flex-col">
+          <div ref={searchRef} role="dialog" aria-modal="true" aria-label="Search catalog" tabIndex={-1} className="bg-[#fdfcf9] border-b border-[var(--store-line)] px-6 md:px-10 lg:px-16 py-6 flex items-center gap-4 shadow-sm">
             <Search size={18} strokeWidth={1.5} className="text-neutral-400 shrink-0" />
             <form onSubmit={handleSearchSubmit} className="flex-1" data-testid="navbar-search-form">
               <input
                 ref={searchInputRef}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search product, category or brand..."
+                placeholder="Find a piece, explore a category…"
+                aria-label="Search products and categories"
                 className="w-full text-sm tracking-wide outline-none placeholder:text-neutral-400"
                 data-testid="navbar-search-input"
               />
@@ -452,6 +509,9 @@ export default function Navbar() {
         link.mega ? (
           <div
             key={link.href}
+            id={`mega-menu-${link.href.slice(1)}`}
+            inert={megaOpen !== link.href}
+            onKeyDown={(event) => { if (event.key === "Escape") setMegaOpen(null); }}
             onMouseEnter={() => {
               if (megaTimeout.current) clearTimeout(megaTimeout.current);
               setMegaOpen(link.href);
@@ -459,7 +519,7 @@ export default function Navbar() {
             onMouseLeave={() => {
               megaTimeout.current = setTimeout(() => setMegaOpen(null), 100);
             }}
-            className={`fixed left-0 right-0 z-40 bg-white border-t border-neutral-100 shadow-xl transition-all duration-400 ease-out ${megaOpen === link.href
+            className={`fixed left-0 right-0 z-40 hidden md:block bg-[#fdfcf9] border-t border-[var(--store-line)] shadow-xl transition-all duration-300 ease-out ${megaOpen === link.href
                 ? "opacity-100 translate-y-0 pointer-events-auto"
                 : "opacity-0 -translate-y-2 pointer-events-none"
               }`}
@@ -497,6 +557,7 @@ export default function Navbar() {
                     src={link.mega.image}
                     alt={link.mega.imageLabel}
                     fill
+                    sizes="200px"
                     className="object-cover object-top"
                   />
                 </div>
@@ -520,7 +581,14 @@ export default function Navbar() {
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed top-0 left-0 bottom-0 z-50 w-[85%] max-w-[340px] bg-white shadow-2xl transition-transform duration-500 ease-out md:hidden ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        ref={mobileRef}
+        id="mobile-navigation"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
+        tabIndex={-1}
+        inert={!mobileMenuOpen}
+        className={`storefront-drawer fixed top-0 left-0 bottom-0 z-50 w-[88%] max-w-[360px] bg-[#fdfcf9] shadow-2xl transition-transform duration-300 ease-out md:hidden ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
         <div className="flex flex-col h-full">
@@ -543,19 +611,27 @@ export default function Navbar() {
           {/* Mobile nav links */}
           <nav className="flex-1 overflow-y-auto py-4">
             <ul className="flex flex-col">
-              {navLinks.map((link, index) => (
+              {navLinks.map((link) => (
                 <li
                   key={link.href}
-                  className="opacity-0 animate-[slideIn_0.4s_ease-out_forwards]"
-                  style={{ animationDelay: `${index * 50}ms` }}
+                  className="border-b border-[var(--store-line)]"
                 >
                   <Link
                     href={link.href}
-                    className="block px-8 py-3.5 text-[11px] tracking-[0.2em] font-medium text-neutral-700 hover:text-black hover:bg-neutral-50 transition-all duration-300 border-b border-neutral-50"
+                    className="block px-8 py-4 font-playfair text-xl text-neutral-800 hover:bg-neutral-50 transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {link.label}
                   </Link>
+                  {link.mega && <details className="px-8 pb-4">
+                    <summary className="cursor-pointer py-2 text-xs text-[var(--store-muted)]">Explore {link.label.toLowerCase()}</summary>
+                    <div className="grid gap-4 pb-2 pt-3">
+                      {link.mega.columns.filter((column) => column.title !== "Outerwear").map((column) => <div key={column.title}>
+                        <p className="mb-2 text-[10px] uppercase tracking-widest text-neutral-500">{column.title}</p>
+                        {column.links.map((item) => <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm text-neutral-700">{item.label}</Link>)}
+                      </div>)}
+                    </div>
+                  </details>}
                 </li>
               ))}
             </ul>
@@ -564,7 +640,7 @@ export default function Navbar() {
           {/* Mobile bottom icons */}
           <div className="px-8 py-6 border-t border-neutral-100 flex items-center gap-6">
             <button
-              onClick={() => { setMobileMenuOpen(false); user ? handleLogout() : setLoginOpen(true); }}
+              onClick={() => { setMobileMenuOpen(false); if (user) void handleLogout(); else setLoginOpen(true); }}
               className="p-2 transition-all duration-300 hover:scale-110"
               aria-label="Account"
             >
@@ -611,9 +687,14 @@ export default function Navbar() {
       {/* Login Panel - slides from right */}
       <div
         ref={loginRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="My account"
+        tabIndex={-1}
+        inert={!loginOpen}
         data-testid="navbar-login-panel"
         data-state={loginOpen ? "open" : "closed"}
-        className={`fixed top-0 right-0 bottom-0 z-[70] w-full xs:w-[90%] sm:w-[440px] bg-white shadow-2xl transition-transform duration-500 ease-out ${loginOpen ? "translate-x-0" : "translate-x-full"
+        className={`storefront-drawer fixed top-0 right-0 bottom-0 z-[70] w-full sm:w-[440px] bg-[#fdfcf9] shadow-2xl transition-transform duration-300 ease-out ${loginOpen ? "translate-x-0" : "translate-x-full"
           }`}
       >
         <div className="flex flex-col h-full">
@@ -650,7 +731,7 @@ export default function Navbar() {
           {/* Tabs */}
           <div className="flex border-b border-neutral-100">
             <button
-              onClick={() => setAuthTab("login")}
+              onClick={() => switchAuthTab("login")}
               data-testid="navbar-auth-tab-login"
               className={`flex-1 py-4 text-[11px] tracking-[0.2em] uppercase font-medium transition-all duration-300 ${authTab === "login"
                   ? "text-black border-b-2 border-black"
@@ -660,7 +741,7 @@ export default function Navbar() {
               Sign In
             </button>
             <button
-              onClick={() => setAuthTab("register")}
+              onClick={() => switchAuthTab("register")}
               data-testid="navbar-auth-tab-register"
               className={`flex-1 py-4 text-[11px] tracking-[0.2em] uppercase font-medium transition-all duration-300 ${authTab === "register"
                   ? "text-black border-b-2 border-black"
@@ -685,6 +766,7 @@ export default function Navbar() {
                   </p>
 
                   <form onSubmit={handleLogin} className="flex flex-col gap-5" data-testid="navbar-login-form">
+                    {registerSuccess && <p role="status" className="border border-emerald-200 bg-emerald-50 p-3 text-xs leading-5 text-emerald-800">{registerSuccess}</p>}
                     {error && (
                       <div data-testid="navbar-login-error" className="bg-red-50 text-red-500 text-[11px] p-3 border border-red-100">
                         {error}
@@ -762,8 +844,8 @@ export default function Navbar() {
                   </p>
 
                   <p className="text-center text-[12px] text-neutral-400 mt-8">
-                    Don't have an account?{" "}
-                    <button onClick={() => setAuthTab("register")} className="text-black font-medium hover:underline">
+                    Don&apos;t have an account?{" "}
+                    <button onClick={() => switchAuthTab("register")} className="text-black font-medium hover:underline">
                       Register
                     </button>
                   </p>
@@ -779,7 +861,7 @@ export default function Navbar() {
 
                   <form onSubmit={handleRegister} className="flex flex-col gap-5" data-testid="navbar-register-form">
                     {error && (
-                      <div data-testid="navbar-register-error" className="bg-red-50 text-red-500 text-[11px] p-3 border border-red-100">
+                      <div role="alert" id="registration-error" data-testid="navbar-register-error" className="bg-red-50 text-red-700 text-xs leading-5 p-3 border border-red-100">
                         {error}
                       </div>
                     )}
@@ -861,6 +943,11 @@ export default function Navbar() {
                           placeholder="••••••••"
                           className="w-full pl-7 pr-4 py-2.5 text-[13px] tracking-wide border-b border-neutral-200 focus:border-black outline-none transition-colors duration-300 bg-transparent"
                           data-testid="navbar-register-confirm-password"
+                          value={confirmPassword}
+                          onChange={(event) => setConfirmPassword(event.target.value)}
+                          autoComplete="new-password"
+                          aria-label="Confirm password"
+                          aria-describedby={error ? "registration-error" : undefined}
                         />
                       </div>
                     </div>
@@ -885,7 +972,7 @@ export default function Navbar() {
 
                   <p className="text-center text-[12px] text-neutral-400 mt-8">
                     Already have an account?{" "}
-                    <button onClick={() => setAuthTab("login")} className="text-black font-medium hover:underline">
+                    <button onClick={() => switchAuthTab("login")} className="text-black font-medium hover:underline">
                       Sign In
                     </button>
                   </p>
@@ -911,7 +998,7 @@ export default function Navbar() {
       />
 
       {/* Cart Panel */}
-      <div data-testid="navbar-cart-panel" data-state={cartOpen ? "open" : "closed"} className={`fixed top-0 right-0 bottom-0 z-[70] w-full xs:w-[90%] sm:w-[440px] bg-white shadow-2xl transition-transform duration-500 ease-out ${cartOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <div ref={cartRef} role="dialog" aria-modal="true" aria-label="Shopping bag" tabIndex={-1} inert={!cartOpen} data-testid="navbar-cart-panel" data-state={cartOpen ? "open" : "closed"} className={`storefront-drawer fixed top-0 right-0 bottom-0 z-[70] w-full sm:w-[440px] bg-[#fdfcf9] shadow-2xl transition-transform duration-300 ease-out ${cartOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between px-8 py-6 border-b border-neutral-100">
@@ -923,6 +1010,7 @@ export default function Navbar() {
             </button>
           </div>
 
+          {cartNotice && <p role="status" className="mx-6 mt-4 border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">{cartNotice}</p>}
           {/* Items */}
           <div className="flex-1 overflow-y-auto">
             {items.length === 0 ? (
@@ -941,7 +1029,7 @@ export default function Navbar() {
                 {items.map((item) => (
                   <li key={`${item.id}-${item.size}-${item.color ?? ""}`} data-testid="navbar-cart-item" className="flex gap-4 px-8 py-5">
                     <div className="relative w-20 aspect-[3/4] flex-shrink-0 bg-neutral-50 overflow-hidden">
-                      <Image src={item.image_url} alt={item.name} fill className="object-cover object-top" />
+                      <Image src={item.image_url} alt={item.name} fill sizes="80px" className="object-cover object-top" />
                     </div>
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
@@ -954,11 +1042,11 @@ export default function Navbar() {
                       </div>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center border border-neutral-200">
-                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1, item.color)} className="w-7 h-7 flex items-center justify-center hover:bg-neutral-50 transition-colors text-neutral-500">
+                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1, item.color)} aria-label={`Decrease quantity of ${item.name}`} className="w-8 h-9 flex items-center justify-center hover:bg-neutral-50 transition-colors text-neutral-500">
                             −
                           </button>
                           <span className="w-8 text-center text-[12px]">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1, item.color)} className="w-7 h-7 flex items-center justify-center hover:bg-neutral-50 transition-colors text-neutral-500">
+                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1, item.color)} aria-label={`Increase quantity of ${item.name}`} className="w-8 h-9 flex items-center justify-center hover:bg-neutral-50 transition-colors text-neutral-500">
                             +
                           </button>
                         </div>
@@ -966,7 +1054,7 @@ export default function Navbar() {
                           <p className="text-[13px] font-medium">
                             {formatPrice(item.price * item.quantity)}
                           </p>
-                          <button onClick={() => removeItem(item.id, item.size, item.color)} className="text-neutral-300 hover:text-red-400 transition-colors">
+                          <button onClick={() => removeItem(item.id, item.size, item.color)} aria-label={`Remove ${item.name} from bag`} className="flex h-9 w-8 items-center justify-center text-neutral-500 hover:text-red-700 transition-colors">
                             <X size={14} strokeWidth={1.5} />
                           </button>
                         </div>
@@ -982,7 +1070,7 @@ export default function Navbar() {
           {items.length > 0 && (
             <div className="px-8 py-6 border-t border-neutral-100">
               <div className="flex items-center justify-between mb-5">
-                <span className="text-[11px] tracking-[0.15em] text-neutral-500 uppercase">Toplam</span>
+                <span className="text-xs text-neutral-600">Subtotal</span>
                 <span className="text-[16px] font-medium">
                   {formatPrice(totalPrice)}
                 </span>

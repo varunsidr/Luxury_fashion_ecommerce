@@ -40,13 +40,18 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --store-ink: #24231f;
+  --store-muted: #68655e;
+  --store-surface: #f6f4ef;
+  --store-line: #e5e1d9;
+  --store-accent: #6d3d36;
+  --navbar-height: 112px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-poppins), Arial, Helvetica, sans-serif;
   --font-playfair: var(--font-playfair), serif;
   --font-poppins: var(--font-poppins), Arial, Helvetica, sans-serif;
 }
@@ -54,7 +59,25 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  scrollbar-width: none;
+}
+
+.editorial-container { width: min(100%, 1440px); margin-inline: auto; padding-inline: clamp(20px, 4.5vw, 72px); }
+.editorial-section { padding-block: clamp(48px, 6vw, 88px); }
+.editorial-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--store-muted); }
+.editorial-heading { font-family: var(--font-playfair), serif; font-size: clamp(32px, 3.4vw, 52px); font-weight: 400; line-height: 1.15; letter-spacing: -.035em; color: var(--store-ink); }
+.editorial-button { display: inline-flex; align-items: center; justify-content: center; gap: 20px; min-height: 48px; padding: 14px 24px; border-width: 1px; font-size: 12px; font-weight: 500; transition: background-color 200ms, color 200ms; }
+.storefront-home { padding-top: var(--navbar-height); background: #fdfcf9; color: var(--store-ink); }
+.editorial-hero { position: relative; height: min(760px, calc(100svh - var(--navbar-height))); min-height: 540px; overflow: hidden; background: #292923; }
+.editorial-hero .editorial-eyebrow { color: rgb(255 255 255 / 80%); }
+.storefront-header { color: var(--store-ink); }
+.storefront-header button[aria-label], .storefront-header a[aria-label] { min-width: 40px; min-height: 40px; }
+.storefront-header button[aria-label] > svg, .storefront-header a[aria-label] > svg { margin-inline: auto; }
+.storefront-drawer input { border-color: var(--store-line); }
+.storefront-drawer input:focus { border-color: var(--store-accent); }
+.storefront-drawer [role="alert"] { border-radius: 4px; }
+@media (max-width: 767px) {
+  :root { --navbar-height: 72px; }
+  .editorial-hero { min-height: 560px; max-height: 780px; }
 }
 
 @keyframes catalog-enter {
@@ -94,11 +117,6 @@ button:not(:disabled):active { transform: scale(0.98); }
   to {
     transform: translateX(0);
   }
-}
-
-/* Hide scrollbar */
-::-webkit-scrollbar {
-  display: none;
 }
 
 /* Selection color */

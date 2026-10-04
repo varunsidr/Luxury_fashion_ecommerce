@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingBag, ArrowUpRight, ImageOff } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
 import { useCurrency } from "@/context/CurrencyContext";
@@ -136,6 +136,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isDemoProduct = product.image_url.startsWith("/demo-products/");
   const colorOptions = isDemoProduct ? [] : product.color_options ?? [];
   const [selectedColor, setSelectedColor] = useState(colorOptions[0] ?? null);
+  const [loadedImage, setLoadedImage] = useState<string | null>(null);
+  const [failedImage, setFailedImage] = useState<string | null>(null);
+  const imageSource = selectedColor?.image_url ?? product.image_url;
   const isFav = isFavorite(product.id);
   const displayCategory = translateDisplayText(product.category);
   const displayName = translateDisplayText(product.name);
@@ -147,7 +150,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     : Number(product.stock ?? 0) > 0;
 
   return (
-    <div className="group relative transition-transform duration-500 hover:-translate-y-1 motion-safe:animate-[catalog-enter_450ms_ease-out_both]" data-testid="product-card" data-product-id={product.id}>
+    <article className="group relative motion-safe:animate-[catalog-enter_450ms_ease-out_both]" data-testid="product-card" data-product-id={product.id}>
       {/* Favorite Button */}
       <button
         onClick={(e) => {
@@ -155,31 +158,37 @@ export default function ProductCard({ product }: ProductCardProps) {
           e.stopPropagation();
           toggleFavorite(product.id);
         }}
-        className="absolute top-3 right-3 z-20 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm transition-all duration-300 hover:scale-110 active:scale-95 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+        className="absolute top-3 right-3 z-20 flex h-10 w-10 items-center justify-center bg-white/95 backdrop-blur-sm rounded-full border border-black/5 transition-colors hover:bg-white"
         aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
         data-testid="product-card-favorite-button"
+        aria-pressed={isFav}
       >
         <Heart
           size={18}
           strokeWidth={1.5}
           className={`transition-colors duration-300 ${
-            isFav ? "fill-red-500 text-red-500" : "text-neutral-400 group-hover:text-black"
+            isFav ? "fill-[var(--store-accent)] text-[var(--store-accent)]" : "text-neutral-700"
           }`}
         />
       </button>
 
-      <div className="relative aspect-[3/4] overflow-hidden bg-neutral-50 mb-4">
-        <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="block h-full" data-testid="product-card-link">
+      <div className="relative aspect-[3/4] overflow-hidden bg-[var(--store-surface)] mb-4">
+        <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="relative block h-full" data-testid="product-card-link">
           {product.tag && (
-            <span className="absolute top-3 left-3 z-10 text-[9px] tracking-[0.15em] uppercase bg-black text-white px-2 py-1">
+            <span className="absolute top-4 left-3 z-10 text-[10px] tracking-[0.08em] bg-white/95 text-neutral-800 px-2.5 py-1.5">
               {displayTag}
             </span>
           )}
+          {loadedImage !== imageSource && failedImage !== imageSource && <div aria-hidden="true" className="absolute inset-0 motion-safe:animate-pulse bg-[#eae7e1]" />}
+          {failedImage === imageSource && <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-neutral-500"><ImageOff size={24} strokeWidth={1} /><span className="text-xs">Image unavailable</span></div>}
           <Image
-            src={selectedColor?.image_url ?? product.image_url}
+            src={imageSource}
             alt={displayName}
             fill
-            className={`object-cover object-top origin-top transition-transform duration-700 ${isDemoProduct ? "scale-[1.08] group-hover:scale-[1.12]" : "group-hover:scale-105"} ${hasStock ? "" : "grayscale-[35%]"}`}
+            sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 25vw"
+            onLoad={() => setLoadedImage(imageSource)}
+            onError={() => setFailedImage(imageSource)}
+            className={`object-cover object-top origin-top transition-all duration-700 ${loadedImage === imageSource && failedImage !== imageSource ? "opacity-100" : "opacity-0"} ${isDemoProduct ? "scale-[1.08] motion-safe:group-hover:scale-[1.12]" : "motion-safe:group-hover:scale-105"} ${hasStock ? "" : "grayscale-[35%]"}`}
           />
           {!hasStock && <span className="absolute inset-x-0 top-1/2 z-10 mx-auto w-fit -translate-y-1/2 border border-white/50 bg-black/75 px-5 py-3 text-[9px] font-medium uppercase tracking-[0.28em] text-white backdrop-blur-sm">Out of stock</span>}
         </Link>
@@ -189,17 +198,17 @@ export default function ProductCard({ product }: ProductCardProps) {
             if (product.sizes?.length) return;
             addItem({ id: product.id, name: displayName, price: product.price, image_url: selectedColor?.image_url ?? product.image_url, category: product.category, size: null, color: selectedColor?.name ?? null });
           }}
-          className={`absolute inset-x-0 bottom-0 bg-black/80 py-3 text-center transition-transform duration-400 ${product.sizes?.length ? "hidden" : "translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0"}`}
+          className={`absolute inset-x-3 bottom-3 flex min-h-11 items-center justify-center gap-2 bg-white/95 py-3 text-neutral-900 backdrop-blur-sm transition-opacity duration-200 ${product.sizes?.length ? "hidden" : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"}`}
           data-testid="product-card-add-to-cart"
           aria-label={`Add ${displayName} to cart`}
         >
-          <span className="text-[10px] tracking-[0.2em] text-white uppercase">
-            Add to cart
+          <ShoppingBag size={14} strokeWidth={1.5} /><span className="text-xs">
+            Add to bag
           </span>
         </button>}
         {hasStock && product.sizes?.length ? (
-          <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="absolute inset-x-0 bottom-0 bg-black/80 py-3 text-center text-[10px] uppercase tracking-[0.2em] text-white sm:translate-y-full sm:transition-transform sm:group-hover:translate-y-0" aria-label={`Choose a size for ${displayName}`}>
-            Choose size
+          <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="absolute inset-x-3 bottom-3 flex min-h-11 items-center justify-center gap-2 bg-white/95 py-3 text-xs text-neutral-900 backdrop-blur-sm transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100" aria-label={`Choose a size for ${displayName}`}>
+            Choose size <ArrowUpRight size={14} />
           </Link>
         ) : null}
       </div>
@@ -227,23 +236,23 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Link href={`/${getStorefrontSlugForCategory(product.category)}/${product.id}`} className="block">
         <div className="flex flex-col gap-1">
           {product.brand && (
-            <p className="text-[9px] tracking-[0.2em] text-neutral-400 uppercase">
+            <p className="text-[10px] tracking-[0.12em] text-[var(--store-muted)] uppercase">
               {product.brand}
             </p>
           )}
-          <p className="text-[10px] tracking-[0.15em] text-neutral-400 uppercase text-[9px]">
+          <p className="text-[11px] text-[var(--store-muted)]">
             {displayCategory}
           </p>
-          <h3 className="text-[13px] tracking-wide text-neutral-900 font-light group-hover:underline underline-offset-2 font-playfair mt-0.5" data-testid="product-card-name">
+          <h3 className="text-sm leading-5 text-[var(--store-ink)] font-normal group-hover:underline underline-offset-4 mt-0.5" data-testid="product-card-name">
             {displayName}
           </h3>
-          <p className="text-[13px] font-medium text-neutral-900 mt-1" data-testid="product-card-price">
+          <p className="text-sm font-medium text-[var(--store-ink)] mt-1" data-testid="product-card-price">
             {formatPrice(product.price)}
           </p>
           {!hasStock && <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">Currently unavailable</p>}
         </div>
       </Link>
 
-    </div>
+    </article>
   );
 }

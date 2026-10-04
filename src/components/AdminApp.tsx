@@ -65,6 +65,8 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   const [editId, setEditId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("All");
   const [imageInput, setImageInput] = useState("");
@@ -173,9 +175,19 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
     }
   }
 
-  function logout() {
-    localStorage.removeItem("admin_auth");
-    router.push("/admin");
+  async function logout() {
+    setLoggingOut(true);
+    setLogoutError("");
+    try {
+      const response = await fetch("/api/admin/logout", { method: "POST" });
+      if (!response.ok) throw new Error("Logout failed");
+      try { localStorage.removeItem("admin_auth"); } catch { /* Cookie has already been cleared. */ }
+      router.replace("/admin");
+      router.refresh();
+    } catch {
+      setLogoutError("Could not sign out. Please try again.");
+      setLoggingOut(false);
+    }
   }
 
   const filteredOrders = orders.filter((order) => {
@@ -392,9 +404,10 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
           ))}
         </nav>
         <div className="px-6 py-4 border-t border-neutral-800">
-          <button onClick={logout} className="flex items-center gap-3 text-neutral-500 hover:text-white transition-colors text-[11px] tracking-[0.15em] uppercase">
+          {logoutError && <p role="alert" className="mb-3 text-xs text-red-300">{logoutError}</p>}
+          <button onClick={logout} disabled={loggingOut} className="flex items-center gap-3 text-neutral-500 hover:text-white transition-colors text-[11px] tracking-[0.15em] uppercase disabled:opacity-50">
             <LogOut size={15} strokeWidth={1.5} />
-            Logout
+            {loggingOut ? "Signing out…" : "Logout"}
           </button>
         </div>
       </aside>

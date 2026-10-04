@@ -2,10 +2,10 @@
 
 | Document control | Value |
 |---|---|
-| Version | 1.1 |
+| Version | 1.2 |
 | Prepared | 2 October 2026 |
 | Product | zeouf — Luxury Fashion & Lifestyle |
-| Baseline | Source baseline over commit `3ba7f1c`; documentation tooling reviewed on 4 October 2026. Exact reviewed inputs are recorded in requirements-source-snapshot.json and requirements-reviews.json. |
+| Baseline | Storefront polish and registration/admin logout/cart recovery reviewed over commit `3a58270` on 4 October 2026. Exact reviewed inputs are recorded in requirements-source-snapshot.json and requirements-reviews.json. |
 | Status | Draft for business and QA review; no stakeholder sign-off recorded |
 | Audience | Customers, product owner, administrators, developers, manual testers, and test-generation tools |
 | Evidence | Repository inspection. No live website, database, email delivery, or end-to-end execution was verified for this document. |
@@ -51,13 +51,13 @@ No conversion, sales, traffic, uptime, or speed target has been supplied. Sugges
 
 | Area | What the user can understand or do | Current boundary |
 |---|---|---|
-| Home and navigation | Browse campaign videos, editorial collection links, categories, account, search, favorites, and cart. | Campaign content is defined in code. |
+| Home and navigation | Browse one active campaign video or still poster, editorial collection links, seven category links, account, search, favorites, and cart. | Campaign content is defined in code; media pauses offscreen, in hidden tabs, on explicit pause, or for reduced motion. |
 | Catalog | Browse seven main categories, clothing subcategories and highlights; filter, sort, and load more. | Listings can fall back to a local catalog. |
 | Search | Search product names and category text. | Case-insensitive substring search; no relevance engine, suggestions, or full-text index established. |
 | Product details | Inspect photographs, verified color options, size choices, quantity, size guide, information panels, related products, and reviews. | Demo-image products hide color choices; some descriptive content uses generic fallback copy. |
-| Account | Register, sign in, sign out, reveal password, request a reset email. | Confirmation matching and completion of password recovery are incomplete. |
+| Account | Register with matching password confirmation, sign in, sign out, reveal password, request a reset email. | Completion of password recovery is incomplete. |
 | Favorites | Save/remove products and see saved products and counts. | Requires a customer session and database. |
-| Cart | Add chosen product options, change quantities, remove lines, see totals, proceed to checkout. | Adding requires sign-in; cart is stored in this browser and is not tied to one account. |
+| Cart | Restore validated saved lines, recover malformed data, add chosen options, change quantities, remove lines, see totals, proceed to checkout. | Adding requires sign-in; cart stays browser-wide. Unavailable storage permits in-memory use with feedback. |
 | Checkout | Enter contact/address details, choose demo card or simulated cash on delivery, save an order. | No card fields, actual charges, tax/shipping calculation, or delivery integration. |
 | Order history | Read one's own orders and expand product lines. | No customer cancellation, refunds, tracking number, or reorder action. |
 | Reviews | Submit stars/comments and optional images; read feedback and stored replies. | Public approval behavior and reply/schema support have gaps. |
@@ -93,7 +93,7 @@ An admin session uses its own signed cookie. It is not a Supabase customer ident
 
 | Route / entry point | Function | Key links / access |
 |---|---|---|
-| `/` | Home: alternating women/men campaign media, collection panels, curated category links, editorial copy | Collection links lead to category/listing pages, not necessarily specific products. |
+| `/` | Home: women/men hero with pause/manual controls, seven-category navigation, two collection panels, six editorial tiles, blouse edit and demo explanation | Editorial links lead to category/listing pages. One active local video replaces multiple simultaneous videos and the third-party closing embed. |
 | `/women`, `/men` | All products for a clothing main category | Subcategory/highlight mega menus and mobile navigation |
 | `/perfume`, `/shoes`, `/accessories`, `/bags`, `/makeup` | Remaining main-category listings | Main navigation/footer |
 | `/women/dress`, `/women/blouse`, `/women/jacket`, `/women/skirt`, `/women/trousers` | Clothing subcategories | Catalog and mega menu |
@@ -135,7 +135,7 @@ Sidebar navigation changes component state, not the browser URL. A refresh resto
 |---|---|---|---|---|
 | J-01 Discover and inspect | Visitor; local or configured catalog | Home → category/subcategory → filters/sort/load more → card → product detail | Matching products or empty state; unsupported ID gives not-found | NAV-01–07, CAT-01–08, PDP-01–06 |
 | J-02 Find by search | Visitor | Open search → enter query → submit → results → product | Name/category substring matches, deduplicated; blank header search stays put | SEA-01–03, PDP-01 |
-| J-03 Create/use account | Auth configured | Account → Register → details → submit → verification if configured → Sign In | Session activates customer features; errors stay in account panel; matching confirmation is a gap | AUTH-01–07 |
+| J-03 Create/use account | Auth configured | Account → Register → matching password/confirmation → submit → verification if configured → Sign In | Session activates customer features; validation/provider errors stay in account panel | AUTH-01–07 |
 | J-04 Save for later | Customer signed in | Heart on card/detail → favorites page → remove heart | Account-specific favorites/count update; visitor gets prompt | FAV-01–03 |
 | J-05 Build cart | Customer; purchasable product | Select size/color if offered → quantity → add → drawer → edit/remove → refresh | Variant lines persist in this browser; inventory rechecked at checkout | PDP-03–04, CART-01–06 |
 | J-06 Place demo order | Customer; nonempty cart; server/database ready | Checkout → all shipping fields → demo method → submit → confirmation → history | One pending demo order, trusted price snapshot, inventory reduction, cleared cart; failure keeps cart | CHK-01–09, ORD-01–03 |
@@ -169,17 +169,17 @@ flowchart LR
 
 **Priority:** P0 = access/data/order integrity; P1 = core customer/admin function; P2 = secondary presentation or convenience. These are suggested QA priorities, pending owner review. Source codes resolve in section 14. The CSV mirrors these rows and leaves execution/test-link fields open.
 
-The catalogue contains 112 requirements across 19 modules (including nonfunctional requirements), with **24 source-level gap findings** tracked in section 12.
+The catalogue contains 113 requirements across 19 modules (including nonfunctional requirements), with **24 source-level gap findings** tracked in section 12.
 
 ### 6.1 Home, navigation, and routes
 
 | ID | Priority | State | Requirement and acceptance criteria | Source | QA focus |
 |---|---|---|---|---|---|
-| NAV-01 | P1 | I | Home shall show women/men campaign slides with matching collection links; automatic slide change occurs about every six seconds and is skipped when reduced motion is requested. | HOME | Timers, manual slide controls, video loading, reduced motion |
-| NAV-02 | P1 | I | Collection panels and six curated feature tiles shall navigate to their configured category/subcategory destinations; editorial images are not live stock-driven product recommendations. | HOME | Every CTA and destination |
-| NAV-03 | P1 | I | Desktop navigation shall expose all seven categories and women's/men's subcategory/highlight menus. | NAV, CATDEF | Hover/menu open-close and click |
-| NAV-04 | P1 | I | Mobile navigation shall open/close and expose category links and expandable clothing menus. | NAV | Touch, narrow screen, menu dismissal |
-| NAV-05 | P1 | I | Header shall expose account, search, favorites and cart; logo returns home; drawers/overlays can be closed through their available close/backdrop actions. | NAV, SHELL | State transitions, counts, overlay stacking |
+| NAV-01 | P1 | I | Home shall show women/men hero content and matching links, with one active local video or still poster, manual slide selection and pause/play. Automatic change occurs about every six seconds while at least 10% visible, tab visible, unpaused and reduced motion disabled. Offscreen/hidden/paused media stops; reduced motion uses still imagery and manual selection. | HOME | Active-only playback, posters, manual selection, pause, offscreen/hidden tab, reduced motion |
+| NAV-02 | P1 | I | Two collection panels, seven category links, six editorial tiles and the blouse edit shall navigate to configured category/subcategory destinations. The compact homepage uses consistent typography/spacing and explicit demo copy; editorial tiles remain curated category links. | HOME | Every CTA/destination, 375/768/1440 widths, image loading |
+| NAV-03 | P1 | I | Desktop navigation shall expose seven categories and women's/men's subcategory/highlight menus, with pointer hover and keyboard-operable expanded-state disclosure controls. Escape closes menus; closed menu links are inert. | NAV, CATDEF | Hover, disclosure click/Enter, Escape, inert links, current route |
+| NAV-04 | P1 | I | Mobile navigation shall open/close, expose seven category links and expandable women's/men's clothing/highlight sections, and close after navigation or Escape. | NAV | Touch, narrow screen, subcategories, dismissal and focus restoration |
+| NAV-05 | P1 | I | Header shall expose account, search, favorites and cart; logo returns home. Active account/cart/search/mobile dialogs lock background scrolling, contain keyboard focus, and support Escape/close/backdrop dismissal with focus restoration; closed drawers are inert. | NAV, SHELL | Dialog roles, Tab/Shift+Tab, Escape, counts, scroll lock, focus restoration |
 | NAV-06 | P1 | I | English URLs and their legacy redirects/rewrites shall resolve to the intended page, including mapped legacy clothing slugs. | ROUTE | Direct URL, encoded query, redirect destination |
 | NAV-07 | P1 | I | Unknown product/subcategory routes shall reach not-found; storefront chrome shall be absent from admin pages. | ROUTE, DETAILROUTE, SHELL | Missing ID, route refresh, admin layout |
 
@@ -208,14 +208,14 @@ The catalogue contains 112 requirements across 19 modules (including nonfunction
 
 | ID | Priority | State | Requirement and acceptance criteria | Source | QA focus |
 |---|---|---|---|---|---|
-| PDP-01 | P1 | I | Cards/detail shall present product name, price and image, optional brand/tag/category, and a product link; detail shall use gallery thumbnails when multiple applicable photographs exist. | CARD, DETAIL | Single/multiple/missing images, supported remote host |
+| PDP-01 | P1 | I | Cards/detail shall present name, price, image, optional brand/tag/category and product links; detail uses applicable gallery thumbnails. Cards use consistent crops and responsive image sizes, show loading placeholders, and retain readable product information with Image unavailable feedback after photo failure. | CARD, DETAIL | Single/multiple/missing images, supported remote host, loading/failure state |
 | PDP-02 | P1 | I | Verified color options shall expose named swatches and applicable images; selected color accompanies cart line. Products under /demo-products/ shall hide colors and use one demo photograph. | CARD, DETAIL | Color/image correspondence, no-color/demo fixtures |
 | PDP-03 | P0 | P | Sized products shall require a chosen available size before add; unavailable sizes are disabled. Missing stock rows and selecting an unavailable size for an alert need resolution (G-09). | DETAIL | No size, stock 0, missing row, mixed stock |
 | PDP-04 | P1 | I | Detail quantity shall start at one, not decrease below one, clamp to known positive available stock, and disable add/increase when the known limit is reached. | DETAIL | 1, stock limit, size change, unknown stock |
 | PDP-05 | P2 | I | Size guide shall open/close and show XS/S/M/L chest and waist references; it is a static clothing reference, not a product-specific shoe or XL/XXL guide. | DETAIL | Overlay dismissal and reference values |
 | PDP-06 | P2 | I | Detail shall offer one-open-at-a-time information panels for details, measurements, composition/care/origin, and shipping/exchanges/returns, using supplied text or generic fallback. | DETAIL | Open/switch/close, newline content, defaults |
 | PDP-07 | P2 | I | Complete Your Look shall show up to eight other products whose category starts with the main category; the current product is excluded and an empty related section is hidden. | DETAIL | 0/1/8 related items, links, horizontal scroll |
-| PDP-08 | P1 | I | In-stock unsized cards shall allow quick-add; sized cards shall send the user to choose size; out-of-stock cards shall display unavailable status and hide add controls. | CARD | Sized/unsized/out-of-stock and signed-out actions |
+| PDP-08 | P1 | I | In-stock unsized cards shall allow Add to bag; sized cards link to size selection; out-of-stock cards display unavailable status and omit purchase controls. Actions are visible on touch layouts and reveal on hover or keyboard focus on desktop; favorite controls remain visible with pressed state. | CARD | Sized/unsized/out-of-stock, guest prompt, touch/keyboard/hover actions |
 
 ### 6.5 Currency and pricing display
 
@@ -230,7 +230,7 @@ The catalogue contains 112 requirements across 19 modules (including nonfunction
 | ID | Priority | State | Requirement and acceptance criteria | Source | QA focus |
 |---|---|---|---|---|---|
 | AUTH-01 | P1 | C | Register shall collect required full name/email/password and call Supabase signup with name metadata; success switches to Sign In and explains email verification when applicable. | NAV, SCHEMA | Required/email validation, duplicate signup, provider policy |
-| AUTH-02 | P0 | P | Password confirmation shall match the password before registration; current required confirmation field is not compared or stored (G-01). | NAV | Equal/unequal/blank confirmation, reveal toggle |
+| AUTH-02 | P0 | I | Controlled password confirmation shall match the exact password before either development helper or Supabase signup. Blank confirmation is required; mismatch shows an alert and makes no create request. Confirmation clears on successful registration or account-tab change and is not sent to the provider. | NAV | Equal/unequal/blank confirmation, reveal toggle, request absence/payload, tab change |
 | AUTH-03 | P0 | C | Sign In shall authenticate email/password, display failure, show loading, and close account panel on session success; protected customer actions become available. | NAV | Valid/wrong/unverified/expired account, repeat submit |
 | AUTH-04 | P1 | I | Password visibility shall toggle in account forms without changing the entered password; Sign In/Register tabs shall be available. | NAV | Toggle, switch tab, stale feedback |
 | AUTH-05 | P1 | P | Forgot Password shall require entered email and request a reset email; a complete new-password recovery screen/session handler is absent (G-02). | NAV | No email, provider error, reset link and recovery completion |
@@ -250,9 +250,9 @@ The catalogue contains 112 requirements across 19 modules (including nonfunction
 | ID | Priority | State | Requirement and acceptance criteria | Source | QA focus |
 |---|---|---|---|---|---|
 | CART-01 | P0 | I | Add shall require a customer session; a visitor receives an account prompt without addition; successful add opens drawer. The interrupted action is not automatically replayed after login. | CART, NAV | Guest/customer, post-login retry |
-| CART-02 | P1 | I | Lines shall be identified by product ID + size + color; matching tuples merge quantities and differing options create distinct lines. | CART | Same/different options, null/missing color, repeated add |
+| CART-02 | P1 | I | Lines shall be identified by product ID + size + color; missing/empty/null options normalize to null. Matching tuples merge quantities and differing options create distinct lines, including recovered legacy lines. | CART, CARTSTORE | Same/different options, null/missing color, repeated add, legacy restoration |
 | CART-03 | P1 | I | Drawer shall show image/name/options/quantity/line total; plus/minus updates quantity; a quantity below one or explicit remove deletes the line. | CART, NAV | Remove at one, variant-specific deletion, total changes |
-| CART-04 | P0 | P | Browser cart shall persist under els-cart; user-specific separation, sign-out clearing, corrupted-state recovery, and safe hydration need decisions/fixes (G-10). No cart_items synchronization is implemented. | CART | Refresh, malformed storage, two accounts, initial load |
+| CART-04 | P0 | P | Browser cart shall restore before writing els-cart. Malformed JSON/nonarrays recover to empty; invalid lines are removed while valid lines remain, with recovery feedback. Restored lines require nonempty display fields, supported photo URLs, finite nonnegative numeric prices, positive safe-integer quantities and valid options. Read/write storage failures keep an in-memory bag with a persistence notice. Account separation/sign-out clearing remain unresolved (G-10); no cart_items synchronization exists. | CART, CARTSTORE, NAV | Initial load/reload, mixed invalid rows, duplicate variants, unavailable/quota-limited storage, two accounts |
 | CART-05 | P1 | I | Item badge equals sum of quantities; base subtotal equals sum of stored line price × quantity, displayed through currency formatter. Checkout determines authoritative current prices. | CART, NAV, CHECKOUT | Multiple lines, rounding, changed database price |
 | CART-06 | P1 | I | Empty drawer shall show Start Shopping; nonempty drawer shall show Proceed to Checkout and close when navigating; cart UI currently has no upper quantity cap. | NAV, CART | Empty/nonempty, close, quantity above API limit |
 
@@ -306,7 +306,7 @@ The catalogue contains 112 requirements across 19 modules (including nonfunction
 |---|---|---|---|---|---|
 | ADM-01 | P0 | C | Browser admin login shall use configured password and issue one-hour HttpOnly/SameSite=Lax cookie, Secure in production; loading/errors/reveal toggle shall be available. Optional configured username blocks password-only form (G-16). | ADMINLOGIN, ADMINAUTH | Wrong/empty credential, cookie attributes, username setting |
 | ADM-02 | P0 | P | Server mutations/private reads shall require admin authority independent of local UI flag; product writes and reply helpers do not use that authority in current implementation (G-06). | ADMIN, ADMINAUTH, ADMINAPIS, SCHEMA | Fake local flag, expired/forged cookie, customer-only session |
-| ADM-03 | P0 | P | Admin Sign Out shall revoke browser admin access; sidebar currently only removes local flag while logout endpoint clears cookie (G-13). | ADMIN, ADMINLOGOUT | API after sidebar logout versus endpoint logout |
+| ADM-03 | P0 | C | Sidebar logout shall POST the cookie-clearing endpoint and wait for success before removing the local flag and replacing the route with /admin. Failed requests preserve the session and display retry feedback. After successful logout the same browser's protected APIs deny access. This clears the browser cookie; copied signed tokens retain their original expiry. | ADMIN, ADMINLOGOUT | Cookie/flag after sidebar logout, API rejection, request failure/retry, endpoint contracts |
 | ADM-04 | P1 | C | Dashboard shall show product/stock/out-of-stock/low-stock counts, up to five newest orders, inventory warning and quick links; no-order state shall display when empty. | ADMIN | Known fixture metrics, newest five, route/sidebar state |
 
 ### 6.14 Admin product management
@@ -357,7 +357,7 @@ The catalogue contains 112 requirements across 19 modules (including nonfunction
 |---|---|---|---|---|---|
 | CNT-01 | P1 | D | Footer newsletter shall require an email-shaped value, then show preview-only/no-save/no-send feedback. There shall be no implied successful real subscription. | FOOTER, INFO | Invalid/valid email, no network subscription/write |
 | CNT-02 | P1 | I | Footer shall link all categories, favorites, privacy, terms and maintainer GitHub; information pages shall provide return-home navigation. | FOOTER, INFO | All destinations and external link attributes |
-| CNT-03 | P1 | D | Checkout/privacy/terms shall explain demo limits and stored demo data; generic shipping/returns copy and confirmation wording need alignment (G-22). | INFO, DETAIL, CHECKOUTUI | Content consistency and fictional data guidance |
+| CNT-03 | P1 | D | Home/checkout/privacy/terms shall explain demo limits and stored demo data; generic shipping/returns copy and confirmation wording need alignment (G-22). | HOME, INFO, DETAIL, CHECKOUTUI | Content consistency and fictional data guidance |
 | CNT-04 | P2 | T | Holiday countdown component exists but is not mounted by current pages; enabling it needs scope confirmation. It counts to local-browser 31 Dec 2026 23:59:59, clamps at zero, and applies no discount. | SALE, SHELL | Exclude from current UI pass criteria; future timer tests |
 | OPS-01 | P2 | I | GET health shall return status ok and timestamp; it is application liveness, not a database/service readiness proof. | HEALTH | JSON and timestamp, no inferred DB health |
 | OPS-02 | P0 | P | Test reset shall be nonproduction and test-secret protected; it attempts catalog/favorite/cart/review cleanup and reseed but omits orders/local storage and ignores delete errors (G-23). | TESTAPI | Production 404, wrong secret 401, partial reset |
@@ -365,6 +365,7 @@ The catalogue contains 112 requirements across 19 modules (including nonfunction
 | OPS-04 | P1 | C | Dev create-user shall be disabled in production, require x-dev-key when configured, and cap counted dev_auto users at ten; it shall not overwrite non-dev accounts. | DEVUSER | Limit boundary, existing dev/non-dev, helper fallback |
 | OPS-05 | P2 | I | Schema endpoint shall return base SQL as plain text or not-found; database-error copy action uses it. It does not include all migrations or fix the database automatically. | SCHEMAAPI, DETAIL | Schema available/missing, clipboard failure |
 | OPS-06 | P1 | I | Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed. | REQTOOLS | Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions |
+| OPS-07 | P1 | I | npm run test:ui and storefront CI shall exercise Chromium regressions using a dedicated localhost:3100 development server with fixture admin credentials and disabled live Supabase/mail integration. Existing servers shall not be reused. Browser configuration, test sources and workflow changes require documentation review. Test traces/screenshots shall support debugging; mocked signup and local cookie checks are not live commerce/provider acceptance evidence. | UITEST, REQTOOLS | Reproducible fixtures, no live mutations, CI execution/artifacts, source review |
 
 ## 7. Business rules and validation
 
@@ -425,7 +426,7 @@ Checkout responses: success `200 {orderId,total}`; invalid payload `400`; custom
 | products | ID, name, category, INR price, stock, description, image(s), sizes, colors, brand, tag, created_at, approved aggregates | Public read; intended admin writes; delete cascades related records | CAT, PDP, PRD, STK |
 | product_size_stock | Product ID, size, integer stock | Public read; protected server stock write; unique product/size | PDP-03, STK, CHK-06 |
 | favorites | User ID, product ID, created_at | Customer-specific; unique pair; removed on product/user deletion | FAV-01–03 |
-| Browser els-cart | Product display snapshot, base price, chosen size/color, quantity | localStorage; shared across accounts using this browser; cleared on successful checkout | CART-01–06, CHK-08 |
+| Browser els-cart | Validated product display snapshot, base price, chosen size/color, quantity | Restore before first save; recover invalid lines; memory fallback if storage unavailable. Shared across accounts; cleared on successful checkout | CART-01–06, CHK-08 |
 | cart_items | User/product/quantity | Schema exists; current cart UI does not use it | CART-04 |
 | orders | ID, customer ID, base total, status, shipping JSON, method, placed_at | Server transaction creation; own customer read; admin status changes | CHK, ORD, AOR |
 | order_items | Order/product IDs, quantity, unit price, size, color | Transaction snapshot; product reference becomes null when product is removed | CHK-06, ORD-02–03 |
@@ -447,7 +448,7 @@ The detail component reads `admin_reply`, `replied_at`, name, and extended produ
 | Frankfurter rate endpoint | Server INR→USD display rate | Successful result cached/revalidated approximately every 12 hours; failure returns INR. |
 | Resend email API | Optional restock email delivery | API key and verified sender; disabled config queues/saves requests; failed sends remain pending. |
 | Hosting country headers | Country detection | x-vercel-ip-country first, cf-ipcountry second; browser currency fallback otherwise. |
-| Static media / Google fonts | Campaign visuals and Poppins/Playfair Display | Asset loading/build availability; no CMS integration. |
+| Static media / Google fonts | Active hero video/still poster, editorial images and Poppins/Playfair Display | Asset loading/build availability; no CMS. Shared ivory/ink/muted/accent tokens and spacing support the storefront refresh. |
 
 ### API routes
 
@@ -458,7 +459,7 @@ The detail component reads `admin_reply`, `replied_at`, name, and extended produ
 | POST /api/restock-notifications | Public; rate-limited | productId/email/size/color → 201 subscribed or 200 already_subscribed with emailConfigured | RST-01–03 |
 | GET or POST /api/restock-notifications/unsubscribe?token=… | Capability token in query | Plain-text confirmation; malformed token 400; service failures 503 | RST-05 |
 | POST /api/admin/login | Configured admin password; optional username | JSON or URL-encoded form; issues cookie; no browser customer identity required | ADM-01 |
-| GET or POST /api/admin/logout | Cookie-clearing endpoint | Redirects to /admin/reviews and expires cookie | ADM-03 |
+| POST /api/admin/logout; GET /api/admin/logout | Cookie-clearing endpoint | POST returns 200 JSON status ok/no-store; GET redirects 303 to /admin on the request origin. Both expire the HttpOnly admin cookie, Secure in production | ADM-03 |
 | GET /api/admin/orders | Signed admin cookie | All orders with nested lines/products | AOR-01 |
 | PATCH /api/admin/orders | Signed admin cookie | id/status → persisted order; invalid status/id shape 400 | AOR-03–04 |
 | GET /api/admin/users | Signed admin cookie | users[] with profile ID/name/avatar/update; cap 200 | USR-01 |
@@ -488,7 +489,7 @@ These are quality acceptance targets. They must be reviewed and implemented/veri
 |---|---|---|---|---|---|
 | NFR-01 | P0 | P | Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Known policy/write gaps must be resolved or explicitly scoped as blockers. | SCHEMA, REVIEWMIG, CHECKOUTSEC, ADMINAPIS | Cross-user reads/writes, review approval tampering, fake admin flag |
 | NFR-02 | P0 | C | Service-role, admin, mail and test secrets shall stay server-side; QA utilities shall remain blocked in production and admin cookie shall carry intended secure attributes. | ADMINAUTH, TESTAPI, DEVUSER, CHECKOUT | Client bundle/network/log secret exposure, production guards |
-| NFR-03 | P1 | P | Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence. | LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI | Offline/timeout/DB/upload/provider errors, retry |
+| NFR-03 | P1 | P | Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence. | NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI | Offline/timeout/DB/upload/provider/storage errors, retry |
 | NFR-04 | P1 | T | Agree and verify responsive support at 375px mobile, 768px tablet and 1440px desktop, with no clipped essential controls; proposed browsers are current Chromium, Firefox and WebKit. | NAV, LIST, DETAIL, ADMIN | Touch/hover differences, drawers, tables, horizontal scroll |
 | NFR-05 | P1 | T | Proposed accessibility target is WCAG 2.2 AA; assess keyboard operation, meaningful labels, focus placement/trapping/restoration, contrast, announcements and reduced motion. Existing labels are not proof of conformance. | NAV, DETAIL, HOME, LIST | Keyboard-only/screen-reader audits, modal focus, hidden controls |
 | NFR-06 | P2 | T | Agree measurable performance targets and dataset/network conditions before benchmarking; evaluate initial rendering, campaign-media weight, large catalogs and admin full-dataset reads. No current SLA is supplied. | HOME, LIST, ADMIN, REGION | Representative load, slow network, long lists, image sizes |
@@ -515,13 +516,17 @@ For a fresh test database, review/apply the base schema, review ownership migrat
 
 Build prerequisites include current generated documentation and an explicit source review. After inspecting source and updating the BRD/QA guide, run `npm run docs:sync`, then `npm run docs:review -- --summary "Describe the inspected change" --requirements "affected IDs"`, and `npm run docs:check`. Use `--no-functional-change` only when the inspected change has no functional/documentation impact. Commit the CSV, requirements-history.json, requirements-source-snapshot.json and requirements-reviews.json with the relevant code/docs. `npm run docs:test` verifies tooling with isolated temporary fixtures; it does not validate live commerce, database policies or email delivery.
 
+The browser suite requires the checked-in Playwright dependency and Chromium (`npx playwright install chromium` locally; CI installs system dependencies as well). It starts its own development server on port 3100 with dummy public Supabase configuration, no service/mail credentials and a fixture admin key; it refuses an existing server. `turbopack.root` is explicitly the project working directory to avoid parent-lockfile root inference. Functional acceptance against real Supabase remains a separate task.
+
 ## 12. Known gaps and business decisions
 
 These are source findings, not executed defect reproductions. Owners and resolution dates are unassigned. A known gap is not permission to mark the corresponding intended requirement passed. Link resulting defect IDs into the RTM after reproduction.
 
+All 24 finding IDs are retained for history. G-01 and G-13 record their resolution in this sprint; G-10 remains partially unresolved. Resolution status does not establish complete website acceptance, and the remaining findings continue to apply.
+
 | Gap | Finding / implication | Requirements | Decision / next action |
 |---|---|---|---|
-| G-01 | Required confirm-password field is uncontrolled and never compared. | AUTH-02 | Enforce matching before signup. |
+| G-01 | Historical finding: required confirmation was uncontrolled and never compared. Resolved in the 4 October 2026 sprint through controlled exact comparison before either create path. | AUTH-02 | Retain finding history; regression covers unequal/blank/matching values with mocked creation, not live provider signup. |
 | G-02 | Reset email request exists, but no complete recovery/new-password UI is present; fallback client also lacks resetPasswordForEmail. | AUTH-05 | Define recovery flow and unavailable-service behavior. |
 | G-03 | Review UI requires name but omits it in insert; name/admin_reply/replied_at and extended detail fields are not fully in supplied schema. Customer review image list is not rendered. | REV-01, REV-03, REV-07, PDP-06 | Align schema and supported review/product fields; decide public image display. |
 | G-04 | Public detail fetch and RLS allow pending reviews; detail average includes them while database aggregates are approved-only. Customer review INSERT/UPDATE policies do not restrict moderation fields. | REV-04, NFR-01 | Decide pending-author visibility and enforce approved public publication; protect moderation fields. |
@@ -530,10 +535,10 @@ These are source findings, not executed defect reproductions. Owners and resolut
 | G-07 | Size/color fetched in history/admin order API are not rendered; admin order detail omits shipping address and method. | ORD-03, AOR-03 | Decide operational order detail fields and display them. |
 | G-08 | Checkout accepts missing size on a sized product and arbitrary color text; stock API accepts arbitrary size text. Routing helper does not enforce product category path. | CHK-09, PDP-01, STK-04 | Validate catalog options/category behavior; add target tests. |
 | G-09 | Zero-stock size buttons are disabled and cannot be selected to subscribe for that size; missing size stock can be treated as unknown and permit add in detail. | PDP-03, RST-01 | Separate option selection for notification from purchasability; define missing-row behavior. |
-| G-10 | One local cart key persists across sign-out/accounts; JSON parse is unguarded; initial read/write effects can race. No database cart sync or automatic replay after login. | CART-01, CART-04 | Decide intended guest/account cart policy and robust storage hydration. |
+| G-10 | One local cart key still persists across sign-out/accounts; no database cart sync or automatic post-login replay. The 4 October 2026 sprint fixes unguarded JSON, invalid rows, missing/null variant equivalence, initial read/write racing and unavailable-storage failures. | CART-01, CART-04 | Account/browser ownership policy remains open; preserve shared-cart baseline and recovery regression coverage. |
 | G-11 | README fictional card-number approval/decline instructions are stale; current UI has no card fields or decline branch despite approval-or-decline wording. | CHK-04 | Align copy/docs to current simulation, or define new decline behavior separately. |
 | G-12 | Notify is triggered on any positive stock save, not verified zero→positive transition. It checks no inventory itself; size-less request can send all sizes; batch limit/retry/concurrent deduplication can leave wrong/missed/duplicate alerts. | RST-04 | Define eligible recipients, scheduling, batching, failure/duplicate guarantees. |
-| G-13 | Sidebar logout leaves admin cookie valid. | ADM-03 | Invoke cookie-clearing logout and verify protected API rejection afterward. |
+| G-13 | Historical finding: sidebar logout left the browser cookie valid. Resolved in the 4 October 2026 sprint by awaiting cookie-clearing POST, then clearing UI state and redirecting. | ADM-03 | Retain history; regression verifies real local signed cookie removal, subsequent 401 and failed-request retry. Copied-token revocation is outside this fix. |
 | G-14 | Checkout has no idempotency key/replay protection; identical valid POST can create another order. | CHK-09 | Define retry semantics and duplicate-order prevention. |
 | G-15 | Checkout network rejection can leave submitting state unresolved; search lacks explicit error state and blank-query result clearing; several admin failures resemble empty/success states. | SEA-03, CHK-08, NFR-03 | Add failure/retry/state-retention acceptance paths. |
 | G-16 | Browser admin form sends password only; optional DEV_ADMIN_USERNAME is enforced by API. | ADM-01 | Leave optional username unset or add corresponding browser input. |
@@ -586,6 +591,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | FAV | [Favorites provider](../src/context/FavoritesContext.tsx) |
 | FAVORITESPAGE | [Favorites page](../src/app/favorilerim/page.tsx) |
 | CART | [Cart provider](../src/context/CartContext.tsx) |
+| CARTSTORE | [Validated browser cart restoration and variant matching](../src/lib/cartStorage.ts) |
 | CHECKOUTUI | [Checkout page](../src/app/checkout/page.tsx) |
 | CHECKOUT | [Checkout API](../src/app/api/checkout/route.ts), [rate limits](../src/lib/rateLimit.ts) |
 | HISTORY | [Customer orders](../src/app/orders/page.tsx) |
@@ -614,6 +620,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | DEVUSER | [Dev user API](../src/app/api/dev/create-user/route.ts) |
 | SCHEMAAPI | [Schema API](../src/app/api/schema/route.ts) |
 | REQTOOLS | [Requirements synchronizer and review gate](../scripts/requirements.mjs), [regression tests](../scripts/requirements.test.mjs), [npm scripts](../package.json), [requirements workflow](../.github/workflows/requirements.yml) |
+| UITEST | [Isolated browser-test configuration](../playwright.config.ts), [storefront/auth/cart/logout regressions](../tests/storefront.spec.ts), [browser CI](../.github/workflows/storefront.yml) |
 
 ## 15. Glossary and sign-off
 
