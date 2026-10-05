@@ -10,28 +10,7 @@ export default async function AdminReviewsPage() {
     return (<div className="p-6">Missing service role key on server. Set SUPABASE_SERVICE_ROLE_KEY.</div>);
   }
 
-  // Read cookie header robustly to handle different Next.js runtimes/bridges
-  let cookieHeader = '';
-  try {
-    const h = await headers();
-    // preferred: Headers.get
-    if (typeof (h as any).get === 'function') {
-      cookieHeader = (h as any).get('cookie') ?? '';
-    } else if ((h as any)['cookie']) {
-      // some runtimes expose keys directly
-      cookieHeader = (h as any)['cookie'] ?? '';
-    } else if (Symbol.iterator in Object(h)) {
-      // iterable headers -> array of [k,v]
-      for (const [k, v] of h as any) {
-        if (k && String(k).toLowerCase() === 'cookie') {
-          cookieHeader = String(v ?? '');
-          break;
-        }
-      }
-    }
-  } catch (err) {
-    cookieHeader = '';
-  }
+  const cookieHeader = (await headers()).get('cookie') ?? '';
   const token = cookieHeader.split(';').map((s) => s.trim()).find((s) => s.startsWith('admin_token='))?.split('=')[1];
   if (!token) {
     // render simple server-side login form
@@ -57,6 +36,23 @@ export default async function AdminReviewsPage() {
   const supabase = createClient(supabaseUrl, svc, { auth: { persistSession: false } });
   const { data: reviews, error } = await supabase.from('reviews').select('*').eq('approved', false).order('created_at', { ascending: false });
   if (error) return (<div className="p-6">Error: {error.message}</div>);
+  const reviewsWithImages = await Promise.all((reviews ?? []).map(async (review) => {
+    const imagePaths: string[] = Array.isArray(review.images)
+      ? review.images.filter((source: unknown): source is string => typeof source === 'string') : [];
+    const displayImages = await Promise.all(imagePaths.map(async (source) => {
+      if (source.startsWith('reviews/')) {
+        const { data } = await supabase.storage.from('review-images').createSignedUrl(source, 600);
+        return data?.signedUrl ?? null;
+      }
+      // Historical reviews may still reference the old public bucket.
+      try {
+        const url = new URL(source);
+        return url.origin === new URL(supabaseUrl).origin &&
+          url.pathname.startsWith('/storage/v1/object/public/public/reviews/') ? source : null;
+      } catch { return null; }
+    }));
+    return { ...review, displayImages: displayImages.filter((source): source is string => Boolean(source)) };
+  }));
 
   return (
     <div className="p-6">
@@ -66,9 +62,9 @@ export default async function AdminReviewsPage() {
           <button type="submit" className="px-3 py-1 bg-neutral-100 border">Logout</button>
         </form>
       </div>
-      {reviews && reviews.length === 0 && (<p>No pending reviews.</p>)}
+      {reviewsWithImages.length === 0 && (<p>No pending reviews.</p>)}
       <div className="grid gap-4">
-        {reviews?.map((rev: any) => (
+        {reviewsWithImages.map((rev) => (
           <div key={rev.id} className="border p-4 bg-white">
             <div className="flex justify-between items-start">
               <div>
@@ -87,10 +83,10 @@ export default async function AdminReviewsPage() {
             </div>
             <p className="mt-3 mb-2 text-neutral-700">{rev.comment}</p>
             <p className="text-sm text-neutral-500">Rating: {rev.rating}/5</p>
-            {rev.images && rev.images.length > 0 && (
+            {rev.displayImages.length > 0 && (
               <div className="flex gap-2 mt-2">
-                {rev.images.map((src: string, i: number) => (
-                  <img key={i} src={src} className="w-24 h-24 object-cover border" />
+                {rev.displayImages.map((src: string, i: number) => (
+                  <img key={i} src={src} alt="Pending review attachment" className="w-24 h-24 object-cover border" />
                 ))}
               </div>
             )}

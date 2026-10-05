@@ -1,6 +1,9 @@
-const seedProducts = (() => {
+import type { Product } from "@/lib/productTypes";
+
+type LocalProduct = Product & { slug?: string };
+
+const seedProducts: LocalProduct[] = (() => {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { allProducts } = require("../../scripts/products-data.js");
     return Array.isArray(allProducts) ? allProducts : [];
   } catch {
@@ -8,7 +11,7 @@ const seedProducts = (() => {
   }
 })();
 
-export const localProducts = seedProducts.map((product: any, index: number) => ({
+export const localProducts = seedProducts.map((product, index) => ({
   ...product,
   id: product.id ?? String(index + 1),
   brand: product.brand ?? null,

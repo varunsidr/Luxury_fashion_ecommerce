@@ -190,6 +190,7 @@ test("product card has usable keyboard actions and image failure feedback", asyn
 
 test("sidebar logout clears the real cookie and denies subsequent admin API access", async ({ page }) => {
   await page.goto("/admin");
+  await page.getByTestId("admin-login-username").fill("test-admin");
   await page.getByTestId("admin-login-password").fill("ui-test-admin-key");
   await page.getByTestId("admin-login-submit").click();
   await expect(page).toHaveURL(/\/admin\/dashboard$/);
@@ -200,6 +201,15 @@ test("sidebar logout clears the real cookie and denies subsequent admin API acce
   expect((await page.context().cookies()).some((cookie) => cookie.name === "admin_token")).toBe(false);
   expect((await page.request.get("/api/admin/users")).status()).toBe(401);
   expect(await page.evaluate(() => localStorage.getItem("admin_auth"))).toBe(null);
+});
+
+test("admin login requires the named account and its password", async ({ request }) => {
+  const wrongUser = await request.post("/api/admin/login", { data: { username: "other-admin", password: "ui-test-admin-key" } });
+  expect(wrongUser.status()).toBe(401);
+  const wrongPassword = await request.post("/api/admin/login", { data: { username: "test-admin", password: "wrong-password" } });
+  expect(wrongPassword.status()).toBe(401);
+  expect((await request.get("/api/admin/users")).status()).toBe(401);
+  expect((await request.get("/api/admin/reviews?status=all")).status()).toBe(401);
 });
 
 test("failed logout preserves the session and offers a retry", async ({ page }) => {

@@ -116,7 +116,7 @@ English URLs are rewrites to existing Turkish-named source directories. Legacy `
 
 | Entry | Function / route behavior |
 |---|---|
-| `/admin` | Password-only browser login |
+| `/admin` | Username/password browser login; production uses named hash entries |
 | `/admin/dashboard` | Inventory snapshot, five recent orders, quick-access links |
 | `/admin/products` | Catalog table, name search, category filter, add/edit/delete form |
 | Stock Management sidebar item | Stock editing within `AdminApp`; no standalone `/admin/stock` page exists |
@@ -169,7 +169,7 @@ flowchart LR
 
 **Priority:** P0 = access/data/order integrity; P1 = core customer/admin function; P2 = secondary presentation or convenience. These are suggested QA priorities, pending owner review. Source codes resolve in section 14. The CSV mirrors these rows and leaves execution/test-link fields open.
 
-The catalogue contains 114 requirements across 19 modules (including nonfunctional requirements), with **24 source-level gap findings** tracked in section 12.
+The catalogue contains 116 requirements across 19 modules (including nonfunctional requirements), with **24 source-level gap findings** tracked in section 12.
 
 ### 6.1 Home, navigation, and routes
 
@@ -282,12 +282,12 @@ The catalogue contains 114 requirements across 19 modules (including nonfunction
 
 | ID | Priority | State | Requirement and acceptance criteria | Source | QA focus |
 |---|---|---|---|---|---|
-| REV-01 | P1 | C | Review form shall require nonblank displayed name/comment and selected stars before submit, authenticate the user, and store product/user/rating/comment plus optional image URLs. Current direct insert omits displayed name (G-03). | DETAIL, REVIEWMIG | Missing fields, guest, rating 1/5, returned anonymous name |
-| REV-02 | P1 | C | Optional review upload shall accept 1–3 JPEG/PNG/WebP images no larger than 2 MiB each, with customer bearer token and existing product; UI shall preview/remove selected files. | DETAIL, REVIEWUPLOAD | 0/1/3/4 files, exact size/over size, MIME, invalid token/product |
-| REV-03 | P1 | C | Submission shall insert a temporary visible review, replace it on success or remove it on upload/database failure and show error; current form clears before persistence. | DETAIL | Optimistic success/rollback, retry/data loss, image display gap |
-| REV-04 | P0 | P | Intended moderation shall publish only approved feedback in public results and average/count; current detail/RLS expose pending reviews and detail average includes them (G-04). | DETAIL, REVIEWSAPI, SCHEMA, REVIEWMIG | Pending/approved visibility, own pending review, rating consistency |
+| REV-01 | P1 | P | Review form requires nonblank displayed name/comment and stars; it sends a customer bearer token to the server review route, which stores a pending product/user/rating/comment and optional owned image URLs. Displayed name is still omitted from storage (G-03). | DETAIL, REVIEWSAPI, SECURITYMIG | Missing fields, guest, rating 1/5, returned anonymous name, direct DB write denial |
+| REV-02 | P1 | I | Review upload accepts 1–3 JPEG/PNG/WebP files of 1 byte–2 MiB each for an authenticated user and existing product, checks file signatures, and limits each account to 10 upload requests per day. New files use the private review-images bucket created by the hardening migration; moderators use ten-minute signed URLs. Historical public files and orphan cleanup remain open. | DETAIL, REVIEWUPLOAD, MODPAGE, SECURITYMIG, RATELIMIT | File count/size/signature, forged MIME, invalid token/product, account limit, private bucket, signed URL expiry |
+| REV-03 | P1 | I | Submission keeps form data during upload/save, shows an error on failure, and clears it only after server creation. A successful pending review is acknowledged as awaiting approval and is not placed in the public list. | DETAIL, REVIEWSAPI | Successful pending response, upload/API/network failure, retry/data retention |
+| REV-04 | P0 | I | Public review API and detail query show approved rows only; database SELECT allows approved reviews or the author's own pending rows, and customer review writes are revoked. Server creation forces pending. Applied-policy/live visibility remains to be verified (G-04). | DETAIL, REVIEWSAPI, SCHEMA, REVIEWMIG, SECURITYMIG | Visitor/customer pending visibility, direct INSERT/UPDATE/DELETE denial, approval tampering, rating consistency |
 | REV-05 | P1 | C | Direct /admin/reviews shall list pending reviews and let a cookie-authenticated admin approve/delete; approval records moderation time and updates database approved aggregates. | MODPAGE, MODAPI, SCHEMA | Valid/expired admin, approval/deletion, pending empty state |
-| REV-06 | P1 | P | Admin review navigation shall provide a coherent moderation experience; direct pending page and sidebar all-review read-only view currently differ, and form results return JSON (G-05). | ADMIN, MODPAGE, MODAPI | Both entry paths, form submission and return flow |
+| REV-06 | P1 | P | Admin sidebar retrieves all reviews through the cookie-protected API and remains read-only; the separate pending page has moderation actions, and form results return JSON (G-05). Navigation/return flow remains incomplete. | ADMIN, MODPAGE, MODAPI | Both entry paths, signed-cookie all-review list, form submission and return flow |
 | REV-07 | P1 | P | Admin shall be able to save/remove a reply and customers shall read persisted reply text; helper functions exist without visible reply controls and reply columns are missing from supplied schema/migrations (G-03, G-05). | ADMIN, DETAIL, SCHEMA, REVIEWMIG | No false success, reply persistence, public display |
 
 ### 6.12 Restock alerts
@@ -304,7 +304,7 @@ The catalogue contains 114 requirements across 19 modules (including nonfunction
 
 | ID | Priority | State | Requirement and acceptance criteria | Source | QA focus |
 |---|---|---|---|---|---|
-| ADM-01 | P0 | C | Browser admin login shall use configured password and issue one-hour HttpOnly/SameSite=Lax cookie, Secure in production; loading/errors/reveal toggle shall be available. Optional configured username blocks password-only form (G-16). | ADMINLOGIN, ADMINAUTH | Wrong/empty credential, cookie attributes, username setting |
+| ADM-01 | P0 | I | Production admin login requires a named account with its scrypt password hash and a distinct session-signing secret; it issues a one-hour HttpOnly/SameSite=Lax cookie, Secure in production. The browser collects username/password; nonproduction may use the legacy dev key. MFA and live credential provisioning remain open. | ADMINLOGIN, ADMINAUTH, RATELIMIT | Wrong username/password, missing production config, cookie claims/attributes, legacy key denied in production, MFA gap |
 | ADM-02 | P0 | P | Server mutations/private reads shall require admin authority independent of local UI flag; product writes and reply helpers do not use that authority in current implementation (G-06). | ADMIN, ADMINAUTH, ADMINAPIS, SCHEMA | Fake local flag, expired/forged cookie, customer-only session |
 | ADM-03 | P0 | C | Sidebar logout shall POST the cookie-clearing endpoint and wait for success before removing the local flag and replacing the route with /admin. Failed requests preserve the session and display retry feedback. After successful logout the same browser's protected APIs deny access. This clears the browser cookie; copied signed tokens retain their original expiry. | ADMIN, ADMINLOGOUT | Cookie/flag after sidebar logout, API rejection, request failure/retry, endpoint contracts |
 | ADM-04 | P1 | C | Dashboard shall show product/stock/out-of-stock/low-stock counts, up to five newest orders, inventory warning and quick links; no-order state shall display when empty. | ADMIN | Known fixture metrics, newest five, route/sidebar state |
@@ -367,6 +367,7 @@ The catalogue contains 114 requirements across 19 modules (including nonfunction
 | OPS-06 | P1 | I | Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed. | REQTOOLS | Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions |
 | OPS-07 | P1 | I | npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence. | UITEST, REQTOOLS | Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review |
 | OPS-08 | P1 | I | npm run test:live shall run optional Chromium public-browsing checks against the deployed Vercel origin, with PLAYWRIGHT_BASE_URL accepting another HTTP(S) origin without credentials/path/query/fragment. No local server is launched or authenticated storage reused. The suite checks homepage, seven populated collections without fallback warnings, search, product detail, mobile navigation, information pages and admin login rendering. It blocks mutating HTTP methods and known helper/logout paths, and fails attempted writes. It does not authenticate, submit commerce/customer/admin changes or establish their acceptance. Artifacts use test-results/live; live checks remain separate from deployment-racing push CI. | LIVETEST, REQTOOLS | Correct target, no local startup, public data available, state-changing requests blocked, separate artifacts and acceptance limits |
+| OPS-09 | P1 | I | `npm run security:check-db` shall inspect the target database read-only for review RLS/grants, direct order-insert policy removal, private review bucket, limiter RLS/RPC permissions and checkout RPC restrictions. It requires an explicitly supplied `DATABASE_URL`; a pass does not replace live role tests or prove the correct deployment is connected. | SECCHECK, SECURITYMIG, CHECKOUTSEC | Missing URL, correct target, pass/fail grants, bucket and policy inventory, no writes/secrets in output |
 
 ## 7. Business rules and validation
 
@@ -402,7 +403,7 @@ The catalogue contains 114 requirements across 19 modules (including nonfunction
 
 Long strings are **truncated**, not rejected, by current checkout normalization. Tests must not invent password complexity, phone patterns, postcode length rules, delivery-country restrictions, consent checkboxes, or shipping fees. Customer password rules and signup email verification are determined by the configured Supabase project and must be captured as fixture/environment facts.
 
-Checkout responses: success `200 {orderId,total}`; invalid payload `400`; customer/session failure `401`; insufficient stock `409`; process-local rate limit `429`; missing service config/inventory lookup failure `503`; transaction failure `500`. Malformed product IDs can reach a transaction/database failure rather than a clean validation response. Rate limiting executes before other validation, so repeated requests can mask later errors.
+Checkout responses: success `200 {orderId,total}`; invalid payload `400`; customer/session failure `401`; insufficient stock `409`; shared production rate limit `429`; missing limiter/service config or inventory lookup failure `503`; transaction failure `500`. Nonproduction without shared limiter settings uses an in-process fallback. Malformed product IDs can reach a transaction/database failure rather than a clean validation response. Rate limiting executes before other validation, so repeated requests can mask later errors.
 
 ### Additional rules
 
@@ -411,12 +412,12 @@ Checkout responses: success `200 {orderId,total}`; invalid payload `400`; custom
 | BR-08: Order status | All five supported labels may be set from any current status. No transition graph, customer cancellation, refund, or stock reversal is implemented. |
 | BR-09: Order contents | Price/quantity/options are snapshots; product name/image are live relational joins and may disappear/change after product deletion/editing. |
 | BR-10: Favorites | Unique account/product pair; successful DB mutation updates state. Failed mutations do not toggle saved state but lack explicit error feedback. |
-| BR-11: Reviews | Stars 1–5, user/product relation, pending by default. UI requires name/comment; API allows optional title/comment and uses its own length checks. No purchase-verification or one-review-per-product rule exists. |
-| BR-12: Review images | Server enforces at most 3 and ≤2 MiB each; JPEG/PNG/WebP. UI processes the first three selected files and rejects individual oversized files. Public storefront review list does not render stored image thumbnails. |
+| BR-11: Reviews | Stars 1–5, user/product relation, pending by default. Server route requires nonblank comment and verified bearer token; UI also requires name but does not store it. Direct customer database writes are revoked. No purchase-verification or one-review-per-product rule exists. |
+| BR-12: Review images | Server enforces 1–3 files of 1 byte–2 MiB each, JPEG/PNG/WebP type and matching file signature, plus ten upload requests per account per day. New objects are private paths, with ten-minute moderator URLs; old public objects, orphan cleanup and public image thumbnails remain gaps. |
 | BR-13: Restock | Email ≤254 characters, trimmed/lowercased; pending duplicate key includes product + email + normalized size/color. Product ID check is a 36-character hex/hyphen pattern rather than full UUID validation. |
 | BR-14: Notifications | Sent records are excluded from later ordinary batches. A new request after notification can be created. No stock reservation follows an email. Current notify API does not itself check positive inventory. |
-| BR-15: Rate limits | Per client address per process: admin login 5/minute, restock 5/minute, checkout 10/minute, review POST 5/minute, review upload 8/minute; next request beyond limit returns 429. Direct storefront review insert does not pass through review POST rate limiting. |
-| BR-16: Permissions | Database RLS governs customer-owned records; cookie-protected server endpoints use server role. Base review policy is broader than review migration; checkout security migration removes direct customer order writes. |
+| BR-15: Rate limits | Production uses an atomic Supabase counter shared across instances with HMAC-hashed keys; missing limiter configuration/RPC returns 503. Nonproduction without shared settings uses process-local counters. Per address: admin login 5/minute, restock 5/minute, checkout 10/minute, review POST 5/minute, upload 8/minute; admin username has a second 5/minute limit and uploads have ten requests/account/day. A trusted proxy must append or overwrite x-forwarded-for. |
+| BR-16: Permissions | Database RLS governs customer-owned records; cookie-protected server endpoints use server role. Hardened review policies permit public approved reads and authors' own pending reads, while customer review writes are revoked. Checkout security migration removes direct customer order writes. Applied migration state requires read-only verification. |
 
 ## 8. Data and persistence
 
@@ -431,10 +432,10 @@ Checkout responses: success `200 {orderId,total}`; invalid payload `400`; custom
 | cart_items | User/product/quantity | Schema exists; current cart UI does not use it | CART-04 |
 | orders | ID, customer ID, base total, status, shipping JSON, method, placed_at | Server transaction creation; own customer read; admin status changes | CHK, ORD, AOR |
 | order_items | Order/product IDs, quantity, unit price, size, color | Transaction snapshot; product reference becomes null when product is removed | CHK-06, ORD-02–03 |
-| reviews | User/product IDs, rating, optional title/comment/images, approval/moderation metadata | New review pending; public baseline read is unrestricted; admin moderation endpoints | REV-01–07 |
+| reviews | User/product IDs, rating, optional title/comment/images, approval/moderation metadata | Server creates pending reviews; public read is approved-only and authors may read own pending rows after hardening migration; admin moderation endpoints | REV-01–07 |
 | restock_notifications | Product, normalized email, optional size/color, created/notified time, unsubscribe token | Server-only table; product cascade deletion; token deletes a specific alert | RST-01–05 |
 | Product image storage | Public product photographs | product-images bucket; removing URL from form does not establish deletion of stored object | PRD-04 |
-| Review image storage | Public image URLs under reviews/product/user/random-file | public bucket; upload endpoint may create bucket; deletion cleanup is not implemented | REV-02–03 |
+| Review image storage | Private object paths under reviews/product/user/random-file | hardening migration creates private review-images bucket; moderator page signs ten-minute URLs; existing old public objects and orphan/deletion cleanup remain | REV-02–03 |
 | Admin browser state | HttpOnly admin_token; local admin_auth UI flag | Cookie expires in one hour; local flag is not authority | ADM-01–03 |
 
 The detail component reads `admin_reply`, `replied_at`, name, and extended product information fields that are not fully defined in the supplied base schema/migrations. Treat additional deployed columns as environment-specific facts; do not assume their existence from TypeScript alone. No retention schedule, data export/deletion request process, shipping-address book, or cross-device cart is established.
@@ -459,19 +460,19 @@ The detail component reads `admin_reply`, `replied_at`, name, and extended produ
 | POST /api/checkout | Customer bearer token | items + shippingAddress + paymentMethod → orderId/total or error | CHK-01–09 |
 | POST /api/restock-notifications | Public; rate-limited | productId/email/size/color → 201 subscribed or 200 already_subscribed with emailConfigured | RST-01–03 |
 | GET or POST /api/restock-notifications/unsubscribe?token=… | Capability token in query | Plain-text confirmation; malformed token 400; service failures 503 | RST-05 |
-| POST /api/admin/login | Configured admin password; optional username | JSON or URL-encoded form; issues cookie; no browser customer identity required | ADM-01 |
+| POST /api/admin/login | Named admin username/password hash in production | JSON or URL-encoded form; checks shared address/account limits, issues signed cookie; no browser customer identity required | ADM-01, NFR-08 |
 | POST /api/admin/logout; GET /api/admin/logout | Cookie-clearing endpoint | POST returns 200 JSON status ok/no-store; GET redirects 303 to /admin on the request origin. Both expire the HttpOnly admin cookie, Secure in production | ADM-03 |
 | GET /api/admin/orders | Signed admin cookie | All orders with nested lines/products | AOR-01 |
 | PATCH /api/admin/orders | Signed admin cookie | id/status → persisted order; invalid status/id shape 400 | AOR-03–04 |
 | GET /api/admin/users | Signed admin cookie | users[] with profile ID/name/avatar/update; cap 200 | USR-01 |
 | PATCH /api/admin/stock | Signed admin cookie | productId/optional size/stock → status/aggregate stock; invalid integer/pattern 400 | STK-01–04 |
 | POST /api/admin/restock-alerts/notify | Signed admin cookie | productId/optional size → queued or processed/sent/configured; no direct stock validation | RST-04 |
-| GET /api/reviews?productId=…&approved=… | Public with anon DB client | Defaults approved-only; approved=false requests all accessible rows | REV-04 |
-| POST /api/reviews | Customer bearer token | productId/rating/optional title/comment/images → pending review; current detail UI inserts directly instead | REV-01, REV-04 |
-| POST /api/reviews/upload | Customer bearer token | Multipart images/productId → public paths[]; one to three validated images | REV-02 |
+| GET /api/reviews?productId=… | Public with anon DB client | Returns approved reviews only; approved=false no longer broadens results | REV-04 |
+| POST /api/reviews | Customer bearer token | Valid productId/rating/nonblank comment/optional title/owned private image paths → 201 pending with reviewId; direct customer DB writes denied | REV-01, REV-03, REV-04 |
+| POST /api/reviews/upload | Customer bearer token | Multipart images/productId → private object paths[]; one to three signature-checked images, account daily limit; migration-created bucket | REV-02, NFR-08 |
 | GET /api/admin/reviews?status=… | Signed admin cookie | Default pending; other status strings return all rather than an approved-only filter | REV-05–06 |
 | PUT /api/admin/reviews/{id} | Signed admin cookie | Approves and records time/admin identifier | REV-05 |
-| DELETE /api/admin/reviews/{id} | x-dev-key equal to DEV_CREATE_USER_KEY or ADMIN_KEY | Deletes; auth model differs from cookie-based POST delete | REV-05, ADM-02 |
+| DELETE /api/admin/reviews/{id} | Signed admin cookie | Deletes; the former x-dev-key alternate credential is removed | REV-05, ADM-02 |
 | POST /api/admin/reviews/approve/{id} | Signed admin cookie | Approves; server form returns JSON | REV-05–06 |
 | POST /api/admin/reviews/delete/{id} | Signed admin cookie | Deletes; server form returns JSON | REV-05–06 |
 | GET /api/health | Public | status/time; no DB check | OPS-01 |
@@ -488,13 +489,14 @@ These are quality acceptance targets. They must be reviewed and implemented/veri
 
 | ID | Priority | State | Requirement and acceptance criteria | Source | QA focus |
 |---|---|---|---|---|---|
-| NFR-01 | P0 | P | Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Known policy/write gaps must be resolved or explicitly scoped as blockers. | SCHEMA, REVIEWMIG, CHECKOUTSEC, ADMINAPIS | Cross-user reads/writes, review approval tampering, fake admin flag |
-| NFR-02 | P0 | C | Service-role, admin, mail and test secrets shall stay server-side; QA utilities shall remain blocked in production and admin cookie shall carry intended secure attributes. | ADMINAUTH, TESTAPI, DEVUSER, CHECKOUT | Client bundle/network/log secret exposure, production guards |
+| NFR-01 | P0 | P | Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Review direct writes are removed in source, but deployed grants/policies and remaining admin product/reply writes must be verified or scoped as blockers. | SCHEMA, REVIEWMIG, SECURITYMIG, CHECKOUTSEC, ADMINAPIS | Cross-user reads/writes, review approval tampering, fake admin flag, applied policy |
+| NFR-02 | P0 | I | Service-role, per-admin password hashes, signing/rate-limit secrets, mail and test secrets stay server-side; QA utilities stay blocked in production. Production admin sessions use a separate signing secret and secure cookie attributes. Live environment/secret provisioning and MFA are unverified. | ADMINAUTH, ADMINLOGIN, TESTAPI, DEVUSER, CHECKOUT | Client bundle/network/log exposure, production guards, secret separation/rotation, MFA gap |
 | NFR-03 | P1 | P | Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence. | NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI | Offline/timeout/DB/upload/provider/storage errors, retry |
 | NFR-04 | P1 | T | Agree and verify responsive support at 375px mobile, 768px tablet and 1440px desktop, with no clipped essential controls; proposed browsers are current Chromium, Firefox and WebKit. | NAV, LIST, DETAIL, ADMIN | Touch/hover differences, drawers, tables, horizontal scroll |
 | NFR-05 | P1 | T | Proposed accessibility target is WCAG 2.2 AA; assess keyboard operation, meaningful labels, focus placement/trapping/restoration, contrast, announcements and reduced motion. Existing labels are not proof of conformance. | NAV, DETAIL, HOME, LIST | Keyboard-only/screen-reader audits, modal focus, hidden controls |
 | NFR-06 | P2 | T | Agree measurable performance targets and dataset/network conditions before benchmarking; evaluate initial rendering, campaign-media weight, large catalogs and admin full-dataset reads. No current SLA is supplied. | HOME, LIST, ADMIN, REGION | Representative load, slow network, long lists, image sizes |
 | NFR-07 | P1 | P | User-facing claims shall match demo capability; analytics shall state its population, settings must not imply live health, and stock/email order safety shall hold under concurrent operations. | INFO, ADMIN, NOTIFY, DEMOMIG | Content, metric definitions, concurrency/replay |
+| NFR-08 | P1 | I | Admin login, checkout, review creation/upload and restock subscription shall use one atomic production database rate-limit counter across instances; missing shared configuration/RPC fails closed with 503 on those routes. Keys are HMAC-hashed, and the ingress proxy must append or overwrite x-forwarded-for. Nonproduction may use a process-local fallback. | RATELIMIT, SECURITYMIG, ADMINLOGIN, CHECKOUT, RESTOCK, REVIEWSAPI, REVIEWUPLOAD | Multi-instance limits, 429 boundary, 503 unavailable, proxy-spoof test, account upload quota |
 
 ## 11. Dependencies and environment readiness
 
@@ -503,21 +505,22 @@ These are quality acceptance targets. They must be reviewed and implemented/veri
 | Next/React application running | UI/API routing and shared providers | Tested URL, build/commit, browser and deployment mode |
 | Valid public Supabase URL/anon key | Real authentication/catalog/customer reads | Configured versus local-fallback mode; never copy secret values into reports |
 | Server Supabase service role | Checkout transaction, admin reads/stock/moderation, restock/upload/helpers | Server feature availability and negative missing-config tests |
-| Admin credential | Signed admin cookie | Configured yes/no, optional username setting, expiry behavior |
-| Base schema + current migrations | Required columns, RPC and permissions | Table/column/policy/function inventory and migration order applied |
-| Product/review buckets and permissions | Upload/display functionality | product-images and public bucket policies; approved image host configuration |
+| Admin credentials and separate signing secret | Named admin login and signed admin cookie | Per-admin hashes, distinct secret, rotation/expiry, MFA decision; no values in reports |
+| Base schema + current migrations | Required columns, RPC and permissions | Apply demo catalog after older checkout transaction, then hardening migration; inspect target with security:check-db |
+| Shared limiter configuration | Cross-instance abuse limits | RATE_LIMIT_SECRET, service role, limiter RPC, trusted proxy x-forwarded-for behavior |
+| Product/review buckets and permissions | Upload/display functionality | product-images policy, private review-images bucket, moderator signed URLs and historical public-object cleanup |
 | Auth configuration | Signup email confirmation and recovery | Password rules, verification requirement, redirect allowlist, email delivery mode |
 | Mail settings and public site URL | Valid restock sender/product/unsubscribe links | RESEND_API_KEY/RESTOCK_FROM_EMAIL availability, NEXT_PUBLIC_SITE_URL, sandbox mail recipient strategy |
 | Isolated QA database and secret | Repeatable test users and safely scoped setup | Nonproduction environment, TEST_API_SECRET availability, confirmed dataset cleanup |
 | Deterministic fixtures | Coverage of category/options/stock/history/moderation | Product IDs resolved after seeding; exact fixture values recorded |
 
-For a fresh test database, review/apply the base schema, review ownership migration, checkout profile fix where needed, checkout security migration, checkout transaction migration, and **demo catalog migration last** because it replaces `create_checkout_order` with the size/color-aware implementation. Do not apply the older transaction definition afterward: it would discard size-specific checkout handling. Some reply/extended product columns and admin catalog write permissions still require additional implementation; the supplied migrations do not resolve them.
+For a fresh test database, review/apply the base schema, review migration, checkout profile fix where needed, checkout security migration, checkout transaction migration, **demo catalog migration after the older transaction**, and security hardening migration last. Do not apply the older transaction definition afterward: it would discard size-specific checkout handling. Run the read-only database check against the intended project. Some reply/extended product columns and admin catalog write permissions still require additional implementation; the supplied migrations do not resolve them.
 
 `npm run seed:products` adds/skips catalog data by name; it is not a reset. The repository documents 280 demo additions (20 per existing database category), but total live count must be measured after seeding. `npm run seed:admin-data` supplies three sample orders and four approved reviews and changes stock; those are demo fixtures, not deterministic empty-state cleanup. Local Docker PostgreSQL is useful for schema/seed work but does not alone provide Supabase Auth/Storage/API/RLS session behavior.
 
 Build prerequisites include current generated documentation and an explicit source review. After inspecting source and updating the BRD/QA guide, run `npm run docs:sync`, then `npm run docs:review -- --summary "Describe the inspected change" --requirements "affected IDs"`, and `npm run docs:check`. Use `--no-functional-change` only when the inspected change has no functional/documentation impact. Commit the CSV, requirements-history.json, requirements-source-snapshot.json and requirements-reviews.json with the relevant code/docs. `npm run docs:test` verifies tooling with isolated temporary fixtures; it does not validate live commerce, database policies or email delivery.
 
-The browser suite requires the checked-in Playwright dependency and Chromium (`npx playwright install chromium` locally; CI installs system dependencies as well). It starts its own development server on port 3100 with dummy public Supabase configuration, no service/mail credentials and a fixture admin key; it refuses an existing server. `turbopack.root` is explicitly the project working directory to avoid parent-lockfile root inference. Functional acceptance against real Supabase remains a separate task.
+The browser suite requires the checked-in Playwright dependency and Chromium (`npx playwright install chromium` locally; CI installs system dependencies as well). It starts its own development server on port 3100 with dummy public Supabase configuration, no service/mail credentials and fixture hashed admin credentials; it refuses an existing server. The shared limiter uses a nonproduction local fallback in this fixture. `turbopack.root` is explicitly the project working directory to avoid parent-lockfile root inference. Functional acceptance against real Supabase remains a separate task.
 
 ## 12. Known gaps and business decisions
 
@@ -530,8 +533,8 @@ All 24 finding IDs are retained for history. G-01 and G-13 record their resoluti
 | G-01 | Historical finding: required confirmation was uncontrolled and never compared. Resolved in the 4 October 2026 sprint through controlled exact comparison before either create path. | AUTH-02 | Retain finding history; regression covers unequal/blank/matching values with mocked creation, not live provider signup. |
 | G-02 | Reset email request exists, but no complete recovery/new-password UI is present; fallback client also lacks resetPasswordForEmail. | AUTH-05 | Define recovery flow and unavailable-service behavior. |
 | G-03 | Review UI requires name but omits it in insert; name/admin_reply/replied_at and extended detail fields are not fully in supplied schema. Customer review image list is not rendered. | REV-01, REV-03, REV-07, PDP-06 | Align schema and supported review/product fields; decide public image display. |
-| G-04 | Public detail fetch and RLS allow pending reviews; detail average includes them while database aggregates are approved-only. Customer review INSERT/UPDATE policies do not restrict moderation fields. | REV-04, NFR-01 | Decide pending-author visibility and enforce approved public publication; protect moderation fields. |
-| G-05 | Sidebar review list is read-only; direct review URL is a separate pending queue; reply helpers have no visible controls; server approve/delete forms return JSON. | REV-06–07 | Select and complete one coherent admin review workflow. |
+| G-04 | Historical source finding: public detail/RLS exposed pending reviews and customer writes could set moderation fields. Source now filters approved public reads and revokes direct customer review writes; authors may read own pending rows. Applied migration and live cross-role behavior remain unverified. | REV-04, NFR-01 | Apply hardening migration and run read-only policy plus role-based visibility/write checks; retain historical finding. |
+| G-05 | Sidebar review list now reads through the protected API but remains read-only; direct review URL is a separate pending queue; reply helpers have no visible controls; server approve/delete forms return JSON. | REV-06–07 | Select and complete one coherent admin review workflow. |
 | G-06 | Catalog CRUD/product upload/reply helpers use public browser client; signed admin cookie grants no Supabase role and checked-in schema supplies no admin catalog writes. Save/delete/reply errors are not reliably surfaced. | ADM-02, PRD-02–06, REV-07 | Provide authenticated server writes or an explicit database admin identity with reviewed permissions. |
 | G-07 | Size/color fetched in history/admin order API are not rendered; admin order detail omits shipping address and method. | ORD-03, AOR-03 | Decide operational order detail fields and display them. |
 | G-08 | Checkout accepts missing size on a sized product and arbitrary color text; stock API accepts arbitrary size text. Routing helper does not enforce product category path. | CHK-09, PDP-01, STK-04 | Validate catalog options/category behavior; add target tests. |
@@ -542,7 +545,7 @@ All 24 finding IDs are retained for history. G-01 and G-13 record their resoluti
 | G-13 | Historical finding: sidebar logout left the browser cookie valid. Resolved in the 4 October 2026 sprint by awaiting cookie-clearing POST, then clearing UI state and redirecting. | ADM-03 | Retain history; regression verifies real local signed cookie removal, subsequent 401 and failed-request retry. Copied-token revocation is outside this fix. |
 | G-14 | Checkout has no idempotency key/replay protection; identical valid POST can create another order. | CHK-09 | Define retry semantics and duplicate-order prevention. |
 | G-15 | Checkout network rejection can leave submitting state unresolved; search lacks explicit error state and blank-query result clearing; several admin failures resemble empty/success states. | SEA-03, CHK-08, NFR-03 | Add failure/retry/state-retention acceptance paths. |
-| G-16 | Browser admin form sends password only; optional DEV_ADMIN_USERNAME is enforced by API. | ADM-01 | Leave optional username unset or add corresponding browser input. |
+| G-16 | Historical finding: browser admin form sent password only. Form now sends username and password; production uses named hash entries, while nonproduction legacy DEV_ADMIN_USERNAME remains optional. | ADM-01 | Verify production credential provisioning and correct/wrong account behavior; MFA remains a separate decision. |
 | G-17 | Product validation does not enforce finite/nonnegative price or nonnegative integer stock; base products table lacks these checks. | PRD-03 | Agree domain rules and validate both input and persisted data. |
 | G-18 | Size edits do not synchronize stock rows; stock PATCH updates multiple records without transaction; aggregate includes stale rows. Product form overall stock can diverge from size stock. | PRD-05, STK-04 | Choose authoritative inventory and make related updates atomic. |
 | G-19 | All status transitions allowed; cancellation has no stock restoration; analytics/top units include cancelled orders and review averages include pending records. | AOR-04, ANL-01–05 | Agree lifecycle, inventory reversal and metric definitions before commercial use. |
@@ -550,9 +553,9 @@ All 24 finding IDs are retained for history. G-01 and G-13 record their resoluti
 | G-21 | Settings summary says configured regardless of a live connection; no functioning settings/toggles. | SET-01 | Align label and scope. |
 | G-22 | Product fallback shipping/return promises and confirmation delivery copy conflict with demo limitations; terms attribution/license wording differs from repository documentation. Countdown is unused and has no discount logic. | CNT-03–04 | Owner to approve consistent content; no commercial policy inferred. |
 | G-23 | Reset performs unfiltered deletes without checking results; omits orders/order_items/auth users and local storage. Delete safety restrictions/foreign keys may prevent intended cleanup; reseed may duplicate data. | OPS-02 | Verify cleanup in isolated QA data; create complete deterministic fixtures before relying on helper. |
-| G-24 | Rate limit is process-local; multi-instance limits differ. Direct review insert bypasses review POST rate limit; size/main product stock consistency depends on applied RPC version. | NFR-01, NFR-07, CHK-07 | Record deployment topology and applied function; decide distributed abuse/consistency requirements. |
+| G-24 | Historical process-local limiter and direct-review-insert bypass are addressed in source by a shared production RPC and server-only review creation. Migration/config/proxy behavior are unverified; size/main product stock consistency still depends on applied RPC version. | NFR-01, NFR-07, NFR-08, CHK-07 | Verify live limiter, grants, ingress proxy and applied checkout function; retain stock consistency gap. |
 
-Open owner decisions: which partial requirements block demo release; whether cart belongs to account or browser; whether only approved reviews are public; password policy/recovery design; order transition graph and cancellation stock rules; analytics population; notification eligibility; product photo/description quality; responsive/browser/accessibility/performance targets; sign-off roles. Until resolved, QA must preserve baseline observations separately from target acceptance.
+Open owner decisions: which partial requirements block demo release; whether cart belongs to account or browser; admin MFA and review-image retention/cleanup; password policy/recovery design; order transition graph and cancellation stock rules; analytics population; notification eligibility; product photo/description quality; responsive/browser/accessibility/performance targets; sign-off roles. Until resolved, QA must preserve baseline observations separately from target acceptance.
 
 ## 13. Testing and acceptance
 
@@ -599,6 +602,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | HISTORY | [Customer orders](../src/app/orders/page.tsx) |
 | SCHEMA | [Base schema](../supabase_schema.sql) |
 | REVIEWMIG | [Review migration](../supabase_reviews_migration.sql) |
+| SECURITYMIG | [Security hardening migration](../supabase_security_hardening_migration.sql) |
 | DEMOMIG | [Latest catalog/stock/options/restock/checkout migration](../supabase_demo_catalog_migration.sql) |
 | CHECKOUTSEC | [Checkout security migration](../supabase_checkout_security_migration.sql), [profile fix](../supabase_checkout_profile_fix.sql) |
 | REVIEWSAPI | [Reviews API](../src/app/api/reviews/route.ts) |
@@ -611,6 +615,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | ADMIN | [Admin application](../src/components/AdminApp.tsx) |
 | ADMINLOGIN | [Admin login page](../src/app/admin/page.tsx), [login API](../src/app/api/admin/login/route.ts) |
 | ADMINAUTH | [Signed admin token](../src/lib/adminAuth.ts) |
+| RATELIMIT | [Shared rate-limit client and nonproduction fallback](../src/lib/rateLimit.ts) |
 | ADMINLOGOUT | [Logout API](../src/app/api/admin/logout/route.ts) |
 | ADMINAPIS | [Admin orders API](../src/app/api/admin/orders/route.ts), [admin users API](../src/app/api/admin/users/route.ts) |
 | STOCKAPI | [Stock update API](../src/app/api/admin/stock/route.ts) |
@@ -622,6 +627,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | DEVUSER | [Dev user API](../src/app/api/dev/create-user/route.ts) |
 | SCHEMAAPI | [Schema API](../src/app/api/schema/route.ts) |
 | REQTOOLS | [Requirements synchronizer and review gate](../scripts/requirements.mjs), [regression tests](../scripts/requirements.test.mjs), [npm scripts](../package.json), [requirements workflow](../.github/workflows/requirements.yml) |
+| SECCHECK | [Read-only database security inspection](../scripts/check_security_db.mjs), [admin password hash generator](../scripts/hash_admin_password.mjs) |
 | UITEST | [Isolated browser-test configuration](../playwright.config.ts), [configured-catalog fixture configuration](../playwright.catalog.config.ts), [storefront/auth/cart/logout regressions](../tests/storefront.spec.ts), [catalog loading/recovery regressions](../tests/catalog.spec.ts), [browser CI](../.github/workflows/storefront.yml) |
 | LIVETEST | [Deployed-site browser configuration](../playwright.live.config.ts), [public browsing smoke checks](../tests/live.spec.ts), [run commands and target override](../README.md) |
 | PROJECTDOCS | [Repository README, setup instructions and capability limits](../README.md), [current homepage preview](../screenshots/home.png), [fully loaded homepage](../screenshots/home-full.png), [women's listing](../screenshots/kadin.png), [perfume listing](../screenshots/parfum.png) |
@@ -636,7 +642,7 @@ Source paths identify implementation evidence; reopen them after changes. The re
 | Snapshot | Saved unit price/options at ordering time rather than a later catalog value |
 | RLS | Row Level Security: database rules limiting accessible/writable rows |
 | RPC | Database function called by server; checkout function groups order and stock operations in one transaction |
-| Pending review | Review awaiting approval; current public visibility differs from intended moderated publication |
+| Pending review | Review awaiting approval; source policy lets the author read it, while public product/API lists request approved reviews only; applied database state must be checked |
 | Demo order | Saved simulated order that may reduce demo stock, without actual payment or fulfillment |
 | Local fallback | Read-only local catalog behavior when real Supabase configuration is unavailable |
 | Acceptance criterion | An observable expected result used to decide whether a requirement is met |

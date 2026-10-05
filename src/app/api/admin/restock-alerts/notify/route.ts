@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const { data: product, error: productError } = await admin.from("products").select("name, category").eq("id", productId).maybeSingle();
   if (productError || !product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
 
-  let query = admin.from("restock_notifications").select("id, email, size, color, unsubscribe_token").eq("product_id", productId).is("notified_at", null);
+  const query = admin.from("restock_notifications").select("id, email, size, color, unsubscribe_token").eq("product_id", productId).is("notified_at", null);
   const { data: notifications, error } = await query.limit(100);
   if (error) return NextResponse.json({ error: "Could not load restock requests." }, { status: 503 });
 

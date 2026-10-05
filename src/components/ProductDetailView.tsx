@@ -7,7 +7,7 @@ import { Heart, Minus, Plus, ChevronDown, X, Star } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
 import { useCurrency } from "@/context/CurrencyContext";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 import { translateDisplayText } from "@/components/ProductCard";
 import { Product, ProductColorOption } from "@/lib/productTypes";
@@ -90,6 +90,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
         .from("reviews")
         .select("*")
         .eq("product_id", product.id)
+        .eq("approved", true)
         .order("created_at", { ascending: false });
       setReviews(data ?? []);
       setReviewsLoading(false);
@@ -155,89 +156,45 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
     setSubmitting(true);
     setReviewError(null);
 
-    const { data: authData, error: authError } = await supabase.auth.getUser();
-    if (authError || !authData.user) {
-      setSubmitting(false);
-      setReviewError("Please sign in before submitting a review.");
-      return;
-    }
-
-    // Build optimistic review object (pending)
-    const tempId = `temp-${Date.now()}`;
-    const tempReview: Review = {
-      id: tempId,
-      product_id: product.id,
-      name: reviewForm.name.trim(),
-      rating: reviewForm.rating,
-      comment: reviewForm.comment.trim(),
-      created_at: new Date().toISOString(),
-      admin_reply: null,
-      replied_at: null,
-      images: reviewImages.length ? imagePreviews : undefined,
-    };
-
-    // Immediately show the user's review optimistically
-    setReviews((prev) => [tempReview, ...prev]);
-    setReviewForm({ name: "", rating: 0, comment: "" });
-    setImagePreviews([]);
-    setReviewImages([]);
-
-    // If Supabase not configured (local dev), keep optimistic review and inform user
-    if (!isSupabaseConfigured) {
-      setSubmitting(false);
-      setReviewSubmitted(true);
-      setTimeout(() => setReviewSubmitted(false), 3000);
-      return;
-    }
-
-    // If there are images, upload them first via server endpoint which will validate size
-    let uploadedPaths: string[] | undefined = undefined;
-    if (reviewImages.length > 0) {
-      const form = new FormData();
-      reviewImages.forEach((f) => form.append('images', f));
-      form.append('productId', product.id);
+    try {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData.user) throw new Error("Please sign in before submitting a review.");
       const { data: sessionData } = await supabase.auth.getSession();
-      const resp = await fetch('/api/reviews/upload', { method: 'POST', headers: sessionData.session?.access_token ? { Authorization: `Bearer ${sessionData.session.access_token}` } : {}, body: form });
-      const j = await resp.json();
-      if (!resp.ok) {
-        // remove optimistic review
-        setReviews((prev) => prev.filter((r) => r.id !== tempId));
-        setSubmitting(false);
-        setReviewError(j?.error || 'Image upload failed');
-        return;
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) throw new Error("Please sign in before submitting a review.");
+      let uploadedPaths: string[] | undefined;
+      if (reviewImages.length > 0) {
+        const form = new FormData();
+        reviewImages.forEach((file) => form.append("images", file));
+        form.append("productId", product.id);
+        const upload = await fetch("/api/reviews/upload", { method: "POST", headers: { Authorization: `Bearer ${accessToken}` }, body: form });
+        const result = await upload.json().catch(() => ({}));
+        if (!upload.ok) throw new Error(result.error || "Image upload failed.");
+        uploadedPaths = result.paths;
       }
-      uploadedPaths = j.paths;
-    }
 
-    const { data, error } = await supabase
-      .from("reviews")
-      .insert({
-        product_id: product.id,
-        user_id: authData.user.id,
-        rating: tempReview.rating,
-        comment: tempReview.comment,
-        images: uploadedPaths ?? null,
-      })
-      .select()
-      .single();
-
-    if (!error && data) {
-      // replace optimistic review with server response
-      setReviews((prev) => [data, ...prev.filter((r) => r.id !== tempId)]);
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          rating: reviewForm.rating,
+          comment: reviewForm.comment.trim(),
+          images: uploadedPaths ?? null,
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Failed to submit review.");
+      setReviewForm({ name: "", rating: 0, comment: "" });
+      setImagePreviews([]);
+      setReviewImages([]);
       setReviewSubmitted(true);
-      setTimeout(() => setReviewSubmitted(false), 3000);
-    } else {
-      // on error, remove optimistic and show inline error
-      setReviews((prev) => prev.filter((r) => r.id !== tempId));
-      const msg = error?.message || 'Failed to submit review';
-      if (typeof msg === 'string' && msg.includes("Could not find the table 'public.reviews'")) {
-        setReviewError('Database table `reviews` not found. Run the project `supabase_schema.sql` in your Supabase SQL editor (or create the `reviews` table) to enable reviews.');
-      } else {
-        setReviewError(msg);
-      }
+      setTimeout(() => setReviewSubmitted(false), 5000);
+    } catch (error) {
+      setReviewError(error instanceof Error ? error.message : "Failed to submit review.");
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   }
 
   function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -659,7 +616,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                 className="w-full py-3 bg-neutral-900 text-white text-[10px] tracking-[0.25em] uppercase font-medium hover:bg-black transition-colors duration-300 disabled:opacity-25 disabled:cursor-not-allowed"
                 data-testid="product-detail-review-submit"
               >
-                  {reviewSubmitted ? "Submitted" : submitting ? "Submitting..." : "Submit"}
+                  {reviewSubmitted ? "Submitted for approval" : submitting ? "Submitting..." : "Submit"}
               </button>
             </div>
 
@@ -697,7 +654,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                 <div className="flex gap-2 mt-3">
                   {imagePreviews.map((p, i) => (
                     <div key={i} className="relative">
-                      <img src={p} className="w-24 h-24 object-cover border" />
+                      <img src={p} alt="Selected review image preview" className="w-24 h-24 object-cover border" />
                       <button onClick={() => removePreview(i)} className="absolute top-0 right-0 bg-white p-1">X</button>
                     </div>
                   ))}

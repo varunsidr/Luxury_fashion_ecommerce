@@ -277,5 +277,170 @@
     ],
     "source_digest": "04be43d723547f24db039ddca1839f74b39639b9eb7f3f7a1751ea2680988545",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T17:54:03.801Z",
+    "summary": "Harden review publication and writes, named admin credentials and sessions, shared production rate limiting, upload validation, and database permission verification; deployment migration and secret setup remain required",
+    "requirement_ids": [
+      "CHK-01",
+      "RST-01",
+      "REV-01",
+      "REV-02",
+      "REV-03",
+      "REV-04",
+      "REV-05",
+      "ADM-01",
+      "ADM-02",
+      "NFR-01",
+      "NFR-02",
+      "NFR-03",
+      "NFR-08",
+      "OPS-07",
+      "OPS-09"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      ".env.example",
+      "README.md",
+      "SECURITY.md",
+      "package.json",
+      "playwright.config.ts",
+      "scripts/check_security_db.mjs",
+      "scripts/hash_admin_password.mjs",
+      "src/app/admin/page.tsx",
+      "src/app/api/admin/login/route.ts",
+      "src/app/api/admin/reviews/[id]/route.ts",
+      "src/app/api/admin/reviews/route.ts",
+      "src/app/api/checkout/route.ts",
+      "src/app/api/restock-notifications/route.ts",
+      "src/app/api/reviews/route.ts",
+      "src/app/api/reviews/upload/route.ts",
+      "src/components/ProductDetailView.tsx",
+      "src/lib/adminAuth.ts",
+      "src/lib/rateLimit.ts",
+      "supabase_reviews_migration.sql",
+      "supabase_schema.sql",
+      "supabase_security_hardening_migration.sql",
+      "tests/storefront.spec.ts"
+    ],
+    "source_digest": "9f63d14a403465e8c489fb332d6251df6353c54846e5b5aee2a7f376a216910c",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T18:02:29.397Z",
+    "summary": "Keep new review uploads in a private bucket, sign temporary moderator image URLs, and verify bucket privacy in the read-only database check; historical public files and orphan cleanup remain open",
+    "requirement_ids": [
+      "REV-02",
+      "REV-04",
+      "REV-05",
+      "NFR-01",
+      "OPS-09"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md",
+      "SECURITY.md",
+      "scripts/check_security_db.mjs",
+      "src/app/admin/reviews/page.tsx",
+      "src/app/api/reviews/route.ts",
+      "src/app/api/reviews/upload/route.ts",
+      "supabase_security_hardening_migration.sql"
+    ],
+    "source_digest": "e25f62fbcee021d6e188451a33d45a2ac0d3a0b3c4b94397957e5192f02042d2",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T18:04:35.178Z",
+    "summary": "Limit review creation responses to a pending review ID and replace raw database errors with generic messages after inspecting the server route",
+    "requirement_ids": [
+      "REV-01",
+      "REV-03",
+      "REV-04",
+      "NFR-01"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "src/app/api/reviews/route.ts"
+    ],
+    "source_digest": "4850742b961b7007051204e227f2d6371f76ca763151dc6741b655118e40acf1",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T18:07:06.411Z",
+    "summary": "Keep admin pending-review visibility through the existing cookie-protected all-reviews API after restricting public review reads; add unsigned-request regression",
+    "requirement_ids": [
+      "REV-04",
+      "REV-06",
+      "ADM-02",
+      "NFR-01",
+      "OPS-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "src/components/AdminApp.tsx",
+      "tests/storefront.spec.ts"
+    ],
+    "source_digest": "d7fb6a0285d2d7a49500f7dc1ec75c7945b2dd5af2e33078592a3b51e3dd6fdf",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T18:09:07.023Z",
+    "summary": "Clarify that shared rate limiting covers admin login, checkout, reviews and restock subscription, while other admin mutations are outside this limiter",
+    "requirement_ids": [
+      "NFR-08",
+      "ADM-01",
+      "CHK-01",
+      "REV-01",
+      "REV-02",
+      "RST-01"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md",
+      "SECURITY.md"
+    ],
+    "source_digest": "ca3ca1d5d08b2641cf8bc83a3e36c177e91b4a016d3db455215cca29a4a82544",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T18:17:53.207Z",
+    "summary": "Typed admin profile and order state, removed explicit any callbacks, and used Next Link for the existing home destination; no requirement or user-visible behavior change",
+    "requirement_ids": [],
+    "no_functional_change": true,
+    "changed_sources": [
+      "src/components/AdminApp.tsx"
+    ],
+    "source_digest": "4dcd17048ce013b221dea31e7cffecc2ca78bde56e1db1b722f21fbf080b415b",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-04T18:20:03.155Z",
+    "summary": "Typed admin profile and order state, removed explicit any callbacks, used Next Link for the existing home destination, and excluded generated browser-test output from lint; no requirement or user-visible behavior change",
+    "requirement_ids": [],
+    "no_functional_change": true,
+    "changed_sources": [],
+    "source_digest": "4dcd17048ce013b221dea31e7cffecc2ca78bde56e1db1b722f21fbf080b415b",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-05T17:02:34.907Z",
+    "summary": "Resolve remaining repository ESLint errors with inferred product, favorite, Supabase fallback and helper types; retain route behavior and document CommonJS lint scope",
+    "requirement_ids": [],
+    "no_functional_change": true,
+    "changed_sources": [
+      "src/app/api/admin/restock-alerts/notify/route.ts",
+      "src/app/api/dev/create-user/route.ts",
+      "src/app/api/test/reset/route.ts",
+      "src/app/api/test/seed-user/route.ts",
+      "src/app/favorilerim/page.tsx",
+      "src/app/orders/page.tsx",
+      "src/context/FavoritesContext.tsx",
+      "src/hooks/useFavorites.ts",
+      "src/hooks/useProductSort.ts",
+      "src/lib/localProducts.ts",
+      "src/lib/supabase.ts"
+    ],
+    "source_digest": "9ecbac05c7bdac53d0f668ebe65e136dc24fd3f9df580e77c57f92430a8e5df7",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

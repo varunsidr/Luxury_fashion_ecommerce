@@ -119,10 +119,10 @@ CREATE POLICY "Users can add own favorites" ON favorites FOR INSERT WITH CHECK (
 CREATE POLICY "Users can remove own favorites" ON favorites FOR DELETE USING (auth.uid() = user_id);
 
 -- Reviews: Everyone can read reviews, but only authenticated users can write them
-CREATE POLICY "Anyone can view reviews" ON reviews FOR SELECT USING (true);
-CREATE POLICY "Authenticated users can insert reviews" ON reviews FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Users can update own reviews" ON reviews FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own reviews" ON reviews FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Approved reviews are public or authors can view own" ON reviews FOR SELECT
+  USING (approved IS TRUE OR auth.uid() = user_id);
+REVOKE ALL ON public.reviews FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON public.reviews TO anon, authenticated;
 
 -- AUTH TRIGGER: Automatically create a profile when a new user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user()

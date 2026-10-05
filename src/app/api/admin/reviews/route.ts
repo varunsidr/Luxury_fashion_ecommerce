@@ -3,8 +3,6 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const ADMIN_HEADER = 'x-dev-key';
-const ADMIN_KEY = process.env.DEV_CREATE_USER_KEY || process.env.ADMIN_KEY;
 
 function unauthorized() {
   return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -30,7 +28,7 @@ export async function GET(req: Request) {
     const { data, error } = await q;
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ status: 'ok', reviews: data });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message ?? String(err) }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Reviews could not be loaded.' }, { status: 500 });
   }
 }

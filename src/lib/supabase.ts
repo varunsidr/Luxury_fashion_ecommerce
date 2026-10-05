@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { localProducts } from "@/lib/localProducts";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -18,18 +18,32 @@ export const CONFIG_ERROR = {
     "Supabase is not configured — set a real NEXT_PUBLIC_SUPABASE_ANON_KEY (and URL) in .env.local. Sign in/register only work against a real Supabase project.",
 };
 
-function createLocalQuery(table: string) {
-  let rows: any[] = table === "products" ? [...localProducts] : [];
+type LocalRow = Record<string, unknown>;
 
-  const query: any = {
+interface LocalQuery {
+  select(): LocalQuery;
+  eq(field: string, value: unknown): LocalQuery;
+  neq(field: string, value: unknown): LocalQuery;
+  limit(count: number): LocalQuery;
+  ilike(field: string, pattern: string): LocalQuery;
+  or(expression: string): LocalQuery;
+  order(field: string, options?: unknown): LocalQuery;
+  single(): Promise<{ data: LocalRow | null; error: null }>;
+  then(resolve: (value: { data: LocalRow[]; error: null }) => unknown, reject?: (reason?: unknown) => unknown): Promise<unknown>;
+}
+
+function createLocalQuery(table: string) {
+  let rows: LocalRow[] = table === "products" ? localProducts.map((product) => ({ ...product })) : [];
+
+  const query: LocalQuery = {
     select() {
       return query;
     },
-    eq(field: string, value: any) {
+    eq(field: string, value: unknown) {
       rows = rows.filter((row) => String((row as Record<string, unknown>)[field] ?? "") === String(value));
       return query;
     },
-    neq(field: string, value: any) {
+    neq(field: string, value: unknown) {
       rows = rows.filter((row) => String((row as Record<string, unknown>)[field] ?? "") !== String(value));
       return query;
     },
@@ -52,14 +66,14 @@ function createLocalQuery(table: string) {
       );
       return query;
     },
-    order(field: string, _opts?: any) {
+    order(field: string) {
       rows = [...rows].sort((a, b) => String((a as Record<string, unknown>)[field] ?? "").localeCompare(String((b as Record<string, unknown>)[field] ?? "")));
       return query;
     },
     single() {
       return Promise.resolve({ data: rows[0] ?? null, error: null });
     },
-    then(resolve: (value: { data: any[]; error: null }) => any, reject?: (reason?: unknown) => any) {
+    then(resolve: (value: { data: LocalRow[]; error: null }) => unknown, reject?: (reason?: unknown) => unknown) {
       return Promise.resolve({ data: rows, error: null }).then(resolve, reject);
     },
   };
@@ -70,19 +84,19 @@ function createLocalQuery(table: string) {
 const localSupabase = {
   auth: {
     async getSession() {
-      return { data: { session: null as any } };
+      return { data: { session: null } };
     },
     onAuthStateChange() {
-      return { data: { subscription: { unsubscribe() {} } as any } };
+      return { data: { subscription: { unsubscribe() {} } } };
     },
     async signInWithPassword() {
-      return { error: CONFIG_ERROR as any };
+      return { error: CONFIG_ERROR };
     },
     async signUp() {
-      return { error: CONFIG_ERROR as any };
+      return { error: CONFIG_ERROR };
     },
     async signOut() {
-      return { error: null as any };
+      return { error: null };
     },
   },
   from(table: string) {
@@ -100,7 +114,7 @@ const localSupabase = {
 
 export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl!, supabaseAnonKey!)
-  : (localSupabase as any);
+  : (localSupabase as unknown as SupabaseClient);
 
 // Helper: try to find a product by id or slug with fallbacks for local seed data
 export async function findProductByIdOrSlug(value: string) {
@@ -111,7 +125,7 @@ export async function findProductByIdOrSlug(value: string) {
   try {
     if (/^\d+$/.test(normalized)) {
       const idx = Math.max(0, parseInt(normalized, 10) - 1);
-      const maybe = (localProducts as any[])[idx];
+      const maybe = localProducts[idx];
       if (maybe) return maybe;
     }
   } catch (e) {}
@@ -119,7 +133,7 @@ export async function findProductByIdOrSlug(value: string) {
   // 1) Try id exact match
   try {
     const byId = await supabase.from("products").select("*").eq("id", normalized).single();
-    if (byId && (byId as any).data) return (byId as any).data;
+    if (byId.data) return byId.data;
   } catch (e) {
     // ignore
   }
@@ -127,7 +141,7 @@ export async function findProductByIdOrSlug(value: string) {
   // 2) Try slug exact match
   try {
     const bySlug = await supabase.from("products").select("*").eq("slug", normalized).single();
-    if (bySlug && (bySlug as any).data) return (bySlug as any).data;
+    if (bySlug.data) return bySlug.data;
   } catch (e) {
     // ignore
   }
@@ -136,14 +150,13 @@ export async function findProductByIdOrSlug(value: string) {
   try {
     // If Supabase isn't configured, use the localProducts array directly to avoid query nuances
     if (!isSupabaseConfigured) {
-      const lp = localProducts as any[];
-      const foundLocal = lp.find((p) => String(p.id).toLowerCase() === normalized || String((p.slug ?? "")).toLowerCase() === normalized);
+      const foundLocal = localProducts.find((p) => String(p.id).toLowerCase() === normalized || String(p.slug ?? "").toLowerCase() === normalized);
       return foundLocal ?? null;
     }
 
-    const listResp: any = await supabase.from("products").select("*");
-    const all = (listResp && listResp.data) || (listResp && listResp instanceof Array ? listResp : []);
-    const found = (all as any[]).find((p) => String(p.id).toLowerCase() === normalized || String(p.slug ?? "").toLowerCase() === normalized);
+    const listResp = await supabase.from("products").select("*");
+    const all = listResp.data ?? [];
+    const found = all.find((p) => String(p.id).toLowerCase() === normalized || String(p.slug ?? "").toLowerCase() === normalized);
     return found ?? null;
   } catch (e) {
     return null;

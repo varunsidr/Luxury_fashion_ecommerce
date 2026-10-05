@@ -13,6 +13,8 @@
     "docs:review": "node scripts/requirements.mjs review",
     "docs:watch": "node scripts/requirements.mjs watch",
     "docs:test": "node --test scripts/requirements.test.mjs",
+    "security:hash-admin": "node scripts/hash_admin_password.mjs",
+    "security:check-db": "node scripts/check_security_db.mjs",
     "test:ui": "playwright test",
     "test:catalog": "playwright test --config=playwright.catalog.config.ts",
     "test:live": "playwright test --config=playwright.live.config.ts",

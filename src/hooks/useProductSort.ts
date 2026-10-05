@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 
-export function useProductSort(products: any[]) {
+export function useProductSort<T extends { price: number; created_at: string }>(products: T[]) {
   const [sortBy, setSortBy] = useState("recommended");
 
   const sortedProducts = useMemo(() => {

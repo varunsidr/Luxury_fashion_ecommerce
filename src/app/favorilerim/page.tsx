@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentProps } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
@@ -8,33 +8,31 @@ import { Loader2, Heart, ShoppingBag } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
 
 export default function FavoritesPage() {
-  const [favoriteProducts, setFavoriteProducts] = useState<any[]>([]);
+  const [favoriteProducts, setFavoriteProducts] = useState<ComponentProps<typeof ProductCard>["product"][]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const { favorites, loading: favoritesLoading } = useFavorites();
 
   useEffect(() => {
-    if (!favoritesLoading) {
-      if (favorites.length > 0) {
-        fetchFavoriteProducts();
-      } else {
+    const fetchFavoriteProducts = async () => {
+      if (favorites.length === 0) {
         setFavoriteProducts([]);
         setLoadingProducts(false);
+        return;
       }
-    }
+      setLoadingProducts(true);
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .in("id", favorites);
+
+      if (!error && data) {
+        setFavoriteProducts(data);
+      }
+      setLoadingProducts(false);
+    };
+
+    if (!favoritesLoading) void fetchFavoriteProducts();
   }, [favorites, favoritesLoading]);
-
-  const fetchFavoriteProducts = async () => {
-    setLoadingProducts(true);
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .in("id", favorites);
-
-    if (!error && data) {
-      setFavoriteProducts(data);
-    }
-    setLoadingProducts(false);
-  };
 
   const isLoading = favoritesLoading || loadingProducts;
 
@@ -81,7 +79,7 @@ export default function FavoritesPage() {
                 <Heart size={32} strokeWidth={1} className="text-neutral-200 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
               </div>
               <h2 className="text-[20px] font-light font-playfair tracking-wide text-neutral-900 mb-4">
-                You don't have any favorites yet
+                You don&apos;t have any favorites yet
               </h2>
               <p className="text-[12px] text-neutral-400 max-w-xs mx-auto mb-10 font-light leading-relaxed">
                 Add products to your favorites to find them easily later and make purchases.

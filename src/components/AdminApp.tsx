@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard, Package, Layers, LogOut,
@@ -49,6 +50,31 @@ interface Review {
   replied_at: string | null;
 }
 
+interface Profile {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  updated_at: string | null;
+}
+
+interface OrderItem {
+  id: string;
+  product_id: string | null;
+  quantity: number;
+  unit_price: number;
+  products: { name: string; image_url: string | null } | null;
+}
+
+interface Order {
+  id: string;
+  user_id: string | null;
+  total: number;
+  status: string;
+  placed_at: string | null;
+  created_at?: string | null;
+  order_items?: OrderItem[];
+}
+
 const emptyForm = {
   name: "", category: ALL_CATEGORIES[0], price: "", stock: "",
   description: "", sizes: [] as string[], image_url: "", images: [] as string[],
@@ -85,13 +111,13 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   const [replyingId, setReplyingId] = useState<string | null>(null);
 
   // Users (profiles)
-  const [profiles, setProfiles] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(false);
   const [profilesError, setProfilesError] = useState("");
   // Orders
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderSearch, setOrderSearch] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("all");
 
@@ -133,13 +159,17 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   async function fetchReviews() {
     setReviewsLoading(true);
     setReviewsError("");
-    const { data, error } = await supabase
-      .from("reviews")
-      .select("*")
-      .order("created_at", { ascending: false });
-    setReviews(data ?? []);
-    if (error) setReviewsError(error.message);
-    setReviewsLoading(false);
+    try {
+      const response = await fetch("/api/admin/reviews?status=all", { cache: "no-store" });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? "Could not load reviews.");
+      setReviews(Array.isArray(result.reviews) ? result.reviews : []);
+    } catch (error) {
+      setReviews([]);
+      setReviewsError(error instanceof Error ? error.message : "Could not load reviews.");
+    } finally {
+      setReviewsLoading(false);
+    }
   }
 
   async function fetchProfiles() {
@@ -169,7 +199,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
       });
       if (!response.ok) throw new Error("Failed to update order status");
       setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status } : o));
-      if (selectedOrder && selectedOrder.id === orderId) setSelectedOrder((s: any) => ({ ...s, status }));
+      if (selectedOrder && selectedOrder.id === orderId) setSelectedOrder((s) => s ? { ...s, status } : s);
     } catch (err) {
       console.error('Failed updating order status', err);
     }
@@ -354,7 +384,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   const topProducts = products
     .map((product) => ({
       product,
-      units: orders.flatMap((order) => order.order_items ?? []).filter((item: any) => item.product_id === product.id).reduce((sum: number, item: any) => sum + Number(item.quantity || 0), 0),
+      units: orders.flatMap((order) => order.order_items ?? []).filter((item) => item.product_id === product.id).reduce((sum, item) => sum + Number(item.quantity || 0), 0),
     }))
     .filter((entry) => entry.units > 0)
     .sort((a, b) => b.units - a.units)
@@ -385,9 +415,9 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
         <div className="px-6 py-6 border-b border-neutral-800">
           <p className="text-white text-[13px] tracking-[0.25em] font-light">zeouf</p>
           <p className="text-neutral-500 text-[9px] tracking-[0.3em] uppercase mt-0.5">Admin Panel</p>
-          <a href="/" className="inline-flex items-center gap-1.5 mt-3 text-neutral-500 hover:text-neutral-300 transition-colors text-[9px] tracking-[0.2em] uppercase">
+          <Link href="/" className="inline-flex items-center gap-1.5 mt-3 text-neutral-500 hover:text-neutral-300 transition-colors text-[9px] tracking-[0.2em] uppercase">
             ← Back to Site
-          </a>
+          </Link>
         </div>
         <nav className="flex-1 py-4">
           {navItems.map((item) => (
@@ -748,7 +778,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                   <div className="mb-4">
                     <p className="text-[12px] font-medium text-neutral-700 mb-2">Items</p>
                     <div className="divide-y divide-neutral-100">
-                      {(selectedOrder.order_items ?? []).map((it: any) => (
+                      {(selectedOrder.order_items ?? []).map((it) => (
                         <div key={it.id} className="flex items-center justify-between py-3">
                           <div>
                             <p className="text-[12px] font-medium text-neutral-800">{it.products?.name ?? 'Product'}</p>

@@ -2055,5 +2055,971 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-04T17:53:47.090Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-01",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Review form shall require nonblank displayed name/comment and selected stars before submit, authenticate the user, and store product/user/rating/comment plus optional image URLs. Current direct insert omits displayed name (G-03).",
+      "source_codes": "DETAIL, REVIEWMIG",
+      "qa_focus": "Missing fields, guest, rating 1/5, returned anonymous name",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:53:47.090Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-02",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Optional review upload shall accept 1–3 JPEG/PNG/WebP images no larger than 2 MiB each, with customer bearer token and existing product; UI shall preview/remove selected files.",
+      "source_codes": "DETAIL, REVIEWUPLOAD",
+      "qa_focus": "0/1/3/4 files, exact size/over size, MIME, invalid token/product",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:53:47.090Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-03",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Submission shall insert a temporary visible review, replace it on success or remove it on upload/database failure and show error; current form clears before persistence.",
+      "source_codes": "DETAIL",
+      "qa_focus": "Optimistic success/rollback, retry/data loss, image display gap",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:53:47.090Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-04",
+      "module": "Reviews and moderation",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Intended moderation shall publish only approved feedback in public results and average/count; current detail/RLS expose pending reviews and detail average includes them (G-04).",
+      "source_codes": "DETAIL, REVIEWSAPI, SCHEMA, REVIEWMIG",
+      "qa_focus": "Pending/approved visibility, own pending review, rating consistency",
+      "known_gap_ids": "G-04",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:53:47.090Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ADM-01",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Browser admin login shall use configured password and issue one-hour HttpOnly/SameSite=Lax cookie, Secure in production; loading/errors/reveal toggle shall be available. Optional configured username blocks password-only form (G-16).",
+      "source_codes": "ADMINLOGIN, ADMINAUTH",
+      "qa_focus": "Wrong/empty credential, cookie attributes, username setting",
+      "known_gap_ids": "G-16",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:53:47.090Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Known policy/write gaps must be resolved or explicitly scoped as blockers.",
+      "source_codes": "SCHEMA, REVIEWMIG, CHECKOUTSEC, ADMINAPIS",
+      "qa_focus": "Cross-user reads/writes, review approval tampering, fake admin flag",
+      "known_gap_ids": "G-04; G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:53:47.090Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NFR-02",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Service-role, admin, mail and test secrets shall stay server-side; QA utilities shall remain blocked in production and admin cookie shall carry intended secure attributes.",
+      "source_codes": "ADMINAUTH, TESTAPI, DEVUSER, CHECKOUT",
+      "qa_focus": "Client bundle/network/log secret exposure, production guards",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-01",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Order submission shall require valid customer bearer token and nonempty cart; UI disables guest/empty submission and API rejects invalid/expired sessions.",
+      "source_codes": "CHECKOUT, CHECKOUTUI",
+      "qa_focus": "Guest, expired token, forged user ID, empty cart",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-01",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Review form requires nonblank displayed name/comment and stars; it sends a customer bearer token to the server review route, which stores a pending product/user/rating/comment and optional owned image URLs. Displayed name is still omitted from storage (G-03).",
+      "source_codes": "DETAIL, REVIEWSAPI, SECURITYMIG",
+      "qa_focus": "Missing fields, guest, rating 1/5, returned anonymous name, direct DB write denial",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-02",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Review upload accepts 1–3 JPEG/PNG/WebP files of 1 byte–2 MiB each for an authenticated user and existing product, checks file signatures, and limits each account to 10 upload requests per day. The public bucket must already exist; orphan cleanup remains open.",
+      "source_codes": "DETAIL, REVIEWUPLOAD, RATELIMIT",
+      "qa_focus": "File count/size/signature, forged MIME, invalid token/product, account limit, missing bucket",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-03",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Submission keeps form data during upload/save, shows an error on failure, and clears it only after server creation. A successful pending review is acknowledged as awaiting approval and is not placed in the public list.",
+      "source_codes": "DETAIL, REVIEWSAPI",
+      "qa_focus": "Successful pending response, upload/API/network failure, retry/data retention",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-04",
+      "module": "Reviews and moderation",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Public review API and detail query show approved rows only; database SELECT allows approved reviews or the author's own pending rows, and customer review writes are revoked. Server creation forces pending. Applied-policy/live visibility remains to be verified (G-04).",
+      "source_codes": "DETAIL, REVIEWSAPI, SCHEMA, REVIEWMIG, SECURITYMIG",
+      "qa_focus": "Visitor/customer pending visibility, direct INSERT/UPDATE/DELETE denial, approval tampering, rating consistency",
+      "known_gap_ids": "G-04",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-05",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Direct /admin/reviews shall list pending reviews and let a cookie-authenticated admin approve/delete; approval records moderation time and updates database approved aggregates.",
+      "source_codes": "MODPAGE, MODAPI, SCHEMA",
+      "qa_focus": "Valid/expired admin, approval/deletion, pending empty state",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-01",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Available alert UI shall accept email for an unavailable item/selected size and save product/email/size/color without customer authentication; invalid email/product shall fail. Specific unavailable-size selection is a UI gap (G-09).",
+      "source_codes": "DETAIL, RESTOCK",
+      "qa_focus": "Guest, whole-product versus size request, invalid product/email",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-01",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Production admin login requires a named account with its scrypt password hash and a distinct session-signing secret; it issues a one-hour HttpOnly/SameSite=Lax cookie, Secure in production. The browser collects username/password; nonproduction may use the legacy dev key. MFA and live credential provisioning remain open.",
+      "source_codes": "ADMINLOGIN, ADMINAUTH, RATELIMIT",
+      "qa_focus": "Wrong username/password, missing production config, cookie claims/attributes, legacy key denied in production, MFA gap",
+      "known_gap_ids": "G-16",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-02",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Server mutations/private reads shall require admin authority independent of local UI flag; product writes and reply helpers do not use that authority in current implementation (G-06).",
+      "source_codes": "ADMIN, ADMINAUTH, ADMINAPIS, SCHEMA",
+      "qa_focus": "Fake local flag, expired/forged cookie, customer-only session",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-09",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "`npm run security:check-db` shall inspect the target database read-only for review RLS/grants, direct order-insert policy removal, limiter RLS/RPC permissions and checkout RPC restrictions. It requires an explicitly supplied `DATABASE_URL`; a pass does not replace live role tests or prove the correct deployment is connected.",
+      "source_codes": "SECCHECK, SECURITYMIG, CHECKOUTSEC",
+      "qa_focus": "Missing URL, correct target, pass/fail grants and policy inventory, no writes/secrets in output",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Review direct writes are removed in source, but deployed grants/policies and remaining admin product/reply writes must be verified or scoped as blockers.",
+      "source_codes": "SCHEMA, REVIEWMIG, SECURITYMIG, CHECKOUTSEC, ADMINAPIS",
+      "qa_focus": "Cross-user reads/writes, review approval tampering, fake admin flag, applied policy",
+      "known_gap_ids": "G-04; G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-02",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Service-role, per-admin password hashes, signing/rate-limit secrets, mail and test secrets stay server-side; QA utilities stay blocked in production. Production admin sessions use a separate signing secret and secure cookie attributes. Live environment/secret provisioning and MFA are unverified.",
+      "source_codes": "ADMINAUTH, ADMINLOGIN, TESTAPI, DEVUSER, CHECKOUT",
+      "qa_focus": "Client bundle/network/log exposure, production guards, secret separation/rotation, MFA gap",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T17:54:03.801Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-08",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Production write routes shall use one atomic database rate-limit counter across instances; missing shared configuration/RPC fails closed with 503. Keys are HMAC-hashed, and the ingress proxy must append or overwrite x-forwarded-for. Nonproduction may use a process-local fallback.",
+      "source_codes": "RATELIMIT, SECURITYMIG, ADMINLOGIN, CHECKOUT, RESTOCK, REVIEWSAPI, REVIEWUPLOAD",
+      "qa_focus": "Multi-instance limits, 429 boundary, 503 unavailable, proxy-spoof test, account upload quota",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:02:18.160Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-02",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Review upload accepts 1–3 JPEG/PNG/WebP files of 1 byte–2 MiB each for an authenticated user and existing product, checks file signatures, and limits each account to 10 upload requests per day. The public bucket must already exist; orphan cleanup remains open.",
+      "source_codes": "DETAIL, REVIEWUPLOAD, RATELIMIT",
+      "qa_focus": "File count/size/signature, forged MIME, invalid token/product, account limit, missing bucket",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:02:18.160Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "OPS-09",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "`npm run security:check-db` shall inspect the target database read-only for review RLS/grants, direct order-insert policy removal, limiter RLS/RPC permissions and checkout RPC restrictions. It requires an explicitly supplied `DATABASE_URL`; a pass does not replace live role tests or prove the correct deployment is connected.",
+      "source_codes": "SECCHECK, SECURITYMIG, CHECKOUTSEC",
+      "qa_focus": "Missing URL, correct target, pass/fail grants and policy inventory, no writes/secrets in output",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:02:29.397Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-02",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Review upload accepts 1–3 JPEG/PNG/WebP files of 1 byte–2 MiB each for an authenticated user and existing product, checks file signatures, and limits each account to 10 upload requests per day. New files use the private review-images bucket created by the hardening migration; moderators use ten-minute signed URLs. Historical public files and orphan cleanup remain open.",
+      "source_codes": "DETAIL, REVIEWUPLOAD, MODPAGE, SECURITYMIG, RATELIMIT",
+      "qa_focus": "File count/size/signature, forged MIME, invalid token/product, account limit, private bucket, signed URL expiry",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:02:29.397Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-04",
+      "module": "Reviews and moderation",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Public review API and detail query show approved rows only; database SELECT allows approved reviews or the author's own pending rows, and customer review writes are revoked. Server creation forces pending. Applied-policy/live visibility remains to be verified (G-04).",
+      "source_codes": "DETAIL, REVIEWSAPI, SCHEMA, REVIEWMIG, SECURITYMIG",
+      "qa_focus": "Visitor/customer pending visibility, direct INSERT/UPDATE/DELETE denial, approval tampering, rating consistency",
+      "known_gap_ids": "G-04",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:02:29.397Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-05",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Direct /admin/reviews shall list pending reviews and let a cookie-authenticated admin approve/delete; approval records moderation time and updates database approved aggregates.",
+      "source_codes": "MODPAGE, MODAPI, SCHEMA",
+      "qa_focus": "Valid/expired admin, approval/deletion, pending empty state",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:02:29.397Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-09",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "`npm run security:check-db` shall inspect the target database read-only for review RLS/grants, direct order-insert policy removal, private review bucket, limiter RLS/RPC permissions and checkout RPC restrictions. It requires an explicitly supplied `DATABASE_URL`; a pass does not replace live role tests or prove the correct deployment is connected.",
+      "source_codes": "SECCHECK, SECURITYMIG, CHECKOUTSEC",
+      "qa_focus": "Missing URL, correct target, pass/fail grants, bucket and policy inventory, no writes/secrets in output",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:02:29.397Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Review direct writes are removed in source, but deployed grants/policies and remaining admin product/reply writes must be verified or scoped as blockers.",
+      "source_codes": "SCHEMA, REVIEWMIG, SECURITYMIG, CHECKOUTSEC, ADMINAPIS",
+      "qa_focus": "Cross-user reads/writes, review approval tampering, fake admin flag, applied policy",
+      "known_gap_ids": "G-04; G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:04:35.178Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-01",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Review form requires nonblank displayed name/comment and stars; it sends a customer bearer token to the server review route, which stores a pending product/user/rating/comment and optional owned image URLs. Displayed name is still omitted from storage (G-03).",
+      "source_codes": "DETAIL, REVIEWSAPI, SECURITYMIG",
+      "qa_focus": "Missing fields, guest, rating 1/5, returned anonymous name, direct DB write denial",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:04:35.178Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-03",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Submission keeps form data during upload/save, shows an error on failure, and clears it only after server creation. A successful pending review is acknowledged as awaiting approval and is not placed in the public list.",
+      "source_codes": "DETAIL, REVIEWSAPI",
+      "qa_focus": "Successful pending response, upload/API/network failure, retry/data retention",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:04:35.178Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-04",
+      "module": "Reviews and moderation",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Public review API and detail query show approved rows only; database SELECT allows approved reviews or the author's own pending rows, and customer review writes are revoked. Server creation forces pending. Applied-policy/live visibility remains to be verified (G-04).",
+      "source_codes": "DETAIL, REVIEWSAPI, SCHEMA, REVIEWMIG, SECURITYMIG",
+      "qa_focus": "Visitor/customer pending visibility, direct INSERT/UPDATE/DELETE denial, approval tampering, rating consistency",
+      "known_gap_ids": "G-04",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:04:35.178Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Review direct writes are removed in source, but deployed grants/policies and remaining admin product/reply writes must be verified or scoped as blockers.",
+      "source_codes": "SCHEMA, REVIEWMIG, SECURITYMIG, CHECKOUTSEC, ADMINAPIS",
+      "qa_focus": "Cross-user reads/writes, review approval tampering, fake admin flag, applied policy",
+      "known_gap_ids": "G-04; G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:06:55.544Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-06",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin review navigation shall provide a coherent moderation experience; direct pending page and sidebar all-review read-only view currently differ, and form results return JSON (G-05).",
+      "source_codes": "ADMIN, MODPAGE, MODAPI",
+      "qa_focus": "Both entry paths, form submission and return flow",
+      "known_gap_ids": "G-05",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:07:06.411Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-04",
+      "module": "Reviews and moderation",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Public review API and detail query show approved rows only; database SELECT allows approved reviews or the author's own pending rows, and customer review writes are revoked. Server creation forces pending. Applied-policy/live visibility remains to be verified (G-04).",
+      "source_codes": "DETAIL, REVIEWSAPI, SCHEMA, REVIEWMIG, SECURITYMIG",
+      "qa_focus": "Visitor/customer pending visibility, direct INSERT/UPDATE/DELETE denial, approval tampering, rating consistency",
+      "known_gap_ids": "G-04",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:07:06.411Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-06",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin sidebar retrieves all reviews through the cookie-protected API and remains read-only; the separate pending page has moderation actions, and form results return JSON (G-05). Navigation/return flow remains incomplete.",
+      "source_codes": "ADMIN, MODPAGE, MODAPI",
+      "qa_focus": "Both entry paths, signed-cookie all-review list, form submission and return flow",
+      "known_gap_ids": "G-05",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:07:06.411Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-02",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Server mutations/private reads shall require admin authority independent of local UI flag; product writes and reply helpers do not use that authority in current implementation (G-06).",
+      "source_codes": "ADMIN, ADMINAUTH, ADMINAPIS, SCHEMA",
+      "qa_focus": "Fake local flag, expired/forged cookie, customer-only session",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:07:06.411Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:07:06.411Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Review direct writes are removed in source, but deployed grants/policies and remaining admin product/reply writes must be verified or scoped as blockers.",
+      "source_codes": "SCHEMA, REVIEWMIG, SECURITYMIG, CHECKOUTSEC, ADMINAPIS",
+      "qa_focus": "Cross-user reads/writes, review approval tampering, fake admin flag, applied policy",
+      "known_gap_ids": "G-04; G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:08:52.214Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "NFR-08",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Production write routes shall use one atomic database rate-limit counter across instances; missing shared configuration/RPC fails closed with 503. Keys are HMAC-hashed, and the ingress proxy must append or overwrite x-forwarded-for. Nonproduction may use a process-local fallback.",
+      "source_codes": "RATELIMIT, SECURITYMIG, ADMINLOGIN, CHECKOUT, RESTOCK, REVIEWSAPI, REVIEWUPLOAD",
+      "qa_focus": "Multi-instance limits, 429 boundary, 503 unavailable, proxy-spoof test, account upload quota",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:09:07.023Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-01",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Order submission shall require valid customer bearer token and nonempty cart; UI disables guest/empty submission and API rejects invalid/expired sessions.",
+      "source_codes": "CHECKOUT, CHECKOUTUI",
+      "qa_focus": "Guest, expired token, forged user ID, empty cart",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:09:07.023Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-01",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Review form requires nonblank displayed name/comment and stars; it sends a customer bearer token to the server review route, which stores a pending product/user/rating/comment and optional owned image URLs. Displayed name is still omitted from storage (G-03).",
+      "source_codes": "DETAIL, REVIEWSAPI, SECURITYMIG",
+      "qa_focus": "Missing fields, guest, rating 1/5, returned anonymous name, direct DB write denial",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:09:07.023Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-02",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Review upload accepts 1–3 JPEG/PNG/WebP files of 1 byte–2 MiB each for an authenticated user and existing product, checks file signatures, and limits each account to 10 upload requests per day. New files use the private review-images bucket created by the hardening migration; moderators use ten-minute signed URLs. Historical public files and orphan cleanup remain open.",
+      "source_codes": "DETAIL, REVIEWUPLOAD, MODPAGE, SECURITYMIG, RATELIMIT",
+      "qa_focus": "File count/size/signature, forged MIME, invalid token/product, account limit, private bucket, signed URL expiry",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:09:07.023Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-01",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Available alert UI shall accept email for an unavailable item/selected size and save product/email/size/color without customer authentication; invalid email/product shall fail. Specific unavailable-size selection is a UI gap (G-09).",
+      "source_codes": "DETAIL, RESTOCK",
+      "qa_focus": "Guest, whole-product versus size request, invalid product/email",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:09:07.023Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-01",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Production admin login requires a named account with its scrypt password hash and a distinct session-signing secret; it issues a one-hour HttpOnly/SameSite=Lax cookie, Secure in production. The browser collects username/password; nonproduction may use the legacy dev key. MFA and live credential provisioning remain open.",
+      "source_codes": "ADMINLOGIN, ADMINAUTH, RATELIMIT",
+      "qa_focus": "Wrong username/password, missing production config, cookie claims/attributes, legacy key denied in production, MFA gap",
+      "known_gap_ids": "G-16",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-04T18:09:07.023Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-08",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Admin login, checkout, review creation/upload and restock subscription shall use one atomic production database rate-limit counter across instances; missing shared configuration/RPC fails closed with 503 on those routes. Keys are HMAC-hashed, and the ingress proxy must append or overwrite x-forwarded-for. Nonproduction may use a process-local fallback.",
+      "source_codes": "RATELIMIT, SECURITYMIG, ADMINLOGIN, CHECKOUT, RESTOCK, REVIEWSAPI, REVIEWUPLOAD",
+      "qa_focus": "Multi-instance limits, 429 boundary, 503 unavailable, proxy-spoof test, account upload quota",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

@@ -18,7 +18,9 @@ const text = (value: unknown, maxLength: number) =>
   typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 
 export async function POST(request: Request) {
-  if (isRateLimited(`checkout:${getClientAddress(request)}`, 10, 60_000)) {
+  const limited = await isRateLimited(`checkout:${getClientAddress(request)}`, 10, 60_000);
+  if (limited === null) return NextResponse.json({ error: "Checkout is temporarily unavailable." }, { status: 503 });
+  if (limited) {
     return NextResponse.json({ error: "Too many checkout attempts. Please try again shortly." }, { status: 429 });
   }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

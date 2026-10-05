@@ -46,7 +46,7 @@ Use fictional identities and addresses. Resolve database UUIDs from created fixt
 | U-B | Confirmed customer B with separate favorites/orders/reviews | Ownership/isolation |
 | U-UNVERIFIED | Unverified account where project requires confirmation | Signup/sign-in provider behavior |
 | U-NOPROFILE | Auth user lacking profile, created in isolated QA setup | Checkout profile upsert/self-healing |
-| A-VALID | Admin cookie from correct configured credential | Private reads/stock/moderation/status |
+| A-VALID | Admin cookie from a named account with its own scrypt password hash and separate session secret | Private reads/stock/moderation/status |
 | A-EXPIRED / A-FORGED | Expired signed token / invalid signed token; separate browser context | Access denial |
 | A-FLAGONLY | localStorage admin_auth=1 without valid admin cookie | UI flag versus API authority |
 | P-UNSIZED | Bags product, price INR 1,000, no sizes/colors, stock 5 | Card quick-add, subtotal, unsized stock |
@@ -71,12 +71,12 @@ Use fictional identities and addresses. Resolve database UUIDs from created fixt
 | A-LOCAL-COOKIE | Fixture admin login on isolated localhost server with service role disabled | Real signed cookie logout and post-logout denial; no live DB writes |
 | F-A / F-B | Different favorite sets for U-A and U-B | Database ownership/counts |
 | R-PENDING / R-APPROVED | Known ratings, comments, ownership and approval flags | Public visibility, moderation, averages |
-| R-WITHIMAGE | Valid image URLs attached to a review | Persistence versus public image presentation |
+| R-WITHIMAGE | New private review-images object paths plus one historical public URL attached to separate reviews | Moderator signed URL, historical cleanup, public image presentation |
 | O-STATUSSET | Orders in all five statuses, linked lines with known unit prices | Order filters/lifecycle/analytics |
 | O-DELETED-PRODUCT | Order line retains quantity/unit price; product reference null | Historical fallback |
 | N-SIZESET | Pending alerts for whole product, S, M, alternate color and different email casing | Matching, duplicate, delivery eligibility |
 | IMG-VALID | JPEG/PNG/WebP each ≤2 MiB, including exact 2 MiB | Upload acceptance |
-| IMG-INVALID | >2 MiB, unsupported MIME, misleading extension, fourth file | Upload validation |
+| IMG-INVALID | Empty or >2 MiB, unsupported MIME, declared type with wrong file signature, misleading extension, fourth file | Upload validation |
 
 Seed scripts may change stock and insert sample orders. Measure final stock/records before testing. Current reset endpoint omits orders, auth users and browser localStorage and ignores delete failures. Do not use it as a guaranteed clean baseline. Never run destructive fixture setup against a shared or production database.
 
@@ -104,7 +104,7 @@ Seed scripts may change stock and insert sample orders. Measure final stock/reco
 | Status/moderation | All statuses; backward transition; approve/delete; pending visibility and aggregates | AOR, ORD, REV, ANL |
 | Failure UX | 400/401/409/429/500/503, network rejection, slow response, invalid response body | Forms, APIs, NFR-03 |
 | Responsive/accessibility | 375/768/1440px proposal; keyboard/focus/contrast/reduced motion | NAV, PDP, forms, admin |
-| Environment guards | Production blocks helpers; credentials separate; secrets absent from client | OPS, NFR-02 |
+| Environment guards | Production blocks helpers; named admin hashes and independent secrets; shared limiter unavailable/working; secrets absent from client | OPS, ADM, NFR-02, NFR-08 |
 | Content accuracy | Demo/no-charge/no-shipment; newsletter preview; no invented decline/promotion/settings | CNT, CHK, SET |
 
 Use pairwise coverage for secondary UI combinations if useful, but explicitly cover every P0 rule and boundary. Do not use pairwise sampling to omit ownership, transaction rollback or stock concurrency.
@@ -134,18 +134,26 @@ These are starting cases. Expected unmet target behavior is explicitly marked; d
 | TC-CHK-009-01 | CHK-09 | Given a sized product, when a direct API caller omits size or supplies invented color, then invalid options are rejected with no writes. Current code does not enforce this. | Target; G-08 |
 | TC-CHK-009-02 | CHK-09 | Given a successful valid checkout request, when the same request is retried, then agreed idempotent behavior prevents another order. No current idempotency contract exists. | Target; decision required G-14 |
 | TC-ORD-001-01 | ORD-01, NFR-01 | Given orders for U-A and U-B, when U-A reads history and attempts a direct U-B order read, then only U-A's records are accessible. | Baseline with RLS evidence |
-| TC-REV-004-01 | REV-04 | Given approved and pending reviews, when a visitor reads product details, then only approved feedback contributes to public results/rating. Current detail/RLS violate intended moderation. | Target; G-04 |
-| TC-REV-002-01 | REV-02 | Given U-A and existing product, when uploading exactly three accepted 2 MiB images, then upload returns three URLs; a fourth or oversized image is rejected without successful review save. | Baseline |
+| TC-REV-004-01 | REV-04 | Given approved and pending reviews from U-A/U-B, when a visitor or U-B loads detail and public GET with approved=false, only approved feedback contributes; U-A may read own pending row directly. | Target pending live RLS/migration proof; G-04 |
+| TC-REV-004-02 | REV-01, REV-04, NFR-01 | Given a customer token and public Supabase key, direct INSERT with approved=true, UPDATE approval/reply and DELETE all fail; POST /api/reviews creates only pending and validates owned image URLs. | Target live policy and API test; G-04 |
+| TC-REV-003-01 | REV-03 | Given a comment and optional images, failed upload/API/network requests leave the form intact and show an error; successful 201 pending clears it and shows approval feedback without adding to public count/list. | Target configured integration |
+| TC-REV-006-01 | REV-06, ADM-02 | Given approved and pending reviews, admin sidebar fetches all through a signed-cookie API while an unauthenticated direct API call returns 401; the sidebar remains read-only and direct pending moderation page remains separate. | Target protected admin list; G-05 |
+| TC-REV-002-01 | REV-02 | Given U-A and existing product after the hardening migration, one to three real JPEG/PNG/WebP files within 1 byte–2 MiB return private object paths; an unauthenticated storage URL is denied and the moderator page shows ten-minute signed URLs. Empty/fourth/oversize/mismatched signature, invalid token/product and absent bucket fail. | Target applied storage integration |
+| TC-REV-002-02 | REV-02, NFR-08 | Given U-A, the first ten valid upload requests in one day may pass and the eleventh returns 429 across separate app instances; failed review creation must not silently show a public review. Inspect orphan objects separately. | Target shared limiter and retention check |
 | TC-RST-002-01 | RST-02 | Given a pending request, when the same email in different casing requests the same product/options, then already_subscribed is returned and pending count remains one. | Baseline |
 | TC-RST-004-01 | RST-04 | Given S and M requests and only M stock restored, when notifying M, then only eligible M/whole-item requests are delivered; re-run, provider failure and size-less notification are checked separately. | Target eligibility plus baseline batching; G-12 |
 | TC-RST-005-01 | RST-05 | Given a valid alert token, when using its unsubscribe URL twice, then record is absent and both valid-shape requests return confirmation; malformed token returns 400. | Baseline |
 | TC-ADM-002-01 | ADM-02, AOR-01, STK-01 | Given admin_auth=1 without signed cookie, when calling admin order/stock APIs, then both deny authorization and no writes occur. | Baseline APIs; P0 |
+| TC-ADM-001-01 | ADM-01, NFR-02 | Given two named admins and distinct password hashes, only matching username/password pairs receive a one-hour secure cookie; old DEV_CREATE_USER_KEY cannot sign in in production, and rotating ADMIN_SESSION_SECRET invalidates existing cookies. Test missing/short secrets and absent hashes. | Target production configuration and local fixture regression |
+| TC-ADM-002-02 | ADM-02, REV-05 | Given customer token or old x-dev-key without signed admin cookie, DELETE /api/admin/reviews/{id} returns 401 and review remains; a valid cookie can delete. | Target protected mutation |
 | TC-ADM-003-01 | ADM-03 | Given a signed admin cookie, when sidebar logout succeeds, then cookie and local flag are absent, route is /admin and a private API returns 401. Failed logout retains state and allows retry. GET logout redirects 303 on the request origin; POST returns no-store JSON. | Baseline; resolved G-13 |
 | TC-PRD-002-01 | PRD-02, ADM-02 | Given the checked-in base write policies and cookie-only administrator, when saving a catalog change, then verify persistence on reload and capture the permissions failure instead of trusting closed form. | Known-gap reproduction; G-06 |
 | TC-STK-002-01 | STK-02, ADM-04 | Given P-SIZED S=0/M=4/L=5, when saving M=2 through stock API, then M is 2 and product stock is 7; refresh dashboard and verify inventory. | Baseline |
 | TC-AOR-003-01 | AOR-03, ORD-02 | Given a pending U-A order, when admin sets processing, then persisted status and U-A history after reload show Processing. | Baseline |
 | TC-ANL-001-01 | ANL-01, ANL-04 | Given known totals including a cancelled order, when loading analytics, then sum/average/top units use all loaded orders under baseline rules; cancelled-excluded metric is a separate owner decision. | Baseline |
 | TC-OPS-002-01 | OPS-02–04, NFR-02 | Given production mode, when calling test reset/seed-user and dev create-user, then first two return 404 and dev helper returns 403; no mutation occurs. | Baseline |
+| TC-NFR-008-01 | NFR-08 | Given two app instances behind a proxy that appends/overwrites x-forwarded-for, five admin attempts under the same address/account are allowed and the sixth is 429 across instances; unavailable limiter RPC/config returns 503. Repeat for checkout/review/restock boundaries. | Target deployed/shared database; local fallback is insufficient |
+| TC-OPS-009-01 | OPS-09, NFR-01 | Given an explicit read-only DATABASE_URL for a known QA project, security:check-db reports the applied review/order/limiter policy inventory and private review bucket without writes or secret output; removing a required grant/policy in isolated QA causes a nonzero result. | Target read-only inspection; not full role acceptance |
 | TC-CNT-001-01 | CNT-01 | Given footer form, when submitting valid email, then preview-only feedback appears and no subscription network write/email occurs. | Baseline demo |
 
 For transaction rollback cases, ordinary precheck failure alone does not prove SQL rollback. Arrange a controlled stock change or database failure between precheck and transactional write in an isolated test environment; record before/after inventory and order counts. For concurrency cases use independent sessions, not one UI double-click alone.
@@ -162,7 +170,7 @@ For transaction rollback cases, ordinary precheck failure alone does not prove S
 | End-to-end | Guest discovery → registration/login → options/cart → each demo method → confirmation/history → admin status change |
 | Quality | Agreed viewport/browser targets, keyboard/focus behavior, content consistency, performance under specified conditions |
 
-Mock third-party rate and email responses for deterministic failure/boundary tests. Keep separate configured-integration smoke tests. Do not accept mocks as proof of actual database RLS, auth policy, transaction atomicity, image permissions or verified email sender delivery.
+Mock third-party rate and email responses for deterministic failure/boundary tests. Keep separate configured-integration smoke tests. Apply the hardening migration after the demo catalog/checkout migrations and run `npm run security:check-db` with an explicit `DATABASE_URL` before live permission tests. The script inspects policy/grant inventory read-only; use actual anon/customer/admin sessions to prove behavior. Do not accept mocks as proof of actual database RLS, auth policy, transaction atomicity, image permissions or verified email sender delivery.
 
 Some product-card/detail/navbar controls already expose data-testid, data-state, data-product-id or data-selected. Prefer accessible roles/names for visible actions and stable test IDs when necessary; do not treat hidden offscreen controls as interactable. Avoid fixed six-second sleeps for slides; use a controlled clock or wait for the expected observable change. A test timeout is not an application acceptance target.
 
@@ -193,8 +201,8 @@ Special boundaries:
 - Adding to cart requires sign-in; cart is browser-local and not account-bound.
 - Search is name/category substring matching with deduplication.
 - Colors share stock; demo photograph products hide color options.
-- Public pending-review visibility, admin writes, account cart ownership,
-  notification eligibility, inventory synchronization and order replay have gaps.
+- Applied review-policy visibility, admin catalog/reply writes, account cart ownership,
+  notification eligibility, inventory synchronization and order replay need live verification or remain gaps.
 - Password confirmation and browser-cookie admin logout have scoped regression
   coverage; retain their resolved finding history without claiming full acceptance.
 - Settings, user View, newsletter and unused countdown have documented limits.
@@ -220,9 +228,9 @@ Then run `npm run docs:check` against the real repository and `npm run build`. A
 
 ### Storefront browser regressions (OPS-07)
 
-Install dependencies with `npm ci`, install Chromium using `npx playwright install chromium`, then run `npm run test:ui` and `npm run test:catalog` sequentially. Each suite owns port 3100 and refuses a running server. Both disable live service-role/mail credentials and use a nonproduction fixture admin password. The storefront suite selects the local fallback client; signup/currency responses are mocked and admin cookie authorization executes locally. The catalog suite selects a configured client pointed at the reserved .invalid domain and intercepts its requests. Neither creates a live account, product, order or email. ISOLATED_BROWSER_TESTS=1 selects the .next-browser-tests compilation cache so tests can coexist with ordinary localhost development; generated types from that cache are included in tsconfig.json.
+Install dependencies with `npm ci`, install Chromium using `npx playwright install chromium`, then run `npm run test:ui` and `npm run test:catalog` sequentially. Each suite owns port 3100 and refuses a running server. Both disable live service-role/mail credentials; the storefront suite uses a named fixture admin hash and separate signing secret. The storefront suite selects the local fallback client; signup/currency responses are mocked and admin cookie authorization executes locally. The catalog suite selects a configured client pointed at the reserved .invalid domain and intercepts its requests. Neither creates a live account, product, order or email. ISOLATED_BROWSER_TESTS=1 selects the .next-browser-tests compilation cache so tests can coexist with ordinary localhost development; generated types from that cache are included in tsconfig.json.
 
-The storefront suite includes 16 local cases for restoration/normalization, malformed/unavailable storage, quantity persistence/reload, mismatch/blank/matching confirmation, real browser-cookie removal and failed logout retry, GET logout origin/cookie attributes, manual/reduced-motion/offscreen media, six editorial destinations, mobile clothing menus, desktop disclosure, drawer focus/Escape, photo failure and keyboard card actions, and mobile/tablet overflow. Six catalog cases cover all seven main categories, a slow response with Loading collection, product timeout with labelled demo fallback and retry recovery, stock-only timeout retaining live products, 503 recovery versus genuine empty results, and cancellation of abandoned requests. The deadlines bound the entire query, including auth-lock waits; aborting fetch alone is insufficient. Screenshots/traces use separate ignored test-results/storefront and test-results/catalog directories; CI uploads both. Turbopack uses an explicit project root; confirm built CSS matches source, await hydration and reset scroll before evaluating screenshots.
+The storefront suite includes local cases for restoration/normalization, malformed/unavailable storage, quantity persistence/reload, mismatch/blank/matching confirmation, named admin credential denial, real browser-cookie removal and failed logout retry, GET logout origin/cookie attributes, manual/reduced-motion/offscreen media, six editorial destinations, mobile clothing menus, desktop disclosure, drawer focus/Escape, photo failure and keyboard card actions, and mobile/tablet overflow. Six catalog cases cover all seven main categories, a slow response with Loading collection, product timeout with labelled demo fallback and retry recovery, stock-only timeout retaining live products, 503 recovery versus genuine empty results, and cancellation of abandoned requests. The deadlines bound the entire query, including auth-lock waits; aborting fetch alone is insufficient. Screenshots/traces use separate ignored test-results/storefront and test-results/catalog directories; CI uploads both. The local suite uses fixture hashes and a process-local rate-limit fallback; it does not prove the production shared limiter. Turbopack uses an explicit project root; confirm built CSS matches source, await hydration and reset scroll before evaluating screenshots.
 
 For CAT-07/CAT-08, hold requests with CAT-SLOW and assert Loading collection rather than coming-soon/empty copy. At eight seconds, assert that loading ends and demo fallback is clearly identified with Retry collection. Restore a successful response and retry: live products replace fallback and feedback disappears. With only CAT-STOCK-SLOW, retain fetched live products and show the size-availability warning. With CAT-EMPTY, preserve the real empty collection; no demo substitution or failure notice is expected. Stock error feedback does not prove stock readiness or resolve the missing-size-row policy in G-09.
 

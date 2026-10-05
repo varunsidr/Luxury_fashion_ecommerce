@@ -2,15 +2,29 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    const fetchFavorites = async (userId: string) => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("favorites")
+        .select("product_id")
+        .eq("user_id", userId);
+
+      if (!error && data) {
+        setFavorites(data.map((favorite) => favorite.product_id));
+      }
+      setLoading(false);
+    };
+
     // Get initial session
-    supabase.auth.getSession().then((result: any) => {
+    supabase.auth.getSession().then((result) => {
       const session = result?.data?.session;
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -21,7 +35,7 @@ export function useFavorites() {
     });
 
     // Listen for auth changes
-    const sessionResult: any = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+    const sessionResult = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchFavorites(session.user.id);
@@ -35,19 +49,6 @@ export function useFavorites() {
       sessionResult?.data?.subscription?.unsubscribe?.();
     };
   }, []);
-
-  const fetchFavorites = async (userId: string) => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("favorites")
-      .select("product_id")
-      .eq("user_id", userId);
-
-    if (!error && data) {
-      setFavorites(data.map((f: any) => f.product_id));
-    }
-    setLoading(false);
-  };
 
   const toggleFavorite = async (productId: string) => {
     if (!user) {

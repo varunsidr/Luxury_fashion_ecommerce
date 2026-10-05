@@ -4,7 +4,9 @@ import { randomBytes } from "crypto";
 import { getClientAddress, isRateLimited } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
-  if (isRateLimited(`restock:${getClientAddress(request)}`, 5, 60_000)) {
+  const limited = await isRateLimited(`restock:${getClientAddress(request)}`, 5, 60_000);
+  if (limited === null) return NextResponse.json({ error: "Restock alerts are temporarily unavailable." }, { status: 503 });
+  if (limited) {
     return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429 });
   }
 

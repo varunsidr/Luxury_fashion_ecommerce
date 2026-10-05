@@ -101,18 +101,18 @@ export function expandIds(text) {
 
 export function parseBrd(text) {
   const rows = [], gaps = new Map(), sources = new Set();
-  let module = '';
+  let moduleName = '';
   const input = normalize(text);
   for (const line of input.split('\n')) {
     const heading = line.match(/^### 6\.\d+ (.+)$/);
-    if (heading) module = heading[1];
-    if (/^## 10\./.test(line)) module = 'Nonfunctional requirements';
+    if (heading) moduleName = heading[1];
+    if (/^## 10\./.test(line)) moduleName = 'Nonfunctional requirements';
     if (/^\|\s*[A-Z]+-\d{2}\s*\|\s*P[012]\s*\|/.test(line)) {
       const values = cells(line);
-      if (values.length !== 6 || !/^[ICDPT]$/.test(values[2]) || !module) {
+      if (values.length !== 6 || !/^[ICDPT]$/.test(values[2]) || !moduleName) {
         throw new Error(`Invalid requirement row: ${line}`);
       }
-      rows.push({ requirement_id: values[0], module, priority: values[1], implementation_state: values[2],
+      rows.push({ requirement_id: values[0], module: moduleName, priority: values[1], implementation_state: values[2],
         requirement_and_acceptance: values[3], source_codes: values[4], qa_focus: values[5], known_gap_ids: '' });
     }
     const gap = line.match(/^\|\s*(G-\d{2})\s*\|/);

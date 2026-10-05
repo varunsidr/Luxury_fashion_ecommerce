@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuthPrompt } from "@/context/AuthPromptContext";
+import type { User } from "@supabase/supabase-js";
 
 interface FavoritesContextType {
   favorites: string[];
@@ -17,7 +18,7 @@ const FavoritesContext = createContext<FavoritesContextType | null>(null);
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const { openLoginPrompt } = useAuthPrompt();
 
   const fetchFavorites = async (userId: string) => {
@@ -34,7 +35,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then((result: any) => {
+    supabase.auth.getSession().then((result) => {
       const session = result?.data?.session;
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -44,7 +45,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    const sessionResult: any = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+    const sessionResult = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchFavorites(session.user.id);

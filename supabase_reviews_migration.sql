@@ -19,23 +19,14 @@ DROP POLICY IF EXISTS "Anyone can view reviews" ON public.reviews;
 DROP POLICY IF EXISTS "Authenticated users can insert reviews" ON public.reviews;
 DROP POLICY IF EXISTS "Users can update own reviews" ON public.reviews;
 DROP POLICY IF EXISTS "Users can delete own reviews" ON public.reviews;
+DROP POLICY IF EXISTS "Approved reviews are public or authors can view own" ON public.reviews;
 
-CREATE POLICY "Anyone can view reviews"
+CREATE POLICY "Approved reviews are public or authors can view own"
   ON public.reviews FOR SELECT
-  USING (true);
+  USING (approved IS TRUE OR auth.uid() = user_id);
 
-CREATE POLICY "Authenticated users can insert reviews"
-  ON public.reviews FOR INSERT
-  WITH CHECK (auth.uid() IS NOT NULL AND auth.uid() = user_id);
-
-CREATE POLICY "Users can update own reviews"
-  ON public.reviews FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own reviews"
-  ON public.reviews FOR DELETE
-  USING (auth.uid() = user_id);
+REVOKE ALL ON public.reviews FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON public.reviews TO anon, authenticated;
 
 ALTER TABLE public.reviews
   DROP CONSTRAINT IF EXISTS reviews_rating_check;

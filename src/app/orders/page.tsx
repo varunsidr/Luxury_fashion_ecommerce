@@ -59,7 +59,7 @@ export default function OrdersPage() {
         .order("placed_at", { ascending: false });
 
       if (ordersError) setError("We could not load your orders. Please try again.");
-      setOrders((data as Order[]) ?? []);
+      setOrders((data as unknown as Order[]) ?? []);
       setLoading(false);
     }
 

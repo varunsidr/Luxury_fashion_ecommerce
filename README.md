@@ -200,9 +200,10 @@ Apply these SQL files in order in a dedicated Supabase demo project:
 
 1. [supabase_schema.sql](supabase_schema.sql) — base tables, policies, and profile trigger.
 2. [supabase_reviews_migration.sql](supabase_reviews_migration.sql) — review fields and policies.
-3. [supabase_demo_catalog_migration.sql](supabase_demo_catalog_migration.sql) — size inventory, color/order option fields, and private restock requests.
-4. [supabase_checkout_security_migration.sql](supabase_checkout_security_migration.sql) — remove direct customer order-insert policies.
-5. [supabase_checkout_transaction_migration.sql](supabase_checkout_transaction_migration.sql) — install the transaction called by server-side checkout.
+3. [supabase_checkout_security_migration.sql](supabase_checkout_security_migration.sql) — remove direct customer order-insert policies.
+4. [supabase_checkout_transaction_migration.sql](supabase_checkout_transaction_migration.sql) — install the older unsized checkout transaction.
+5. [supabase_demo_catalog_migration.sql](supabase_demo_catalog_migration.sql) — size inventory, color/order option fields, private restock requests, and the current size-aware checkout transaction. Do not reapply step 4 afterward.
+6. [supabase_security_hardening_migration.sql](supabase_security_hardening_migration.sql) — restrict public reviews, remove direct review writes, create a private `review-images` bucket, and install the shared rate limiter. New uploads return private object paths; the admin moderation page uses short-lived signed URLs. Previously uploaded files in the old public bucket remain public until migrated or removed separately. With `DATABASE_URL` set for that project, run `npm run security:check-db` to inspect applied RLS policies, grants, the private bucket, and checkout/limiter RPC permissions. This check is read-only and does not prove full production security.
 
 Policies and schema do not resolve all current moderation/admin-write gaps; consult the BRD before treating the demo as a production store.
 
@@ -251,13 +252,18 @@ Copy the example file, replace the Supabase placeholders with your project value
 cp .env.example .env.local
 ```
 
-On Windows PowerShell, use `Copy-Item .env.example .env.local` instead. The public values are available in Supabase under **Project Settings → API**. Generate a long random value for `DEV_CREATE_USER_KEY`; do not reuse a Supabase key.
+On Windows PowerShell, use `Copy-Item .env.example .env.local` instead. The public values are available in Supabase under **Project Settings → API**. Production admin login requires `ADMIN_CREDENTIALS`, `ADMIN_SESSION_SECRET`, and `RATE_LIMIT_SECRET`; each secret must be unique. `DEV_CREATE_USER_KEY` is for nonproduction helpers only.
 
-If the admin secret contains `#`, wrap the value in double quotes because `#` starts a dotenv comment when left unquoted:
+Generate one password hash per administrator with `npm run security:hash-admin` by piping a password to stdin. On PowerShell, use a secure prompt and avoid putting the password in shell history:
 
-```env
-DEV_CREATE_USER_KEY="replace-with-a-long-random-admin-secret"
+```powershell
+$adminPassword = Read-Host "Admin password" -AsSecureString
+$adminPlaintext = [System.Net.NetworkCredential]::new("", $adminPassword).Password
+$adminPlaintext | npm run security:hash-admin
+Remove-Variable adminPlaintext, adminPassword
 ```
+
+Put the resulting `scrypt:...` string under that person's username in the `ADMIN_CREDENTIALS` JSON object. Give each administrator a separate password. Generate `ADMIN_SESSION_SECRET` and `RATE_LIMIT_SECRET` as separate random values of at least 32 characters. Rotate the session secret to invalidate previously issued admin cookies. In local development only, the old `DEV_CREATE_USER_KEY` login remains available when `ADMIN_CREDENTIALS` is absent.
 
 > **Note:** the storefront can render local product fallback data without Supabase, but customer authentication, reviews, uploads, admin actions, and seeded data require valid environment variables.
 
@@ -275,7 +281,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the storefront.
 
 ### Admin access
 
-Open `/admin` and use the value configured in `DEV_CREATE_USER_KEY`. The optional `DEV_ADMIN_USERNAME` setting can be used by custom API clients that send a username. The admin session is stored in an HttpOnly cookie; there is no default password in the repository.
+Open `/admin` and enter a username and password from `ADMIN_CREDENTIALS`. In nonproduction only, the form may use `DEV_CREATE_USER_KEY` when no named credentials are configured; `DEV_ADMIN_USERNAME` may restrict that local fallback. The admin session is stored in an HttpOnly cookie; there is no default password in the repository.
 
 ### Populate admin demo data
 
@@ -416,7 +422,7 @@ The client-side registration form will try this endpoint first during developmen
 
 The admin panel is available at `/admin`.
 
-**Admin password:** use the value configured in `DEV_CREATE_USER_KEY`. Do not use a default password or commit this value.
+**Admin credentials:** configure each administrator's username and password hash in `ADMIN_CREDENTIALS`. Keep passwords and `ADMIN_SESSION_SECRET` out of source control.
 
 > Admin login is checked server-side at `/api/admin/login`. A successful login issues an HttpOnly `admin_token` cookie for one hour; the client also keeps a small `admin_auth` flag for UI state. There is no default password in the repository.
 
@@ -434,7 +440,7 @@ npm run build
 
 You can deploy directly using the Vercel CLI, or by connecting your GitHub repo at [vercel.com](https://vercel.com).
 
-Configure the public Supabase settings and the server-only values required by the enabled features under **Settings → Environment Variables**. Checkout/private admin APIs need `SUPABASE_SERVICE_ROLE_KEY`; admin login needs `DEV_CREATE_USER_KEY`. Keep test helpers disabled in production and mail settings optional.
+Configure the public Supabase settings and the server-only values required by the enabled features under **Settings → Environment Variables**. Checkout/private admin APIs and the shared limiter need `SUPABASE_SERVICE_ROLE_KEY`; production admin login needs `ADMIN_CREDENTIALS` and `ADMIN_SESSION_SECRET`. The limiter needs `RATE_LIMIT_SECRET` and the hardening migration. Missing production limiter settings return 503 for admin login, checkout, review creation/upload and restock subscription. Keep test helpers disabled in production and mail settings optional.
 
 ---
 
@@ -445,13 +451,16 @@ Configure the public Supabase settings and the server-only values required by th
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Your Supabase project URL (e.g. `https://xxxx.supabase.co`) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Your Supabase anonymous/public API key |
 | `SUPABASE_SERVICE_ROLE_KEY` | For server-backed features | Server-only key for checkout, private admin APIs, restock requests/delivery, seeds and dev/test helpers — never expose to the client |
-| `DEV_CREATE_USER_KEY` | Admin/dev only | Password for `/admin` and protection key for the dev user endpoint; keep server-side |
-| `DEV_ADMIN_USERNAME` | Optional | Username restriction for custom admin API clients; the browser admin form uses password-only login |
+| `ADMIN_CREDENTIALS` | Production admin | JSON object mapping each username to a `scrypt:salt:hash` generated by `npm run security:hash-admin` |
+| `ADMIN_SESSION_SECRET` | Production admin | Separate random signing secret of at least 32 characters; rotation invalidates admin cookies |
+| `RATE_LIMIT_SECRET` | Production writes | Separate random secret of at least 32 characters for hashed shared limiter keys |
+| `DEV_CREATE_USER_KEY` | Nonproduction helper only | Local fallback admin password and dev user creation key; never use as the production admin credential |
+| `DEV_ADMIN_USERNAME` | Nonproduction legacy only | Optional username restriction when using the local fallback login |
 | `RESEND_API_KEY` | Optional | Resend API key used to deliver restock alerts |
 | `RESTOCK_FROM_EMAIL` | Optional | Verified sender address for Resend restock alerts |
 | `NEXT_PUBLIC_SITE_URL` | For configured site links | Storefront origin used in configured email links; set the deployed URL for hosted environments |
 | `TEST_API_SECRET` | Local test helpers only | Separate secret for `x-test-api-secret`; test helpers are disabled in production |
-| `DATABASE_URL` | Local PostgreSQL seeds only | Development PostgreSQL connection string; the storefront uses Supabase or fallback data |
+| `DATABASE_URL` | DB check or local seeds | Direct Postgres URL used by read-only `security:check-db` or local seed scripts; not used by the storefront |
 
 ---
 

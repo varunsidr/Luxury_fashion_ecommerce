@@ -75,7 +75,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ status: 'ok', userId: updated.user?.id, created: false });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message ?? String(err) }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err && typeof err === 'object' && 'message' in err ? err.message ?? String(err) : String(err) }, { status: 500 });
   }
 }

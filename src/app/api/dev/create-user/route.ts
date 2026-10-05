@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     if (listError) return NextResponse.json({ error: listError.message }, { status: 500 });
 
     const users = listData?.users ?? [];
-    const devAutoCount = users.filter((u: any) => u.user_metadata?.dev_auto === true).length;
+    const devAutoCount = users.filter((u) => u.user_metadata?.dev_auto === true).length;
     const MAX_DEV_AUTO = 10;
     if (devAutoCount >= MAX_DEV_AUTO) {
       return NextResponse.json({ error: 'dev auto-create limit reached', allowed: false }, { status: 403 });
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     }
 
     // If creation failed because user exists, try to find and update if it was previously dev_auto
-    const existing = users.find((u: any) => u.email === email);
+    const existing = users.find((u) => u.email === email);
     if (!existing) {
       return NextResponse.json({ error: createError.message }, { status: 500 });
     }
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
 
     // Otherwise, do not overwrite existing non-dev user
     return NextResponse.json({ error: 'user exists and is not a dev-auto account' }, { status: 409 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message ?? String(err) }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err && typeof err === 'object' && 'message' in err ? err.message ?? String(err) : String(err) }, { status: 500 });
   }
 }
