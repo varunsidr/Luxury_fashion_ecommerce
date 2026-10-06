@@ -17,6 +17,7 @@
     "security:check-db": "node scripts/check_security_db.mjs",
     "test:ui": "playwright test",
     "test:catalog": "playwright test --config=playwright.catalog.config.ts",
+    "test:assistant": "playwright test --config=playwright.assistant.config.ts",
     "test:live": "playwright test --config=playwright.live.config.ts",
     "seed:products": "node --env-file=.env.local migrate-products.js",
     "seed:admin-data": "node --env-file=.env.local scripts/seed_admin_data.js",
@@ -30,6 +31,7 @@
     "@supabase/supabase-js": "^2.101.1",
     "lucide-react": "^1.7.0",
     "next": "16.2.1",
+    "openai": "^6.49.0",
     "pg": "^8.11.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"

@@ -442,5 +442,76 @@
     ],
     "source_digest": "9ecbac05c7bdac53d0f668ebe65e136dc24fd3f9df580e77c57f92430a8e5df7",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-06T11:54:27.760Z",
+    "summary": "Added AI shopping assistant: floating widget, POST /api/assistant with OpenAI tool calling, validated catalog/cart tools, confirm-before-add cart flow, new env vars and test:assistant suite",
+    "requirement_ids": [
+      "AST-01",
+      "AST-02",
+      "AST-03",
+      "AST-04",
+      "AST-05",
+      "AST-06",
+      "CNT-01",
+      "OPS-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      ".env.example",
+      "README.md",
+      "package-lock.json",
+      "package.json",
+      "src/app/api/assistant/route.ts",
+      "src/components/ShoppingAssistant.tsx",
+      "src/components/SiteShell.tsx",
+      "src/lib/assistant/catalogStore.ts",
+      "src/lib/assistant/chat.ts",
+      "src/lib/assistant/handler.ts",
+      "src/lib/assistant/policies.ts",
+      "src/lib/assistant/prompt.ts",
+      "src/lib/assistant/tools.ts",
+      "src/lib/assistant/types.ts",
+      "tests/assistant.spec.ts"
+    ],
+    "source_digest": "8e61d3358c6b62f2070f8b01db20758203c7d95f69bdf775fe40433e93313733",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-06T11:54:34.639Z",
+    "summary": "Added AI shopping assistant: floating widget, POST /api/assistant with OpenAI tool calling, validated catalog/cart tools, confirm-before-add cart flow, new env vars and test:assistant suite",
+    "requirement_ids": [
+      "AST-01",
+      "AST-02",
+      "AST-03",
+      "AST-04",
+      "AST-05",
+      "AST-06",
+      "OPS-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [],
+    "source_digest": "8e61d3358c6b62f2070f8b01db20758203c7d95f69bdf775fe40433e93313733",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-06T11:56:26.012Z",
+    "summary": "Assistant hardening: lower rate limit, catalog fetch de-duplication, aria-modal false",
+    "requirement_ids": [
+      "AST-01",
+      "AST-02",
+      "AST-03"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md",
+      "src/components/ShoppingAssistant.tsx",
+      "src/lib/assistant/catalogStore.ts",
+      "src/lib/assistant/handler.ts",
+      "src/lib/assistant/tools.ts",
+      "tests/assistant.spec.ts"
+    ],
+    "source_digest": "f6317d69e4ad7daf3f2f25169672a1dda40c4e3e297adb24dd155400aa580772",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]
