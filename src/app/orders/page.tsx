@@ -67,7 +67,7 @@ export default function OrdersPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-neutral-50 px-6 py-12 md:px-12 md:py-20">
+    <div className="min-h-screen bg-neutral-50 px-6 py-12 md:px-12 md:py-20">
       <div className="mx-auto max-w-5xl">
         <Link href="/" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black">
           <ArrowLeft size={14} strokeWidth={1.5} /> Continue shopping
@@ -75,7 +75,7 @@ export default function OrdersPage() {
         <div className="mt-10 border-b border-neutral-200 pb-8">
           <p className="text-[10px] uppercase tracking-[0.4em] text-neutral-400">Account</p>
           <h1 className="mt-3 font-playfair text-4xl font-light text-neutral-900">Order history</h1>
-          <p className="mt-3 text-sm font-light text-neutral-500">Review your recent purchases and delivery status.</p>
+          <p className="mt-3 text-sm font-light text-neutral-500">Review your simulated orders and demo status. No payment is charged or delivery arranged.</p>
         </div>
 
         {loading ? (
@@ -131,7 +131,7 @@ export default function OrdersPage() {
                           </div>
                         ))}
                       </div>
-                      <p className="mt-5 text-xs text-neutral-400">Payment: {order.payment_method === "card_demo" ? "Demo card" : "Cash on delivery"}</p>
+                      <p className="mt-5 text-xs text-neutral-400">Payment: {order.payment_method === "card_demo" ? "Demo card" : "Simulated cash on delivery"}</p>
                     </div>
                   )}
                 </article>
@@ -140,6 +140,6 @@ export default function OrdersPage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

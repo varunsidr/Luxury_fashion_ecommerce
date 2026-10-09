@@ -1,6 +1,6 @@
 # zeouf — QA coverage and test-generation guide
 
-**Baseline:** Storefront polish, password confirmation, admin logout and cart recovery over `3a58270`, reviewed 4 October 2026. Exact source inputs and reviewer assertions are recorded in requirements-source-snapshot.json and requirements-reviews.json. This guide accompanies [BRD.md](BRD.md) and [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv). Test designs are separate from executed evidence.
+**Baseline:** Working copy over `481a090`, reviewed 10 October 2026: purchase/stock safeguards, sized fixtures, metadata, visible listing counts, main landmarks and demo copy. Exact source inputs and reviewer assertions are recorded in requirements-source-snapshot.json and requirements-reviews.json. This guide accompanies [BRD.md](BRD.md) and [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv). Test designs and reviewer assertions are separate from executed evidence.
 
 ## 1. Start here
 
@@ -55,7 +55,9 @@ Use fictional identities and addresses. Resolve database UUIDs from created fixt
 | P-ZERO | Perfume product, price INR 3,000, stock 0 | Unavailable card and restock |
 | P-COLOR | Product with two named colors and verified distinct images; shared inventory | Color photography, variant merge, snapshots |
 | P-DEMO | image_url starts /demo-products/; even if color metadata exists | Color suppression/single photograph |
-| P-MISSING-SIZE | Product configured for S/M with one stock row missing | Unknown stock behavior G-09 |
+| P-MISSING-SIZE | Product configured for S/M with one stock row missing | Missing row disables that size and transaction rejects purchase; specific-size alert selection remains G-09 |
+| P-BLOUSE-OPTIONS | Local Brown Twist Blouse ID 7, image /kadin-bluz-1.jpg, sizes S/M/L, stock 0/4/5 and aggregate 9; staging UUID must be resolved separately | Mixed availability, quantity clamp to M=4, honest shipping copy |
+| P-DRESS-OPTIONS / P-SIZED-ZERO | Demo dresses /demo-products/womens-dress/01.jpg and /05.jpg with S/M/L stocks 0/2/4 and 0/0/0; aggregates 6 and 0 | Color suppression, available-size selection, whole-product Notify me, disabled purchase |
 | P-MULTIIMAGE | Valid main image and multiple gallery URLs | Gallery/thumbnail/image removal |
 | P-DECIMAL | Unsized product, base price INR 999.50, stock 10 | Price snapshots and display rounding |
 | P-TAGSET | Distinct products tagged New / Best / Featured / Populer / no tag | Highlight and newest sorting |
@@ -69,6 +71,9 @@ Use fictional identities and addresses. Resolve database UUIDs from created fixt
 | CAT-SLOW / CAT-STOCK-SLOW | Configured fixture client with a held product or size-stock response and controlled browser clock | Honest loading copy, eight-second deadline, retained live products for stock-only failure |
 | CAT-FAILED / CAT-EMPTY | Configured fixture products response returns 503 or successful empty array | Identified demo fallback/retry versus a genuinely empty live collection |
 | A-LOCAL-COOKIE | Fixture admin login on isolated localhost server with service role disabled | Real signed cookie logout and post-logout denial; no live DB writes |
+| CHECKOUT-LOST | Configured .invalid fixture client with mocked customer session, one browser cart line and fictional address; first checkout request aborted, retry returns a mock saved order | Both methods, recoverable submit, cart preservation, same attempt key after reload; no live order creation |
+| ATTEMPT-SAME / ATTEMPT-CHANGED | Same authenticated customer and UUID key with identical normalized payload / changed item, address or method | Original order/total replay after depletion / 409 without side effects |
+| STOCK-STALE | Configured sizes S/M plus an obsolete Removed row with positive stock | Checkout/stock RPC aggregate excludes obsolete rows; does not prove catalog-edit synchronization |
 | F-A / F-B | Different favorite sets for U-A and U-B | Database ownership/counts |
 | R-PENDING / R-APPROVED | Known ratings, comments, ownership and approval flags | Public visibility, moderation, averages |
 | R-WITHIMAGE | New private review-images object paths plus one historical public URL attached to separate reviews | Moderator signed URL, historical cleanup, public image presentation |
@@ -79,6 +84,8 @@ Use fictional identities and addresses. Resolve database UUIDs from created fixt
 | IMG-INVALID | Empty or >2 MiB, unsupported MIME, declared type with wrong file signature, misleading extension, fourth file | Upload validation |
 
 Seed scripts may change stock and insert sample orders. Measure final stock/records before testing. Current reset endpoint omits orders, auth users and browser localStorage and ignores delete failures. Do not use it as a guaranteed clean baseline. Never run destructive fixture setup against a shared or production database.
+
+For newly inserted products, seed:products strips embedded size_stock from product payloads and inserts size rows afterward. Those writes are not one transaction: size-row failure leaves products, and a rerun skips them by name. Verify/repair in isolated staging. Existing named products keep their inventory unless explicitly changed by fixture setup. scripts/staging_product_options.sql is a manual fixture reset for all products matching the three image paths above; it preserves their UUIDs but overwrites sizes/stock and replaces size rows. Inspect the returned IDs/counts/values, including missing or duplicate image matches. Do not run it as a live migration or assume it executed during build. PGlite uses separate fixed UUIDs and data; local numeric IDs do not become production checkout IDs.
 
 ## 4. Coverage matrix
 
@@ -99,11 +106,12 @@ Seed scripts may change stock and insert sample orders. Measure final stock/reco
 | Service configuration | Real backend, local fallback, backend failure, missing server key, missing migration/bucket | CAT, AUTH, CHK, REV, STK |
 | Currency | India/US/other header, browser fallback, valid/invalid/offline rate, decimal rounding | CUR, CAT, CART, CHK, ORD |
 | Files | 1/3/4 files, exact/over 2 MiB, accepted/rejected MIME, failed upload | REV, PRD |
-| Transactions | Later line fails, insufficient stock, competing last unit, DB/RPC unavailable | CHK, NFR |
-| Replays | Duplicate clicks/POST, repeated alert, concurrent notification batches, repeated unsubscribe | CHK, FAV, RST |
+| Transactions | Later line fails, missing size row, stale aggregate row, competing last unit, crossed multi-product locks, concurrent stock edit/checkout, DB/RPC unavailable | CHK, STK, NFR |
+| Replays | Missing/malformed key, identical retry after depletion, changed normalized payload, two customers sharing a key, simultaneous retries, lost response/reload, blocked sessionStorage; repeated alert/notification/unsubscribe | CHK, FAV, RST |
 | Status/moderation | All statuses; backward transition; approve/delete; pending visibility and aggregates | AOR, ORD, REV, ANL |
 | Failure UX | 400/401/409/429/500/503, network rejection, slow response, invalid response body | Forms, APIs, NFR-03 |
-| Responsive/accessibility | 375/768/1440px proposal; keyboard/focus/contrast/reduced motion | NAV, PDP, forms, admin |
+| Responsive/accessibility | 375/768/1440px proposal; exactly one nonnested main landmark, newsletter label/description; keyboard/focus/contrast/reduced motion | NAV, PDP, forms, admin |
+| Product metadata | Name/category title with zeouf suffix, demo description and Open Graph values on seven families; collection and missing-product metadata | PDP-09 |
 | Environment guards | Production blocks helpers; named admin hashes and independent secrets; shared limiter unavailable/working; secrets absent from client | OPS, ADM, NFR-02, NFR-08 |
 | Content accuracy | Demo/no-charge/no-shipment; newsletter preview; no invented decline/promotion/settings | CNT, CHK, SET |
 
@@ -113,11 +121,13 @@ Use pairwise coverage for secondary UI combinations if useful, but explicitly co
 
 These are starting cases. Expected unmet target behavior is explicitly marked; do not rewrite it as a passing description of the bug.
 
+Unless testing missing-key validation or replay, every checkout API case needs a fresh UUID Idempotency-Key plus a valid customer bearer token and the purchase safeguards migration. Reuse the key only for an intentional same-attempt retry; use independent keys/customers for last-unit competition. Watch rate-limit counters so 429 does not mask the intended result.
+
 | Test seed | Requirements | Given / When / Then | Mode |
 |---|---|---|---|
 | TC-NAV-006-01 | NAV-06 | Given a clean browser, when opening /kadin/elbise, then navigation reaches /women/dress and shows Dress listing; repeat for mapped legacy paths. | Baseline |
 | TC-CAT-005-01 | CAT-03, CAT-05 | Given P-SIZED and selected S with In stock only, when filters apply, then this product is excluded; selected M includes it. | Baseline |
-| TC-CAT-007-01 | CAT-07 | Given 49 matching products, when listing opens and Load More is clicked twice, then visible counts are 24/48/49 and the final button is absent. | Baseline |
+| TC-CAT-007-01 | CAT-07 | Given 49 matching products, when listing opens and Load More is clicked twice, then cards and Showing {visible} of 49 products both follow 24/48/49 and the final button is absent; filtering resets visible count to the first batch. | Baseline; automated batching, filter reset remains separate |
 | TC-SEA-002-01 | SEA-02 | Given a product matching both name and category query, when searching different-case text, then it occurs once in results. | Baseline |
 | TC-AUTH-002-01 | AUTH-02 | Given password A and confirmation B, when submitting, then mismatch alert appears and neither helper nor signup runs. Blank confirmation is required; matching values proceed without sending confirmation and clear it after success/tab change. | Baseline; resolved G-01 |
 | TC-CART-002-01 | CART-02, CART-05 | Given U-A and P-COLOR, when adding M/red twice and L/red once, then two lines exist with quantities 2/1 and correct subtotal. | Baseline |
@@ -130,9 +140,16 @@ These are starting cases. Expected unmet target behavior is explicitly marked; d
 | TC-CHK-003-01 | CHK-03 | Given a valid session/address and two identical entries of quantities 10/11, when POSTing checkout, then 400 occurs and no order/stock write exists. | Baseline |
 | TC-CHK-005-01 | CHK-05, CHK-06 | Given P-UNSIZED database price 1,000 and a forged client price 1, when buying two, then saved unit price is 1,000, total 2,000 and stock 3. | Baseline |
 | TC-CHK-007-01 | CHK-07 | Given P-LAST stock one and two independently authenticated customers, when both buy simultaneously, then exactly one succeeds and one conflicts; stock is zero and only one complete order exists. | Baseline; verify transaction |
-| TC-CHK-007-02 | CHK-06, CHK-07 | Given first line has stock and later line is forced to fail inside the transaction after precheck, when checkout executes, then no order/lines remain and all inventory is unchanged. | Baseline; isolated fault injection |
-| TC-CHK-009-01 | CHK-09 | Given a sized product, when a direct API caller omits size or supplies invented color, then invalid options are rejected with no writes. Current code does not enforce this. | Target; G-08 |
-| TC-CHK-009-02 | CHK-09 | Given a successful valid checkout request, when the same request is retried, then agreed idempotent behavior prevents another order. No current idempotency contract exists. | Target; decision required G-14 |
+| TC-CHK-007-02 | CHK-06, CHK-07 | Given first line has stock and a later line fails inside the transaction, when checkout executes, then no order/lines/attempt remain and all inventory is unchanged. No separate API precheck exists. | Baseline; local SQL rollback regression, staging API evidence separate |
+| TC-CHK-009-01 | CHK-09 | Given purchase safeguards and a valid attempt key, missing/invented size or required color, a size on an unsized item, or color on a no-color/demo-photo item returns invalid-option 400 with no writes. | Baseline contract; local SQL exceptions tested, live API/migration unverified G-08 |
+| TC-CHK-009-02 | CHK-09 | Given a successful checkout, repeating the same authenticated customer/key/normalized payload returns its original order/total even after the last unit is gone, without changing counts or stock. | Baseline; local SQL regression, simultaneous live replay unverified G-14 |
+| TC-CHK-009-03 | CHK-09 | Given an existing key, changing normalized items, address or payment returns 409 with no writes; another customer with the same key cannot read/replay that order and instead uses their own stock/order scope. | Baseline contract; local SQL regression, live API evidence separate |
+| TC-CHK-009-04 | CHK-03, CHK-09 | Given an authenticated customer, omitted/malformed Idempotency-Key, malformed UUID, nonstring or trimmed size/color lengths above 30/40 returns 400 before purchase writes; duplicate entries merge and sorted equivalent payload replays the original order. | Baseline; staging API validation needed |
+| TC-CHK-010-01 | CHK-08–10, CHK-04 | Given CHECKOUT-LOST for each demo method, first failure shows retry feedback, releases submit and keeps cart. Reload and re-enter identical details, then submit: same UUID key, demo confirmation, cleared cart and removed attempt storage, no delivery/email/support claim. Stored attempt contains only digest/key. | Baseline; mocked browser regression, not live transaction proof |
+| TC-CHK-010-02 | CHK-10 | Given a retained attempt, changed customer/items/address/method generates a new key; blocked storage retains key only in memory. Closing the tab loses the reload guarantee. Malformed stored data and rapid clicks must be assessed separately. | Baseline contract; additional browser scenarios not executed |
+| TC-PDP-003-01 | PDP-03–04, PDP-06, RST-01 | Given P-BLOUSE-OPTIONS, S is disabled; selecting M permits quantities up to four and blocks further increase; shipping panel makes no commercial promises. Given P-SIZED-ZERO, all sizes and purchase are disabled and whole-product Notify me is visible. Use the size-selection button name or a stable test ID, not card-only Add to bag. | Baseline; local fixture regression, specific unavailable-size alert remains G-09 |
+| TC-PDP-009-01 | PDP-09 | Given one local product in each category family, detail title is name · category with zeouf suffix, description identifies product/demo and Open Graph title matches. Add collection/missing-product/image cases separately. | Baseline; seven-family title/description/OG-title regression, remaining metadata cases unexecuted |
+| TC-NFR-005-01 | NFR-05 | Given home, listing, detail, search, favorites, checkout, orders, privacy and terms, each renders exactly one main and no main nested within main. Newsletter field has label/description. | Scoped regression; not WCAG acceptance |
 | TC-ORD-001-01 | ORD-01, NFR-01 | Given orders for U-A and U-B, when U-A reads history and attempts a direct U-B order read, then only U-A's records are accessible. | Baseline with RLS evidence |
 | TC-REV-004-01 | REV-04 | Given approved and pending reviews from U-A/U-B, when a visitor or U-B loads detail and public GET with approved=false, only approved feedback contributes; U-A may read own pending row directly. | Target pending live RLS/migration proof; G-04 |
 | TC-REV-004-02 | REV-01, REV-04, NFR-01 | Given a customer token and public Supabase key, direct INSERT with approved=true, UPDATE approval/reply and DELETE all fail; POST /api/reviews creates only pending and validates owned image URLs. | Target live policy and API test; G-04 |
@@ -148,15 +165,18 @@ These are starting cases. Expected unmet target behavior is explicitly marked; d
 | TC-ADM-002-02 | ADM-02, REV-05 | Given customer token or old x-dev-key without signed admin cookie, DELETE /api/admin/reviews/{id} returns 401 and review remains; a valid cookie can delete. | Target protected mutation |
 | TC-ADM-003-01 | ADM-03 | Given a signed admin cookie, when sidebar logout succeeds, then cookie and local flag are absent, route is /admin and a private API returns 401. Failed logout retains state and allows retry. GET logout redirects 303 on the request origin; POST returns no-store JSON. | Baseline; resolved G-13 |
 | TC-PRD-002-01 | PRD-02, ADM-02 | Given the checked-in base write policies and cookie-only administrator, when saving a catalog change, then verify persistence on reload and capture the permissions failure instead of trusting closed form. | Known-gap reproduction; G-06 |
-| TC-STK-002-01 | STK-02, ADM-04 | Given P-SIZED S=0/M=4/L=5, when saving M=2 through stock API, then M is 2 and product stock is 7; refresh dashboard and verify inventory. | Baseline |
+| TC-STK-002-01 | STK-02, ADM-04 | Given P-SIZED S=0/M=4/L=5 after purchase safeguards, when saving M=2 through stock API, then M is 2 and aggregate 7 atomically; refresh dashboard. Obsolete rows must not inflate aggregate. | Baseline; local RPC aggregate tested, staging API/dashboard separate |
+| TC-STK-004-01 | STK-01–02, STK-04, NFR-01 | Given no signed cookie, PATCH denies 401. With cookie, negative/fraction/overflow stock and malformed UUID/type deny 400, absent service config gives 503; unknown product gives 404 and unsupported/omitted sized option gives 400 without stock changes. | Baseline; local API covers cookie/stock bounds/missing config, SQL covers option/product errors; live HTTP mapping separate |
+| TC-STK-004-02 | STK-04, CHK-07 | Given independent staging sessions, run last-unit purchases, simultaneous identical-key retries, crossed multi-product orders, and stock edit versus checkout; assert no oversell, duplicate order, deadlock or inconsistent configured aggregate. | Target execution; single-connection PGlite cannot establish concurrency |
 | TC-AOR-003-01 | AOR-03, ORD-02 | Given a pending U-A order, when admin sets processing, then persisted status and U-A history after reload show Processing. | Baseline |
 | TC-ANL-001-01 | ANL-01, ANL-04 | Given known totals including a cancelled order, when loading analytics, then sum/average/top units use all loaded orders under baseline rules; cancelled-excluded metric is a separate owner decision. | Baseline |
 | TC-OPS-002-01 | OPS-02–04, NFR-02 | Given production mode, when calling test reset/seed-user and dev create-user, then first two return 404 and dev helper returns 403; no mutation occurs. | Baseline |
 | TC-NFR-008-01 | NFR-08 | Given two app instances behind a proxy that appends/overwrites x-forwarded-for, five admin attempts under the same address/account are allowed and the sixth is 429 across instances; unavailable limiter RPC/config returns 503. Repeat for checkout/review/restock boundaries. | Target deployed/shared database; local fallback is insufficient |
-| TC-OPS-009-01 | OPS-09, NFR-01 | Given an explicit read-only DATABASE_URL for a known QA project, security:check-db reports the applied review/order/limiter policy inventory and private review bucket without writes or secret output; removing a required grant/policy in isolated QA causes a nonzero result. | Target read-only inspection; not full role acceptance |
-| TC-CNT-001-01 | CNT-01 | Given footer form, when submitting valid email, then preview-only feedback appears and no subscription network write/email occurs. | Baseline demo |
+| TC-OPS-009-01 | OPS-09, NFR-01 | Given current purchase safeguards, inspector references removed four-argument RPC and cannot complete; record G-25. After inspector repair, inspect five-argument checkout/stock grants, private attempts RLS/grants, review/order/limiter policy and private bucket without writes/secrets; role-based behavior needs separate proof. | Known source gap G-25; target applied inspection not executed |
+| TC-OPS-010-01 | OPS-10, CHK-05–09, STK-02, STK-04, NFR-01 | Run test:purchase with no live connection. Verify price/option snapshots, replay and changed-payload denial, customer key isolation, rollback, missing/obsolete size rows, stock membership/atomic total, denied anon/customer RPC/table access and removal of old RPC. | Scoped local SQL regression; no simultaneous-session or live integration proof |
+| TC-CNT-001-01 | CNT-01 | Given footer form, preview limits are visible before entry and the email field is labelled; valid email displays no-save/no-send feedback and sends no subscription request. | Baseline demo; local browser regression |
 
-For transaction rollback cases, ordinary precheck failure alone does not prove SQL rollback. Arrange a controlled stock change or database failure between precheck and transactional write in an isolated test environment; record before/after inventory and order counts. For concurrency cases use independent sessions, not one UI double-click alone.
+For rollback cases, validation failure before writes does not prove SQL rollback. Arrange a later-line stock/option failure after an earlier line writes within the transaction; compare order/line/attempt counts and all inventory before/after. For concurrency use independent database sessions and customers, not one UI double-click or the single-connection PGlite suite.
 
 ## 6. Test execution layers and assertions
 
@@ -170,7 +190,7 @@ For transaction rollback cases, ordinary precheck failure alone does not prove S
 | End-to-end | Guest discovery → registration/login → options/cart → each demo method → confirmation/history → admin status change |
 | Quality | Agreed viewport/browser targets, keyboard/focus behavior, content consistency, performance under specified conditions |
 
-Mock third-party rate and email responses for deterministic failure/boundary tests. Keep separate configured-integration smoke tests. Apply the hardening migration after the demo catalog/checkout migrations and run `npm run security:check-db` with an explicit `DATABASE_URL` before live permission tests. The script inspects policy/grant inventory read-only; use actual anon/customer/admin sessions to prove behavior. Do not accept mocks as proof of actual database RLS, auth policy, transaction atomicity, image permissions or verified email sender delivery.
+Mock third-party rate and email responses for deterministic failure/boundary tests. Keep separate configured-integration smoke tests. Apply hardening after demo catalog/checkout, then purchase safeguards last in isolated staging; the new app requires the five-argument checkout RPC and stock RPC. Current security:check-db hardcodes the removed signature (G-25) and must be repaired before it can inspect this schema. Separately inspect definitions/grants/private attempts and use actual anon/customer/admin sessions to prove behavior. Do not accept mocks as proof of live RLS, auth policy, transaction atomicity, image permissions or mail delivery.
 
 Some product-card/detail/navbar controls already expose data-testid, data-state, data-product-id or data-selected. Prefer accessible roles/names for visible actions and stable test IDs when necessary; do not treat hidden offscreen controls as interactable. Avoid fixed six-second sleeps for slides; use a controlled clock or wait for the expected observable change. A test timeout is not an application acceptance target.
 
@@ -202,7 +222,12 @@ Special boundaries:
 - Search is name/category substring matching with deduplication.
 - Colors share stock; demo photograph products hide color options.
 - Applied review-policy visibility, admin catalog/reply writes, account cart ownership,
-  notification eligibility, inventory synchronization and order replay need live verification or remain gaps.
+  notification eligibility and catalog size-list synchronization need live verification or remain gaps.
+- Current checkout requires a UUID attempt key, configured size/color options and the
+  purchase safeguards migration. Exact same-customer/key/payload replay returns the
+  original order; changed payload conflicts. Browser same-tab retries retain a digest/key.
+  Single-connection SQL and mocked browser results do not prove live concurrency.
+- The read-only security inspector still uses the removed checkout signature (G-25).
 - Password confirmation and browser-cookie admin logout have scoped regression
   coverage; retain their resolved finding history without claiming full acceptance.
 - Settings, user View, newsletter and unused countdown have documented limits.
@@ -220,6 +245,23 @@ Use requirement execution summaries such as `Not executed`, `Passed`, `Failed`, 
 
 Record absent features as exclusions or target requirements, never imaginary working cases. Record migration/config blockers separately from defects, and require owner decisions for undefined behavior. Revisit impacted cases when schema, options, ownership, rate limits, routes or copy change. Retain test history across BRD/CSV updates.
 
+### Scoped verification on 10 October 2026
+
+Local runs used the reviewed working copy over 481a090; exact code/config inputs are in the source snapshot/review log. These are suite results, not full requirement acceptance. Existing matrix execution fields remain unchanged; all manual/custom fields for 116 existing rows and all 146 prior history entries were checked against HEAD and preserved. Three new requirements bring the matrix to 119.
+
+| Check | Observed result | Scope / limit |
+|---|---|---|
+| docs:check | Passed after synchronization/review | Documentation/source gate only |
+| docs:test | 13 passed | Isolated documentation-tool regressions |
+| lint | Passed with 28 warnings, zero errors | Existing unused-symbol/image warnings remain |
+| build | Passed | Production compilation, TypeScript and static generation; no live checkout submission |
+| test:purchase | 10 passed | Single-connection PGlite SQL/fixture tests; no live or concurrent-session proof |
+| test:ui | 23 passed | Isolated fallback/customer/admin fixtures; sold-out selector corrected to the disabled Select a size control |
+| test:catalog | 9 passed during the preceding assessment of the same source | Intercepted .invalid catalog/auth/checkout responses; source unchanged in this documentation update |
+| test:live | 13 passed during the preceding assessment | Public deployed browsing only; deployed revision unverified and distinct from local working copy |
+
+No live auth/order/stock/review/restock mutation, migration application, mail delivery or multi-session test was performed. G-25 is an inspected source incompatibility, not an executed live database failure. Repeat deployed checks after the new deployment and separately verify matching schema and roles in isolated staging.
+
 ### Documentation regression coverage (OPS-06)
 
 Run `npm run docs:test` with Node.js 20 or later. The suite creates isolated temporary documentation/source fixtures and removes only those fixtures; no Supabase, Docker, credentials or live data are required. It covers CSV quoting and multiline/manual/custom fields, unchanged results, changed/retired requirement archives, Needs retest after source review, invalid IDs/ranges/source codes, stale generated files, absent snapshots, unreviewed source changes, mismatched review evidence, broken links, retired-ID reuse and idempotent synchronization. Fingerprint scenarios cover line-ending normalization, deleted inputs and exclusion of local secrets/build output.
@@ -230,11 +272,15 @@ Then run `npm run docs:check` against the real repository and `npm run build`. A
 
 Install dependencies with `npm ci`, install Chromium using `npx playwright install chromium`, then run `npm run test:ui` and `npm run test:catalog` sequentially. Each suite owns port 3100 and refuses a running server. Both disable live service-role/mail credentials; the storefront suite uses a named fixture admin hash and separate signing secret. The storefront suite selects the local fallback client; signup/currency responses are mocked and admin cookie authorization executes locally. The catalog suite selects a configured client pointed at the reserved .invalid domain and intercepts its requests. Neither creates a live account, product, order or email. ISOLATED_BROWSER_TESTS=1 selects the .next-browser-tests compilation cache so tests can coexist with ordinary localhost development; generated types from that cache are included in tsconfig.json.
 
-The storefront suite includes local cases for restoration/normalization, malformed/unavailable storage, quantity persistence/reload, mismatch/blank/matching confirmation, named admin credential denial, real browser-cookie removal and failed logout retry, GET logout origin/cookie attributes, manual/reduced-motion/offscreen media, six editorial destinations, mobile clothing menus, desktop disclosure, drawer focus/Escape, photo failure and keyboard card actions, and mobile/tablet overflow. Six catalog cases cover all seven main categories, a slow response with Loading collection, product timeout with labelled demo fallback and retry recovery, stock-only timeout retaining live products, 503 recovery versus genuine empty results, and cancellation of abandoned requests. The deadlines bound the entire query, including auth-lock waits; aborting fetch alone is insufficient. Screenshots/traces use separate ignored test-results/storefront and test-results/catalog directories; CI uploads both. The local suite uses fixture hashes and a process-local rate-limit fallback; it does not prove the production shared limiter. Turbopack uses an explicit project root; confirm built CSS matches source, await hydration and reset scroll before evaluating screenshots.
+The 23 storefront cases cover restoration/normalization, malformed/unavailable storage, quantity persistence/reload, confirmation validation, named admin denial, real cookie logout/retry, logout origin/cookie attributes, hero/media/navigation/focus, image failure/keyboard actions, responsive overflow, main landmarks, mixed/all-zero sized fixtures, product metadata in seven families, pre-submit newsletter limits and protected stock input validation. Nine catalog cases include the earlier six loading/fallback/recovery/cancellation cases, 24→48→49 counts and two mocked lost-response/reload checkout cases, one per payment method. Deadlines bound the entire query including auth-lock waits. Screenshots/traces use separate ignored test-results/storefront and test-results/catalog directories; CI uploads both and runs test:purchase before browser suites. Local fixture hashes/process-local limits do not prove the production shared limiter. Await hydration/reset scroll for screenshot comparisons.
 
-For CAT-07/CAT-08, hold requests with CAT-SLOW and assert Loading collection rather than coming-soon/empty copy. At eight seconds, assert that loading ends and demo fallback is clearly identified with Retry collection. Restore a successful response and retry: live products replace fallback and feedback disappears. With only CAT-STOCK-SLOW, retain fetched live products and show the size-availability warning. With CAT-EMPTY, preserve the real empty collection; no demo substitution or failure notice is expected. Stock error feedback does not prove stock readiness or resolve the missing-size-row policy in G-09.
+For CAT-07/CAT-08, assert Showing 24/48/49 of 49 products alongside card counts, and check filtered totals/reset separately. Hold CAT-SLOW requests and assert Loading collection. At eight seconds loading ends with identified demo fallback and Retry collection. Successful retry replaces fallback and clears feedback; CAT-STOCK-SLOW retains live products with availability warning; CAT-EMPTY remains genuinely empty. Stock feedback does not prove live inventory readiness or resolve specific unavailable-size alert selection in G-09. Detail missing rows now disable size selection.
 
 These cases do not cover live Supabase signup/RLS/checkout, copied-token revocation, complete cart ownership policy, all keyboard/screen-reader paths or WCAG conformance. Verify hidden-tab media behavior, quota-limited writes, reveal/tab-reset behavior and provider failures in separate scenarios as needed. Keep overall requirement statuses separate from passing scoped regression cases; preserve G-01/G-13 history and the unresolved portion of G-10.
+
+### Isolated purchase SQL regressions (OPS-10)
+
+Run npm run test:purchase after npm ci. scripts/purchase.test.mjs applies base, checkout security, demo catalog and purchase safeguards SQL to PGlite with minimal auth roles/schema, then resets only this in-memory instance between cases. No DATABASE_URL, Supabase account, service key, live reset or network is used. It does not apply the full review/storage/rate-limit hardening stack and must not stand in for those integrations. Ten cases check original-order replay after depletion, changed items/address/method conflicts, customer-scoped keys, rejected size/color combinations, shared-color snapshots, later-line rollback including attempts, missing-row stock edits, obsolete-row totals, denied customer RPC/private-table access and staging fixture UUID preservation. It uses one connection: last-unit competition, simultaneous retries and stock-versus-checkout lock behavior need independent staging sessions. SQL exceptions prove local transaction behavior; they do not by themselves prove HTTP error mappings or live policy state.
 
 ### Deployed-site browsing checks (OPS-08)
 
@@ -248,4 +294,4 @@ Failures retain screenshots/traces under test-results/live. This opt-in suite do
 
 The README screenshots were refreshed from the `f6b916d` UI on 4 October 2026 using isolated fallback data, INR currency and reduced motion. Desktop previews use 1440px width; category captures include product names/prices. The dashboard uses local catalog data and an empty order-response fixture. Captures wait for fonts and visible images to load; full-page capture first scrolls through every section and checks all image loads before returning to the top. The development indicator is hidden only during capture. These images are presentation references, not evidence of live Supabase permissions, stock synchronization or mail delivery.
 
-Review README links/images, English route labels, setup/migration sequence, current feature limitations and the checkout description when updating previews. CHK-04 has no card-number input or number-based decline simulation; the README portion of G-11 is corrected, while the misleading approval-or-decline UI label remains unresolved. The old database diagram is explicitly historical and must not substitute for the checked-in SQL migrations.
+Review README links/images, English route labels, setup/migration sequence, current feature limitations and checkout description when updating previews. CHK-04 has no card-number input or decline simulation; both README and UI now describe successful simulation with no charge (historical G-11). Detail shipping overrides and demo confirmation/footer/history/privacy deny fulfillment/support. The old database diagram remains historical and must not substitute for current SQL migrations.

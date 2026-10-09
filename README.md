@@ -203,7 +203,10 @@ Apply these SQL files in order in a dedicated Supabase demo project:
 3. [supabase_checkout_security_migration.sql](supabase_checkout_security_migration.sql) — remove direct customer order-insert policies.
 4. [supabase_checkout_transaction_migration.sql](supabase_checkout_transaction_migration.sql) — install the older unsized checkout transaction.
 5. [supabase_demo_catalog_migration.sql](supabase_demo_catalog_migration.sql) — size inventory, color/order option fields, private restock requests, and the current size-aware checkout transaction. Do not reapply step 4 afterward.
-6. [supabase_security_hardening_migration.sql](supabase_security_hardening_migration.sql) — restrict public reviews, remove direct review writes, create a private `review-images` bucket, and install the shared rate limiter. New uploads return private object paths; the admin moderation page uses short-lived signed URLs. Previously uploaded files in the old public bucket remain public until migrated or removed separately. With `DATABASE_URL` set for that project, run `npm run security:check-db` to inspect applied RLS policies, grants, the private bucket, and checkout/limiter RPC permissions. This check is read-only and does not prove full production security.
+6. [supabase_security_hardening_migration.sql](supabase_security_hardening_migration.sql) — restrict public reviews, remove direct review writes, create a private `review-images` bucket, and install the shared rate limiter. New uploads return private object paths; the admin moderation page uses short-lived signed URLs. Previously uploaded files in the old public bucket remain public until migrated or removed separately.
+7. [supabase_purchase_safeguards_migration.sql](supabase_purchase_safeguards_migration.sql) — install customer-scoped checkout replay protection, enforce size/color choices and update stock atomically. This removes the old four-argument checkout RPC and installs the five-argument version required by the current app, plus `set_product_stock`. Apply in isolated staging first and deploy the matching app/schema together; do not reapply older checkout definitions afterward.
+
+The read-only `npm run security:check-db` inspector still references the removed checkout signature and cannot complete after step 7 (BRD G-25). It must be updated before it can verify this schema. Separately verify current function definitions/grants, private checkout-attempt permissions and multi-session stock/replay behavior in staging; local tests do not prove live migration state.
 
 Policies and schema do not resolve all current moderation/admin-write gaps; consult the BRD before treating the demo as a production store.
 
@@ -285,7 +288,7 @@ Open `/admin` and enter a username and password from `ADMIN_CREDENTIALS`. In non
 
 ### Populate admin demo data
 
-After applying the demo catalog migration, run `npm run seed:products` to add 20 new demo items per existing product category. The 280 products use generated contact-sheet crops in `public/demo-products/`; prices and inventory are demo values. The seed skips existing product names and removes incorrect color variants from previously seeded demo rows without changing their stock. Then run the following with your Supabase service-role key configured in `.env.local`:
+After applying the current migrations, run `npm run seed:products` to add 20 new demo items per existing product category. The 280 products use generated contact-sheet crops in `public/demo-products/`; prices and inventory are demo values. The seed skips existing product names and removes incorrect color variants from previously seeded demo rows without changing their stock. New sized fixtures insert size rows after product rows; a size-row failure leaves products and requires isolated staging repair because rerunning skips existing names. Existing rows do not receive fixture sizes/stock automatically. [scripts/staging_product_options.sql](scripts/staging_product_options.sql) is an optional manual fixture reset for the blouse and two specified dress photographs; it preserves UUIDs but overwrites stock/sizes for all matching rows, so use only in isolated staging and inspect its results. Then run the following with your Supabase service-role key configured in `.env.local`:
 
 ```bash
 npm run seed:admin-data
@@ -295,7 +298,7 @@ The admin-data seed creates or reuses a demo customer, three sample orders, four
 
 To deliver restock alerts, configure `RESEND_API_KEY` and a verified `RESTOCK_FROM_EMAIL`. Requests can be saved without mail delivery. A positive admin stock save may trigger a notification batch; zero-to-positive transition checks, recipient eligibility, and retry/deduplication remain incomplete (G-12).
 
-The dashboard calculates stock from `product_size_stock` for sized products and from `products.stock` otherwise. Concurrent inventory writes and size edits still have documented consistency limits (G-18).
+The dashboard calculates stock from `product_size_stock` for sized products and from `products.stock` otherwise. Protected stock saves and checkout use atomic transactions and totals from configured sizes. Catalog size-list edits still have consistency limits (G-18); multi-session checkout/stock behavior remains unverified on the live database.
 
 ### Local PostgreSQL with Docker
 
@@ -327,11 +330,14 @@ GitHub Actions checks requirements documentation, local PostgreSQL seed/build/he
 npx playwright install chromium
 npm run test:ui
 npm run test:catalog
+npm run test:purchase
 npm run docs:test
 npm run docs:check
 ```
 
 Each browser suite launches its own localhost:3100 server with live Supabase/mail disabled and a separate `.next-browser-tests` cache. Run them sequentially. The catalog suite intercepts a reserved `.invalid` fixture domain to exercise configured-client loading, timeout, fallback, and retry states without a live database. See [docs/QA_TESTING_GUIDE.md](docs/QA_TESTING_GUIDE.md) for fixtures, coverage, and remaining manual checks.
+
+`test:purchase` runs ten migration/transaction regressions using in-memory PostgreSQL (PGlite), including replay, option validation, rollback, stock totals and denied customer permissions. It uses one connection and does not prove live Supabase integration or multi-session concurrency. Browser CI runs it before the UI/catalog suites.
 
 ### Test the deployed site
 
@@ -352,7 +358,7 @@ The override must be an HTTP(S) origin without credentials, path, query, or frag
 
 ### Demo checkout
 
-Checkout offers a demo card method and simulated cash on delivery. It has no card-number fields or approval/decline-number rules, never charges a payment, and ships nothing. A signed-in customer submits fictional contact/address details; successful checkout saves a demo order and reduces demo inventory. The card method adds a short simulated processing delay.
+Checkout offers a demo card method and simulated cash on delivery. It has no card-number fields or approval/decline-number rules, never charges a payment, and ships nothing. A signed-in customer submits fictional contact/address details; successful checkout saves a demo order and reduces demo inventory. The card method adds a short simulated processing delay. Requests require a UUID `Idempotency-Key`; an identical customer/key/normalized-payload retry returns the original order, while reusing a key with changed details conflicts. The browser keeps only a digest/key in same-tab session storage; after reload, re-enter the same details to reuse it. Changed details, new keys or lost tab storage can create a new attempt. No order confirmation email or support follow-up is sent.
 
 ---
 

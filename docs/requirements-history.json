@@ -3021,5 +3021,1180 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CAT-07",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall initially reveal at most 24 matches and load 24 more per click; count shall describe matching versus collection totals. Pending requests show Loading collection, distinct from genuine empty collections and no-filter-match results.",
+      "source_codes": "LIST",
+      "qa_focus": "Pending request, 0/1/24/25/48/49 products, final batch, clear all",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PDP-03",
+      "module": "Product cards and details",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Sized products shall require a chosen available size before add; unavailable sizes are disabled. Missing stock rows and selecting an unavailable size for an alert need resolution (G-09).",
+      "source_codes": "DETAIL",
+      "qa_focus": "No size, stock 0, missing row, mixed stock",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PDP-06",
+      "module": "Product cards and details",
+      "priority": "P2",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Detail shall offer one-open-at-a-time information panels for details, measurements, composition/care/origin, and shipping/exchanges/returns, using supplied text or generic fallback.",
+      "source_codes": "DETAIL",
+      "qa_focus": "Open/switch/close, newline content, defaults",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CHK-03",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Request shall contain 1–50 raw item entries and each normalized variant quantity shall be an integer 1–20; duplicate tuples merge and merged quantity above 20 fails.",
+      "source_codes": "CHECKOUT",
+      "qa_focus": "0/1/50/51 lines, quantity 0/1/20/21/fraction, duplicates",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CHK-04",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Checkout shall offer demo card and simulated cash on delivery, clearly state no charge/delivery, and collect/send no card details. Current card flow adds a roughly 1.2-second simulation delay; no decline branch exists. README describes these limits; the UI approval-or-decline label remains misleading (G-11).",
+      "source_codes": "CHECKOUTUI, CHECKOUT, PROJECTDOCS",
+      "qa_focus": "Both methods, request payload, README/current UI distinction, stale UI decline copy G-11",
+      "known_gap_ids": "G-11",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CHK-05",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Server shall fetch current inventory and use database price snapshots, ignoring browser-supplied prices/totals; selected size inventory applies when size is sent.",
+      "source_codes": "CHECKOUT, DEMOMIG",
+      "qa_focus": "Price tampering, stale price, removed product",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CHK-06",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "A successful transaction shall create one pending order and all lines with quantity, unit price, size/color; decrement inventory and set total to sum of snapshots.",
+      "source_codes": "CHECKOUT, DEMOMIG",
+      "qa_focus": "Sized/unsized/multi-line transactions, shared color stock",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CHK-07",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Insufficient stock at precheck or transaction shall return conflict; transaction failure shall leave no partial order/lines/stock decrement. Competing orders must not oversell.",
+      "source_codes": "CHECKOUT, DEMOMIG",
+      "qa_focus": "Last unit concurrency, later-line failure, DB failure",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CHK-08",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "On successful returned order ID, UI shall clear cart and show confirmation/ID and Continue Shopping; API failure shall show error and keep cart.",
+      "source_codes": "CHECKOUTUI",
+      "qa_focus": "Success, error response, malformed response, network rejection G-15",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CHK-09",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Order service shall reject unsupported size/color and prevent duplicate orders from replay; current validation lacks catalog-option enforcement and idempotency (G-08, G-14).",
+      "source_codes": "CHECKOUT, DEMOMIG",
+      "qa_focus": "Invalid option, sized item without size, repeated identical POST",
+      "known_gap_ids": "G-08; G-14",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ORD-02",
+      "module": "Customer orders",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Order cards shall show short ID, date, formatted total and status; expanding one order shows product/image, quantity, line total and payment label.",
+      "source_codes": "HISTORY",
+      "qa_focus": "Expand/collapse, deleted product fallback, all statuses",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "STK-02",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock API shall reject negative/noninteger values; size save shall upsert product/size row and recalculate product stock from all stored size rows.",
+      "source_codes": "STOCKAPI",
+      "qa_focus": "0/1/4/5, negative/fraction, missing/existing row",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "STK-04",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Size/overall inventory shall remain consistent on failures/concurrent saves; current multi-request stock update is not atomic and size membership is not enforced (G-18).",
+      "source_codes": "STOCKAPI, ADMIN",
+      "qa_focus": "Failure between writes, concurrent edits, unsupported size",
+      "known_gap_ids": "G-08; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "CNT-01",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Footer newsletter shall require an email-shaped value, then show preview-only/no-save/no-send feedback. There shall be no implied successful real subscription.",
+      "source_codes": "FOOTER, INFO",
+      "qa_focus": "Invalid/valid email, no network subscription/write",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Home/checkout/privacy/terms shall explain demo limits and stored demo data; generic shipping/returns copy and confirmation wording need alignment (G-22).",
+      "source_codes": "HOME, INFO, DETAIL, CHECKOUTUI",
+      "qa_focus": "Content consistency and fictional data guidance",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "OPS-09",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "`npm run security:check-db` shall inspect the target database read-only for review RLS/grants, direct order-insert policy removal, private review bucket, limiter RLS/RPC permissions and checkout RPC restrictions. It requires an explicitly supplied `DATABASE_URL`; a pass does not replace live role tests or prove the correct deployment is connected.",
+      "source_codes": "SECCHECK, SECURITYMIG, CHECKOUTSEC",
+      "qa_focus": "Missing URL, correct target, pass/fail grants, bucket and policy inventory, no writes/secrets in output",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Review direct writes are removed in source, but deployed grants/policies and remaining admin product/reply writes must be verified or scoped as blockers.",
+      "source_codes": "SCHEMA, REVIEWMIG, SECURITYMIG, CHECKOUTSEC, ADMINAPIS",
+      "qa_focus": "Cross-user reads/writes, review approval tampering, fake admin flag, applied policy",
+      "known_gap_ids": "G-04; G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NFR-05",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "T",
+      "requirement_and_acceptance": "Proposed accessibility target is WCAG 2.2 AA; assess keyboard operation, meaningful labels, focus placement/trapping/restoration, contrast, announcements and reduced motion. Existing labels are not proof of conformance.",
+      "source_codes": "NAV, DETAIL, HOME, LIST",
+      "qa_focus": "Keyboard-only/screen-reader audits, modal focus, hidden controls",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:26:22.024Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; analytics shall state its population, settings must not imply live health, and stock/email order safety shall hold under concurrent operations.",
+      "source_codes": "INFO, ADMIN, NOTIFY, DEMOMIG",
+      "qa_focus": "Content, metric definitions, concurrency/replay",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-07",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall initially reveal at most 24 matches and load 24 more per click; count shall say Showing {visible} of {matching} products, following filters and the final batch. Pending requests show Loading collection, distinct from genuine empty collections and no-filter-match results.",
+      "source_codes": "LIST",
+      "qa_focus": "Pending request, 0/1/24/25/48/49 products, count text, final batch, filter reset, clear all",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-03",
+      "module": "Product cards and details",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Sized products shall require a chosen available size before add; zero or missing stock rows disable the size. Detail initializes from supplied size_stock then refreshes database rows; the local fallback supplies fixture rows. All-sold-out fixtures expose a whole-product restock form and disable purchase. Selecting a specific unavailable size for an alert remains unresolved (G-09).",
+      "source_codes": "DETAIL, DBCLIENT, SEED",
+      "qa_focus": "No size, zero/missing row, mixed/all-zero stock, initial versus refreshed rows, unavailable-size alert gap",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-04",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Detail quantity shall start at one, not decrease below one, clamp to known positive available stock, and disable add/increase when the known limit is reached.",
+      "source_codes": "DETAIL",
+      "qa_focus": "1, stock limit, size change, unknown stock",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-06",
+      "module": "Product cards and details",
+      "priority": "P2",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Detail shall offer one-open-at-a-time information panels for details, measurements, composition/care/origin, and shipping/exchanges/returns. Product information uses supplied text or generic fallback; shipping content always states no charge, shipment, exchanges, returns or support follow-up and asks for fictional details, overriding any product shipping promises.",
+      "source_codes": "DETAIL",
+      "qa_focus": "Open/switch/close, newline content, defaults, supplied shipping promises cannot override demo limits",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-09",
+      "module": "Product cards and details",
+      "priority": "P2",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Dynamic routes in all seven category families shall generate product-specific titles identifying name/category with the root zeouf suffix, demo descriptions and Open Graph title/description/image when supplied. Recognized clothing subcategories get collection metadata; missing products request no indexing/following. Product lookup is memoized within a server render. Metadata does not enforce category-path ownership (G-08).",
+      "source_codes": "PRODUCTMETA, DETAILROUTE, DBCLIENT, SHELL",
+      "qa_focus": "Seven product families, collection slugs, absent product, Open Graph values, category-path gap",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-03",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Request shall contain 1–50 raw item entries with strict UUID product IDs and integer quantities 1–20 after Number conversion; duplicate tuples merge and merged quantity above 20 fails. Nonstring or oversized size/color values fail before the transaction.",
+      "source_codes": "CHECKOUT",
+      "qa_focus": "0/1/50/51 lines, invalid UUID, quantity 0/1/20/21/fraction, duplicates, option type/length",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-04",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Checkout shall offer demo card and simulated cash on delivery, clearly state no charge/delivery, and collect/send no card details. Card adds a roughly 1.2-second simulation delay and is labelled Simulated successful payment; no charge; no decline branch exists. Historical G-11 is retained.",
+      "source_codes": "CHECKOUTUI, CHECKOUT, PROJECTDOCS",
+      "qa_focus": "Both methods, request payload, no card details or approval/decline claim",
+      "known_gap_ids": "G-11",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-05",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "The authoritative database transaction shall use current database price snapshots and available inventory, ignoring browser-supplied prices/totals. Sized products require configured size stock; colors share that stock. There is no separate API inventory precheck.",
+      "source_codes": "CHECKOUT, PURCHASEMIG",
+      "qa_focus": "Price tampering, stale price, removed product, missing stock row",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-06",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "A new successful transaction shall create one pending order and all lines with quantity, unit price, size/color; decrement inventory and set total to sum of snapshots. Sized totals sum only currently configured size rows; obsolete rows do not inflate stock.",
+      "source_codes": "CHECKOUT, PURCHASEMIG",
+      "qa_focus": "Sized/unsized/multi-line transactions, shared color stock, stale size rows",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-07",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Insufficient stock in the transaction shall return 409; failure shall leave no partial order/lines/attempt record or stock decrement. Product rows are locked in UUID order before writes, with guarded decrements. Competing orders must not oversell; multi-session concurrency remains unverified by the single-connection local suite.",
+      "source_codes": "CHECKOUT, PURCHASEMIG, PURCHASETEST",
+      "qa_focus": "Last unit concurrency, crossed multi-product orders, later-line rollback, DB failure",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-08",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "On successful returned order ID, UI shall clear cart and show demo confirmation/ID and Continue Shopping with no delivery/email/support promises. API failure, malformed response or network rejection shall show error, keep cart and release submitting state for retry. A synchronous guard prevents overlapping UI submissions.",
+      "source_codes": "CHECKOUTUI",
+      "qa_focus": "Success, error/malformed response, network rejection, repeated click, state retention",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-09",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Purchase safeguards transaction shall enforce configured size and color: sized products require a listed size; unsized products reject size; non-demo products with color options require a listed color; demo-photo/no-color products reject color. A UUID Idempotency-Key is required. The same customer/key/normalized payload returns the original order and total before stock checks; changed payload returns 409 without writes. Different customers cannot replay each other's order. Applied/live behavior remains unverified (G-08, G-14).",
+      "source_codes": "CHECKOUT, PURCHASEMIG, PURCHASETEST",
+      "qa_focus": "Missing/invented option, absent/malformed key, exact replay after depletion, changed items/address/payment, cross-customer keys",
+      "known_gap_ids": "G-08; G-14",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-10",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Browser checkout shall retain a random attempt UUID and SHA-256 digest of customer/items/address/method under zeouf-checkout-attempt in sessionStorage, storing no raw contact fields there. Same details after a lost response/reload reuse the key; changed fingerprint generates a new key. Success removes it; unavailable storage permits in-memory retry only. Reload requires re-entering the same form details, and a new tab/session is not a guaranteed replay.",
+      "source_codes": "CHECKOUTUI, UITEST",
+      "qa_focus": "Both methods, lost response/reload, unchanged/changed details, account switch, blocked storage, success cleanup, no raw contact storage",
+      "known_gap_ids": "G-14",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ORD-02",
+      "module": "Customer orders",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Order cards shall show short ID, date, formatted total and demo status; expanding one order shows product/image, quantity, line total and demo payment label, including Simulated cash on delivery. Introductory copy states no charge or delivery.",
+      "source_codes": "HISTORY",
+      "qa_focus": "Expand/collapse, deleted product fallback, all statuses, demo copy/payment labels",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-01",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Available alert UI shall accept email for an unavailable item/selected size and save product/email/size/color without customer authentication; invalid email/product shall fail. Specific unavailable-size selection is a UI gap (G-09).",
+      "source_codes": "DETAIL, RESTOCK",
+      "qa_focus": "Guest, whole-product versus size request, invalid product/email",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-05",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Sizes shall be selectable from XS–XXL and 36–44; new sized products initialize zero stock rows. Editing sizes shall synchronize rows/aggregate stock, which is currently incomplete (G-18).",
+      "source_codes": "ADMIN, DEMOMIG",
+      "qa_focus": "Add/remove size, zero initialized rows, old stock",
+      "known_gap_ids": "G-06; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-01",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock view shall expose one row per configured size or one Overall row for unsized products; edits save on field blur through protected stock PATCH.",
+      "source_codes": "ADMIN, STOCKAPI",
+      "qa_focus": "Sized/unsized, blur versus typing, expired cookie",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-02",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Cookie-protected stock API shall require a strict UUID and Number-converted integer stock 0–2147483647, rejecting nonstring nonnull sizes. set_product_stock shall lock the product, validate size membership, upsert the size and sum only configured rows, or set unsized overall stock. Unknown product returns 404; invalid option 400; absent service config 503; RPC/migration failure 500.",
+      "source_codes": "STOCKAPI, PURCHASEMIG",
+      "qa_focus": "0/1/4/5, negative/fraction/overflow, invalid UUID/type, unknown product, missing/existing/stale row",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-04",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Purchase safeguards stock RPC shall update size/aggregate in one transaction using the same product-first lock order as checkout; unsupported size or overall edits on sized products fail without changes. Catalog size-list edits and direct product form writes still have G-18 consistency gaps; this requirement covers protected stock RPC writes only. Live multi-session behavior remains unverified.",
+      "source_codes": "STOCKAPI, PURCHASEMIG, ADMIN, PURCHASETEST",
+      "qa_focus": "Transaction failure, concurrent checkout/edit, unsupported size, configured aggregate, remaining catalog-edit gap",
+      "known_gap_ids": "G-08; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-01",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Footer newsletter shall identify Newsletter preview and state no save/subscription/send before entry. Labelled email field uses browser email validation; Try preview displays no-save/no-send feedback and sends no subscription request.",
+      "source_codes": "FOOTER, INFO",
+      "qa_focus": "Pre-submit limits, accessible label/description, invalid/valid email, no network subscription/write",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Home/checkout/privacy/terms/footer/history/detail shall explain demo limits and stored demo data. Detail shipping and confirmation copy shall promise no actual charge, shipment, returns or support follow-up; confirmation also states no email. Fictional contact details are requested. Attribution/license inconsistency remains G-22.",
+      "source_codes": "HOME, INFO, FOOTER, HISTORY, DETAIL, CHECKOUTUI",
+      "qa_focus": "Content consistency, no fulfillment/support promises, fictional data guidance, remaining attribution gap",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-09",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "`npm run security:check-db` inspects legacy review/order/limiter policy inventory read-only with an explicit DATABASE_URL. It still references the removed four-argument checkout RPC and cannot complete after purchase safeguards (G-25); it does not inspect checkout_attempts or stock RPC permissions. Its contract needs updating before use as current migration evidence.",
+      "source_codes": "SECCHECK, SECURITYMIG, CHECKOUTSEC, PURCHASEMIG",
+      "qa_focus": "Missing URL, legacy versus current signature, private attempts/stock grants, no writes/secrets, explicit environment blocker",
+      "known_gap_ids": "G-25",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-10",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:purchase shall execute the checked-in purchase migration on an isolated in-memory PostgreSQL instance using PGlite, testing snapshots, replay, option validation, rollback, stock totals, denied customer grants and staging fixtures. Browser CI shall run it before sequential UI/catalog suites. It uses one connection and no live URL; it does not prove multi-session concurrency or live Supabase configuration.",
+      "source_codes": "PURCHASETEST, UITEST",
+      "qa_focus": "Reproducible migrations, 10 scoped cases, no live cleanup/mutation, single-connection limitations, CI command",
+      "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Purchase migration denies anon/customer access to attempts and purchase/stock RPC execution; API identities are verified. Live grants/policies and remaining admin product/reply writes must be verified or scoped as blockers; current inspector has G-25.",
+      "source_codes": "SCHEMA, REVIEWMIG, SECURITYMIG, CHECKOUTSEC, PURCHASEMIG, ADMINAPIS",
+      "qa_focus": "Cross-user reads/writes/replays, private attempts, RPC denial, moderation tampering, fake admin flag, applied policy",
+      "known_gap_ids": "G-04; G-24; G-25",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-05",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "T",
+      "requirement_and_acceptance": "Proposed accessibility target is WCAG 2.2 AA; assess keyboard operation, meaningful labels, focus placement/trapping/restoration, contrast, announcements and reduced motion. Storefront shell supplies one main landmark, with listing/detail/search/favorites/checkout/history/privacy using div containers to avoid nested main elements; newsletter has an explicit field label/description. Scoped landmark/label checks do not prove conformance.",
+      "source_codes": "NAV, DETAIL, HOME, LIST, SHELL, SEARCH, FAVORITESPAGE, CHECKOUTUI, HISTORY, INFO, FOOTER",
+      "qa_focus": "One nonnested main on public routes, labelled preview field, keyboard/screen-reader audits, modal focus, hidden controls",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:27:05.979Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; detail/footer/checkout/history copy explicitly denies fulfillment/support and newsletter delivery. Analytics population/settings health and restock concurrency remain gaps. Purchase/stock safety uses transactional locks but requires live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG",
+      "qa_focus": "Content, metric definitions, concurrency/replay, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:31:19.265Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-08",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "On successful returned order ID, UI shall clear cart and show demo confirmation/ID and Continue Shopping with no delivery/email/support promises. API failure, malformed response or network rejection shall show error, keep cart and release submitting state for retry. A synchronous guard prevents overlapping UI submissions.",
+      "source_codes": "CHECKOUTUI",
+      "qa_focus": "Success, error/malformed response, network rejection, repeated click, state retention",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:31:19.265Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-09",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Purchase safeguards transaction shall enforce configured size and color: sized products require a listed size; unsized products reject size; non-demo products with color options require a listed color; demo-photo/no-color products reject color. A UUID Idempotency-Key is required. The same customer/key/normalized payload returns the original order and total before stock checks; changed payload returns 409 without writes. Different customers cannot replay each other's order. Applied/live behavior remains unverified (G-08, G-14).",
+      "source_codes": "CHECKOUT, PURCHASEMIG, PURCHASETEST",
+      "qa_focus": "Missing/invented option, absent/malformed key, exact replay after depletion, changed items/address/payment, cross-customer keys",
+      "known_gap_ids": "G-08; G-14",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:31:19.265Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-10",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Browser checkout shall retain a random attempt UUID and SHA-256 digest of customer/items/address/method under zeouf-checkout-attempt in sessionStorage, storing no raw contact fields there. Same details after a lost response/reload reuse the key; changed fingerprint generates a new key. Success removes it; unavailable storage permits in-memory retry only. Reload requires re-entering the same form details, and a new tab/session is not a guaranteed replay.",
+      "source_codes": "CHECKOUTUI, UITEST",
+      "qa_focus": "Both methods, lost response/reload, unchanged/changed details, account switch, blocked storage, success cleanup, no raw contact storage",
+      "known_gap_ids": "G-14",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:31:19.265Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:31:19.265Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:31:19.265Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-08",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:live shall run optional Chromium public-browsing checks against the deployed Vercel origin, with PLAYWRIGHT_BASE_URL accepting another HTTP(S) origin without credentials/path/query/fragment. No local server is launched or authenticated storage reused. The suite checks homepage, seven populated collections without fallback warnings, search, product detail, mobile navigation, information pages and admin login rendering. It blocks mutating HTTP methods and known helper/logout paths, and fails attempted writes. It does not authenticate, submit commerce/customer/admin changes or establish their acceptance. Artifacts use test-results/live; live checks remain separate from deployment-racing push CI.",
+      "source_codes": "LIVETEST, REQTOOLS",
+      "qa_focus": "Correct target, no local startup, public data available, state-changing requests blocked, separate artifacts and acceptance limits",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:31:19.265Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-10",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:purchase shall execute the checked-in purchase migration on an isolated in-memory PostgreSQL instance using PGlite, testing snapshots, replay, option validation, rollback, stock totals, denied customer grants and staging fixtures. Browser CI shall run it before sequential UI/catalog suites. It uses one connection and no live URL; it does not prove multi-session concurrency or live Supabase configuration.",
+      "source_codes": "PURCHASETEST, UITEST",
+      "qa_focus": "Reproducible migrations, 10 scoped cases, no live cleanup/mutation, single-connection limitations, CI command",
+      "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

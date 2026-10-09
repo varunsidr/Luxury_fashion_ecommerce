@@ -29,10 +29,13 @@ export default function Footer() {
 
         {/* Right: newsletter */}
         <div>
-          <p className="text-[9px] tracking-[0.5em] text-neutral-500 uppercase mb-4">Newsletter</p>
+          <p className="text-[9px] tracking-[0.5em] text-neutral-500 uppercase mb-4">Newsletter preview</p>
           <h3 className="text-[24px] md:text-[30px] font-light font-playfair tracking-[0.03em] mb-8 leading-snug">
             Be the first to know<br />about new seasons.
           </h3>
+          <p id="newsletter-preview" className="mb-5 text-[12px] text-neutral-400">
+            Preview only. Your email will not be saved, subscribed or sent.
+          </p>
           {submitted ? (
             <p className="text-[12px] text-neutral-400 font-light tracking-wide" data-testid="footer-newsletter-success">
               Newsletter preview only. Your email was not saved or sent.
@@ -45,6 +48,8 @@ export default function Footer() {
             >
               <input
                 type="email"
+                aria-label="Email for newsletter preview"
+                aria-describedby="newsletter-preview"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -57,7 +62,7 @@ export default function Footer() {
                 className="self-start mt-2 px-8 py-3 bg-white text-black text-[10px] tracking-[0.3em] uppercase font-medium hover:bg-neutral-200 transition-colors duration-300"
                 data-testid="footer-newsletter-submit"
               >
-                Subscribe
+                Try preview
               </button>
             </form>
           )}
@@ -68,6 +73,9 @@ export default function Footer() {
       <div className="border-t border-white/5" />
 
       {/* Nav links row */}
+      <p className="px-6 pt-6 text-center text-[12px] text-neutral-400">
+        Portfolio demo. Payments and orders are simulated; no shipping, returns or customer support are provided.
+      </p>
       <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 py-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
         {[
           { label: "Women", href: "/women" },

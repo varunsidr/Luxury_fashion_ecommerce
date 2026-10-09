@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, Loader2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useCurrency } from "@/context/CurrencyContext";
@@ -32,6 +32,8 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [orderId, setOrderId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card_demo");
+  const submittingRef = useRef(false);
+  const attemptRef = useRef<{ fingerprint: string; key: string } | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then((result: { data?: { session?: { user?: { id?: string } } | null } }) => {
@@ -41,8 +43,11 @@ export default function CheckoutPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     setError("");
-
+    try {
     const { data: sessionData } = await supabase.auth.getSession();
     const accessToken = sessionData.session?.access_token;
     if (!userId || !accessToken) {
@@ -54,7 +59,21 @@ export default function CheckoutPage() {
       return;
     }
 
-    setSubmitting(true);
+    const payload = {
+      items: items.map(({ id, quantity, size, color }) => ({ id, quantity, size, color })),
+      shippingAddress: form,
+      paymentMethod,
+    };
+    const fingerprint = JSON.stringify({ userId, ...payload });
+    // Persist only a digest and random key, never the entered contact details.
+    const digest = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(fingerprint))))
+      .map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    try {
+      const stored = JSON.parse(sessionStorage.getItem("zeouf-checkout-attempt") ?? "null");
+      if (stored?.fingerprint === digest && typeof stored.key === "string") attemptRef.current = stored;
+    } catch { /* In-memory retries still retain the key when browser storage is unavailable. */ }
+    if (attemptRef.current?.fingerprint !== digest) attemptRef.current = { fingerprint: digest, key: crypto.randomUUID() };
+    try { sessionStorage.setItem("zeouf-checkout-attempt", JSON.stringify(attemptRef.current)); } catch { /* Keep the in-memory attempt. */ }
     if (paymentMethod === "card_demo") {
       await new Promise((resolve) => setTimeout(resolve, 1200));
     }
@@ -64,48 +83,51 @@ export default function CheckoutPage() {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
+        "Idempotency-Key": attemptRef.current.key,
       },
-      body: JSON.stringify({
-        items: items.map(({ id, quantity, size, color }) => ({ id, quantity, size, color })),
-        shippingAddress: form,
-        paymentMethod,
-      }),
+      body: JSON.stringify(payload),
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok || !result.orderId) {
       setError(result.error ?? "We could not create your order. Please try again.");
-      setSubmitting(false);
       return;
     }
 
     clearCart();
     setOrderId(result.orderId);
-    setSubmitting(false);
+    attemptRef.current = null;
+    try { sessionStorage.removeItem("zeouf-checkout-attempt"); } catch { /* Order is already saved. */ }
+    } catch {
+      setError("Could not confirm your demo order. Retry with the same details to safely check this attempt.");
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
+    }
   }
 
   if (orderId) {
     return (
-      <main className="min-h-screen bg-white px-6 py-24 md:px-12">
+      <div className="min-h-screen bg-white px-6 py-24 md:px-12">
         <div className="mx-auto max-w-xl text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-black text-white">
             <Check size={24} strokeWidth={1.5} />
           </div>
-          <p className="mt-8 text-[10px] uppercase tracking-[0.4em] text-neutral-400">Order confirmed</p>
-          <h1 className="mt-4 font-playfair text-4xl font-light text-neutral-900">Thank you for your order.</h1>
+          <p className="mt-8 text-[10px] uppercase tracking-[0.4em] text-neutral-400">Demo order saved</p>
+          <h1 className="mt-4 font-playfair text-4xl font-light text-neutral-900">Thank you for trying zeouf.</h1>
           <p className="mt-5 text-sm font-light leading-7 text-neutral-500">
-            Your order has been received and will be prepared for delivery. We will contact you using the details provided.
+            Your simulated order is saved. No payment was charged, no delivery is arranged, and no confirmation email or customer support follow-up will be sent.
           </p>
           <p className="mt-6 text-xs text-neutral-400">Order ID: {orderId}</p>
           <Link href="/" className="mt-10 inline-flex bg-black px-8 py-4 text-[10px] font-medium uppercase tracking-[0.25em] text-white transition-colors hover:bg-neutral-800">
             Continue shopping
           </Link>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-neutral-50 px-6 py-12 md:px-12 md:py-20">
+    <div className="min-h-screen bg-neutral-50 px-6 py-12 md:px-12 md:py-20">
       <div className="mx-auto max-w-6xl">
         <Link href="/" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black">
           <ArrowLeft size={14} strokeWidth={1.5} /> Continue shopping
@@ -155,7 +177,7 @@ export default function CheckoutPage() {
                   <label className={`cursor-pointer border p-4 text-sm transition-colors ${paymentMethod === "card_demo" ? "border-black" : "border-neutral-200"}`}>
                     <input type="radio" name="payment" value="card_demo" checked={paymentMethod === "card_demo"} onChange={() => setPaymentMethod("card_demo")} className="sr-only" />
                     <span className="block font-medium">Demo card</span>
-                    <span className="mt-1 block text-xs font-light text-neutral-400">Simulated approval or decline</span>
+                    <span className="mt-1 block text-xs font-light text-neutral-400">Simulated successful payment; no charge</span>
                   </label>
                   <label className={`cursor-pointer border p-4 text-sm transition-colors ${paymentMethod === "cash_on_delivery" ? "border-black" : "border-neutral-200"}`}>
                     <input type="radio" name="payment" value="cash_on_delivery" checked={paymentMethod === "cash_on_delivery"} onChange={() => setPaymentMethod("cash_on_delivery")} className="sr-only" />
@@ -201,6 +223,6 @@ export default function CheckoutPage() {
           </aside>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

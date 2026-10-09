@@ -45,6 +45,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid checkout request." }, { status: 400 });
   }
 
+  if (!body || typeof body !== 'object') return NextResponse.json({ error: 'Invalid checkout request.' }, { status: 400 });
+  const idempotencyKey = request.headers.get('idempotency-key') ?? '';
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idempotencyKey)) {
+    return NextResponse.json({ error: 'A valid checkout attempt key is required.' }, { status: 400 });
+  }
   const items = body.items;
   const address = body.shippingAddress;
   if (!Array.isArray(items) || items.length === 0 || items.length > 50 || !address) {
@@ -55,9 +60,14 @@ export async function POST(request: Request) {
   for (const item of items) {
     const id = text(item?.id, 100);
     const quantity = Number(item?.quantity);
+    if ([item?.size, item?.color].some((option) => option != null && typeof option !== 'string') ||
+      (typeof item?.size === 'string' && item.size.trim().length > 30) ||
+      (typeof item?.color === 'string' && item.color.trim().length > 40)) {
+      return NextResponse.json({ error: 'A cart option is invalid.' }, { status: 400 });
+    }
     const size = text(item?.size, 30) || null;
     const color = text(item?.color, 40) || null;
-    if (!id || !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) || !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
       return NextResponse.json({ error: "A cart item is invalid." }, { status: 400 });
     }
     const existing = normalizedItems.find((entry) => entry.id === id && entry.size === size && entry.color === color);
@@ -84,35 +94,20 @@ export async function POST(request: Request) {
   }
 
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
-  const { data: inventory, error: inventoryError } = await admin
-    .from("products")
-    .select("id, stock")
-    .in("id", normalizedItems.map((item) => item.id));
-  if (inventoryError) {
-    return NextResponse.json({ error: "Could not verify product stock. Please try again." }, { status: 503 });
-  }
-  const stockById = new Map((inventory ?? []).map((product) => [String(product.id), Number(product.stock ?? 0)]));
-  const sizedItems = normalizedItems.filter((item) => item.size);
-  const { data: sizeInventory, error: sizeInventoryError } = sizedItems.length
-    ? await admin.from("product_size_stock").select("product_id, size, stock").in("product_id", [...new Set(sizedItems.map((item) => item.id))])
-    : { data: [], error: null };
-  if (sizeInventoryError) return NextResponse.json({ error: "Could not verify size stock. Please try again." }, { status: 503 });
-  const stockBySize = new Map((sizeInventory ?? []).map((row) => [`${row.product_id}:${row.size}`, Number(row.stock ?? 0)]));
-  if (normalizedItems.some((item) => item.size
-    ? (stockBySize.get(`${item.id}:${item.size}`) ?? 0) < item.quantity
-    : (stockById.get(item.id) ?? 0) < item.quantity)) {
-    return NextResponse.json({ error: "One or more items are no longer in stock. Update your cart and try again." }, { status: 409 });
-  }
-
+  // One authoritative transaction also handles replay before rechecking depleted stock.
+  normalizedItems.sort((a, b) => a.id.localeCompare(b.id) || (a.size ?? '').localeCompare(b.size ?? '') || (a.color ?? '').localeCompare(b.color ?? ''));
   const { data: created, error: orderError } = await admin.rpc("create_checkout_order", {
     p_user_id: authData.user.id,
+    p_idempotency_key: idempotencyKey,
     p_items: normalizedItems,
     p_shipping_address: shippingAddress,
     p_payment_method: paymentMethod,
   });
+  if (orderError?.message?.includes('IDEMPOTENCY_CONFLICT')) return NextResponse.json({ error: 'This checkout attempt was already used with different details.' }, { status: 409 });
+  if (orderError?.message?.includes('INVALID_OPTION')) return NextResponse.json({ error: 'Choose an available catalog size and color.' }, { status: 400 });
   if (orderError?.message?.includes("OUT_OF_STOCK")) {
     return NextResponse.json({ error: "One or more items are no longer in stock. Update your cart and try again." }, { status: 409 });
   }
-  if (orderError || !created?.order_id) return NextResponse.json({ error: "Could not create your order. Apply the checkout transaction migration and try again." }, { status: 500 });
+  if (orderError || !created?.order_id) return NextResponse.json({ error: "Could not create your order. Check that the purchase safeguards migration is applied and try again." }, { status: 500 });
   return NextResponse.json({ orderId: created.order_id, total: created.total });
 }

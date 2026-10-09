@@ -59,7 +59,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
   const [notifySubmitting, setNotifySubmitting] = useState(false);
 
   // Size-based stock
-  const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
+  const [sizeStocks, setSizeStocks] = useState<SizeStock[]>(product.size_stock ?? []);
 
   // Related products ("Complete Your Look")
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -108,7 +108,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
   }, [product.id, mainCategory]);
 
   function getSizeStock(size: string) {
-    return sizeStocks.find((s) => s.size === size)?.stock ?? null;
+    return sizeStocks.find((s) => s.size === size)?.stock ?? 0;
   }
 
   const selectedSizeStock = selectedSize ? getSizeStock(selectedSize) : null;
@@ -260,11 +260,11 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
     "Lining: 100% polyester.",
     "Made in Turkey.",
   ]);
-  const shippingReturns: string[] = asLines(product.shippingReturns, [
-    "Free standard shipping on all orders.",
-    "Free returns within 30 days of delivery.",
-    "Items must be unworn, unwashed and with original tags attached.",
-  ]);
+  const shippingReturns = [
+    "zeouf is a portfolio demo. No payment is charged and no products are shipped.",
+    "Shipping, exchanges and returns are not available for demo orders.",
+    "No delivery confirmation or customer support follow-up is provided. Use fictional contact and address details.",
+  ];
   const accordionSections = [
     { key: "details", title: "Product Details", content: details },
     { key: "measurements", title: "Product Measurements", content: measurements },
@@ -273,7 +273,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
   ];
 
   return (
-    <main className="pt-[120px] md:pt-[140px] pb-20 bg-white min-h-screen">
+    <div className="pt-[120px] md:pt-[140px] pb-20 bg-white min-h-screen">
       {/* Breadcrumb */}
       <div className="px-6 md:px-10 lg:px-16 mb-8">
         <div className="max-w-7xl mx-auto">
@@ -752,6 +752,6 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
           </div>
         </>
       )}
-    </main>
+    </div>
   );
 }

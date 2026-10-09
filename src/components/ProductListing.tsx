@@ -220,7 +220,7 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
   const visibleProducts = sortedProducts.slice(0, visibleCount);
 
   return (
-    <main className="pt-[120px] md:pt-[140px] pb-20 bg-white min-h-screen">
+    <div className="pt-[120px] md:pt-[140px] pb-20 bg-white min-h-screen">
       {/* Breadcrumbs & Header */}
       <div className="px-6 md:px-10 lg:px-16 mb-12">
         <div className="max-w-7xl mx-auto">
@@ -246,7 +246,7 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
                 {displayTitleText}
               </h1>
               <p className="text-[12px] text-neutral-400 mt-1">
-                {loading ? "Loading..." : `${sortedProducts.length} of ${products.length} products`}
+                {loading ? "Loading..." : `Showing ${visibleProducts.length} of ${sortedProducts.length} products`}
               </p>
             </div>
 
@@ -328,6 +328,6 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }

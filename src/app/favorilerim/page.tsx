@@ -37,7 +37,7 @@ export default function FavoritesPage() {
   const isLoading = favoritesLoading || loadingProducts;
 
   return (
-    <main className="pt-[120px] md:pt-[140px] pb-20 bg-white min-h-screen">
+    <div className="pt-[120px] md:pt-[140px] pb-20 bg-white min-h-screen">
       <div className="px-6 md:px-10 lg:px-16 mb-12">
         <div className="max-w-7xl mx-auto">
           <p className="text-[10px] tracking-[0.35em] text-neutral-400 mb-2 uppercase">
@@ -94,6 +94,6 @@ export default function FavoritesPage() {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }

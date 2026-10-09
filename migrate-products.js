@@ -104,11 +104,17 @@ async function migrate() {
     const batchSize = 100;
     for (let i = 0; i < productsToInsert.length; i += batchSize) {
       const batch = productsToInsert.slice(i, i + batchSize);
-      const { data, error } = await supabase.from("products").insert(batch).select("id");
+      const { data, error } = await supabase.from("products").insert(batch.map(({ size_stock, ...product }) => product)).select("id,name");
       if (error) {
         console.error("Supabase insert error:", error);
         process.exitCode = 1;
         return;
+      }
+      const sizeRows = (data ?? []).flatMap((row) => (batch.find((product) => product.name === row.name)?.size_stock ?? [])
+        .map((size) => ({ ...size, product_id: row.id })));
+      if (sizeRows.length) {
+        const { error: stockError } = await supabase.from("product_size_stock").insert(sizeRows);
+        if (stockError) throw new Error("Products inserted but size fixture rows failed; repair these fixtures in isolated staging before testing.");
       }
       console.log(`Inserted batch ${i / batchSize + 1}: ${data?.length ?? 0} rows`);
     }

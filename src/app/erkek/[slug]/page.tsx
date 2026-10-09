@@ -1,3 +1,4 @@
+import { productRouteMetadata } from '@/lib/productMetadata';
 import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
 import ProductListing from "@/components/ProductListing";
 import ProductDetailView from "@/components/ProductDetailView";
@@ -6,6 +7,11 @@ import { getCategoryBySlug } from "@/lib/categories";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
+  return productRouteMetadata('men', slug);
 }
 
 export default async function ErkekSlugPage({ params }: PageProps) {

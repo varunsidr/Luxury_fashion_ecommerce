@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { restoreCart } from "../src/lib/cartStorage";
+import { localProducts } from "../src/lib/localProducts";
 
 const savedItem = { id: "fixture-bag", name: "Fixture Bag", category: "Bags", price: 1000,
   image_url: "/canta-5.jpg", size: null, quantity: 2 };
@@ -239,4 +240,67 @@ test("browser logout redirect uses the request origin and expires the HttpOnly c
   expect(new URL(response.headers().location, response.url()).href).toBe("http://127.0.0.1:3100/admin");
   expect(response.headers()["set-cookie"]).toContain("Max-Age=0");
   expect(response.headers()["set-cookie"]).toContain("HttpOnly");
+});
+
+test("storefront pages expose exactly one top-level main landmark", async ({ page }) => {
+  for (const path of ['/', '/women', '/women/7', '/search?q=blouse', '/favorites', '/checkout', '/orders', '/privacy', '/terms']) {
+    await page.goto(path);
+    await expect(page.getByRole('main')).toHaveCount(1);
+    await expect(page.locator('main main')).toHaveCount(0);
+  }
+});
+
+test("Brown Twist Blouse exposes realistic sizes and honest shipping information", async ({ page }) => {
+  await page.goto('/women/7');
+  await expect(page.getByRole('heading', { name: 'Brown Twist Blouse', exact: true })).toBeVisible();
+  await expect(page.getByTestId('product-detail-size-S')).toBeDisabled();
+  await expect(page.getByTestId('product-detail-size-M')).toBeEnabled();
+  await page.getByTestId('product-detail-size-M').click();
+  for (let count = 0; count < 4; count++) await page.getByTestId('product-detail-quantity-increase').click({ force: true }).catch(() => {});
+  await expect(page.getByTestId('product-detail-quantity-value')).toHaveText('4');
+  await expect(page.getByTestId('product-detail-quantity-increase')).toBeDisabled();
+  await page.getByRole('button', { name: 'Shipping, Exchanges & Returns' }).click();
+  await expect(page.getByText('Shipping, exchanges and returns are not available for demo orders.')).toBeVisible();
+  await expect(page.getByText(/Free standard shipping|Free returns within/)).toHaveCount(0);
+});
+
+test("fully sold-out sized fixture prevents purchase and offers the demo restock form", async ({ page }) => {
+  const fixture = localProducts.find((product) => product.image_url === '/demo-products/womens-dress/05.jpg');
+  if (!fixture) throw new Error('Missing sold-out dress fixture');
+  await page.goto(`/women/${fixture.id}`);
+  for (const size of ['S', 'M', 'L']) await expect(page.getByTestId(`product-detail-size-${size}`)).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Notify me', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Select a size', exact: true })).toBeDisabled();
+});
+
+test("product metadata identifies the product and category across all seven route families", async ({ page }) => {
+  for (const [route, prefix] of [['women', 'Women'], ['men', 'Men'], ['shoes', 'Shoes'], ['bags', 'Bags'], ['accessories', 'Accessories'], ['perfume', 'Perfume'], ['makeup', 'Makeup']]) {
+    const fixture = localProducts.find((product) => product.category.startsWith(prefix));
+    if (!fixture) throw new Error(`Missing ${route} fixture`);
+    await page.goto(`/${route}/${fixture.id}`);
+    await expect(page).toHaveTitle(`${fixture.name} · ${fixture.category} | zeouf`);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', new RegExp(`Explore ${fixture.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', `${fixture.name} · ${fixture.category} | zeouf`);
+  }
+});
+
+test("newsletter states preview limits before submission and sends no subscription request", async ({ page }) => {
+  const writes: string[] = [];
+  page.on('request', (request) => { if (request.method() === 'POST') writes.push(request.url()); });
+  await page.goto('/');
+  await expect(page.getByText('Newsletter preview', { exact: true })).toBeVisible();
+  await expect(page.getByText('Preview only. Your email will not be saved, subscribed or sent.')).toBeVisible();
+  await page.getByRole('textbox', { name: 'Email for newsletter preview' }).fill('fictional@example.invalid');
+  await page.getByTestId('footer-newsletter-submit').click();
+  await expect(page.getByTestId('footer-newsletter-success')).toContainText('not saved or sent');
+  expect(writes).toEqual([]);
+});
+
+test("stock writes require a signed admin cookie and reject invalid data before database access", async ({ request }) => {
+  expect((await request.patch('/api/admin/stock', { data: { productId: '11111111-1111-4111-8111-111111111111', stock: 1 } })).status()).toBe(401);
+  await request.post('/api/admin/login', { data: { username: 'test-admin', password: 'ui-test-admin-key' } });
+  for (const stock of [-1, 1.5, 2147483648]) {
+    expect((await request.patch('/api/admin/stock', { data: { productId: '11111111-1111-4111-8111-111111111111', stock } })).status()).toBe(400);
+  }
+  expect((await request.patch('/api/admin/stock', { data: { productId: '11111111-1111-4111-8111-111111111111', stock: 1 } })).status()).toBe(503);
 });

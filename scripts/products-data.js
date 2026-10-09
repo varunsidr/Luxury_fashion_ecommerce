@@ -317,6 +317,12 @@ const allProducts = rawProducts.map((product) => ({
   tag: product.tag ? toEnglish(product.tag) : product.tag,
 }));
 
+// Representative local fixture; the explicit staging SQL preserves the live UUID.
+Object.assign(allProducts[6], {
+  sizes: ["S", "M", "L"], stock: 9,
+  size_stock: [{ size: "S", stock: 0 }, { size: "M", stock: 4 }, { size: "L", stock: 5 }],
+});
+
 // Original demo catalog: these images are generated for this project and do not
 // change or reuse the existing seeded products or their stock.
 const demoCollections = [
@@ -346,7 +352,11 @@ const demoProducts = demoCollections.flatMap((collection) =>
       image_url: imageUrl,
       images: [imageUrl],
       color_options: [],
-      stock: index % 5 === 4 ? 0 : 6 + ((index * 3) % 13),
+      ...(collection.slug === "womens-dress" && [0, 4].includes(index) ? {
+        sizes: ["S", "M", "L"],
+        size_stock: ["S", "M", "L"].map((size, position) => ({ size, stock: index === 4 || position === 0 ? 0 : position === 1 ? 2 : 4 })),
+      } : {}),
+      stock: collection.slug === "womens-dress" && index === 0 ? 6 : index % 5 === 4 ? 0 : 6 + ((index * 3) % 13),
       tag: index % 5 === 0 ? "New" : index % 7 === 0 ? "Featured" : null,
       brand: "zeouf Atelier",
       description: "A considered demo design from the zeouf Atelier collection, photographed in our warm, minimal studio style.",

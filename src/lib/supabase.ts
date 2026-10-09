@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { localProducts } from "@/lib/localProducts";
 
@@ -33,7 +34,8 @@ interface LocalQuery {
 }
 
 function createLocalQuery(table: string) {
-  let rows: LocalRow[] = table === "products" ? localProducts.map((product) => ({ ...product })) : [];
+  let rows: LocalRow[] = table === "products" ? localProducts.map((product) => ({ ...product }))
+    : table === "product_size_stock" ? localProducts.flatMap((product) => (product.size_stock ?? []).map((row) => ({ ...row, product_id: product.id }))) : [];
 
   const query: LocalQuery = {
     select() {
@@ -117,7 +119,7 @@ export const supabase = isSupabaseConfigured
   : (localSupabase as unknown as SupabaseClient);
 
 // Helper: try to find a product by id or slug with fallbacks for local seed data
-export async function findProductByIdOrSlug(value: string) {
+export const findProductByIdOrSlug = cache(async (value: string) => {
   const normalized = String(value ?? "").toLowerCase().trim();
   
 
@@ -161,4 +163,4 @@ export async function findProductByIdOrSlug(value: string) {
   } catch (e) {
     return null;
   }
-}
+});

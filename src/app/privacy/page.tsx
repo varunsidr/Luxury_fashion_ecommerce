@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-white px-6 pb-24 pt-32">
+    <div className="min-h-screen bg-white px-6 pb-24 pt-32">
       <article className="mx-auto max-w-2xl">
         <p className="mb-4 text-[10px] uppercase tracking-[0.45em] text-neutral-400">Demo information</p>
         <h1 className="mb-8 font-playfair text-4xl font-light text-neutral-900">Privacy notice</h1>
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="mb-2 text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-900">Payments and delivery</h2>
             <p>
-              Checkout simulates card approval or cash on delivery. It does not collect card details, charge money, or arrange shipment. Use fictional contact and address details because submitted demo orders can be stored.
+              Checkout simulates a successful card payment or cash on delivery. It does not collect card details, charge money, arrange shipment, accept returns or provide customer support follow-up. Use fictional contact and address details because submitted demo orders can be stored.
             </p>
           </section>
           <section>
@@ -38,6 +38,6 @@ export default function PrivacyPage() {
         </div>
         <Link href="/" className="mt-12 inline-block text-[10px] uppercase tracking-[0.25em] text-neutral-500 underline underline-offset-4">Back to store</Link>
       </article>
-    </main>
+    </div>
   );
 }
