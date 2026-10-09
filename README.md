@@ -450,6 +450,33 @@ Configure the public Supabase settings and the server-only values required by th
 
 ---
 
+## Shopping assistant
+
+A floating chat widget (bottom-right, all non-admin pages) answers shopping questions using real catalog data.
+
+**Architecture**
+
+- `src/components/ShoppingAssistant.tsx` — client widget mounted in `SiteShell`. Keeps history in memory, sends accumulated messages (plus the browser bag when signed in), renders product cards and an "Add to bag?" confirmation. The API processes the last 12 messages but rejects more than 50 raw entries. Confirming calls the existing `CartContext.addItem`; stale proposal/session feedback has the limits tracked in BRD G-26.
+- `src/app/api/assistant/route.ts` → `src/lib/assistant/handler.ts` — validates the request, applies the shared `isRateLimited` limiter (10 requests/minute/address), verifies the optional Supabase bearer token server-side, then calls `runAssistant`.
+- `src/lib/assistant/chat.ts` — OpenAI Responses API loop (`openai` SDK, `store: false`, max 4 tool rounds, non-streaming). Product cards are built from tool results using `[[product:ID]]` markers; unknown ids are dropped.
+- `src/lib/assistant/tools.ts` — deterministic, validated tools: `searchProducts`, `getProduct`, `getProductAvailability`, `getRelatedProducts`, `getCategories`, `getCart`, `addToCart`, `getStorePolicies`. They read the same `products` / `product_size_stock` tables as the storefront through `catalogStore.ts` (cached 30 s) and reuse `categories.ts` URL helpers. At most 8 products are returned per call; the catalog is never sent to the model.
+- `getCart` needs a verified signed-in customer and uses their browser-supplied cart snapshot; prices come from the cached catalog. `addToCart` returns a proposal and only Confirm calls the cart. Assistant size/stock checks can differ from authoritative checkout and need further alignment (G-26); cached proposals do not reserve inventory.
+- `src/lib/assistant/policies.ts` — demo policy facts aligned with the storefront: no charge, shipment, exchanges, returns or customer support follow-up. The prompt instructs the model to use these facts; generated prose still needs review.
+
+**Local setup**
+
+1. `npm install`, then copy `.env.example` to `.env.local` and set `OPENAI_API_KEY` (and optionally `OPENAI_MODEL`).
+2. `npm run dev` and open the chat button. Without Supabase configured the bundled demo catalog is used.
+3. Tests: `npm run test:assistant` (set `ASSISTANT_TEST_PORT` to change the port). Run sequentially with the other browser suites because they share the isolated compilation cache. They use fake model clients/intercepted chat requests; no real model key or calls are needed.
+
+**Changing the system prompt safely** — edit `src/lib/assistant/prompt.ts`. Keep the FACTS and SAFETY rules (tool-only facts, untrusted catalog text, no checkout, confirmation before cart changes). Add new store facts to `policies.ts`, not the prompt. Re-run `npm run test:assistant` and try a prompt-injection query manually. Do not put secrets or customer data in the prompt.
+
+**Deployment** — set `OPENAI_API_KEY` as a server-only secret (not `NEXT_PUBLIC_*`). Configure `RATE_LIMIT_SECRET` and the Supabase service role so the shared limiter works across instances (production returns 503 if the limiter is unavailable). Behind a proxy, make sure `x-forwarded-for` is set by the trusted proxy. Allow outbound HTTPS to `api.openai.com`.
+
+**Security** — the key stays server-side; tool arguments are validated and ids/prices/stock are re-read from the catalog; catalog text is flagged `untrusted_*`; clients receive generic errors; logs contain only error type/status, never prompts, keys or customer data; React escapes all message text; the assistant has no order, account, checkout or payment tools. Message content is sent to OpenAI, so tell users not to share personal data in chat.
+
+---
+
 ## Environment Variables
 
 | Variable | Required | Description |
@@ -466,6 +493,8 @@ Configure the public Supabase settings and the server-only values required by th
 | `RESTOCK_FROM_EMAIL` | Optional | Verified sender address for Resend restock alerts |
 | `NEXT_PUBLIC_SITE_URL` | For configured site links | Storefront origin used in configured email links; set the deployed URL for hosted environments |
 | `TEST_API_SECRET` | Local test helpers only | Separate secret for `x-test-api-secret`; test helpers are disabled in production |
+| `OPENAI_API_KEY` | For the shopping assistant | Server-only OpenAI key. Without it `/api/assistant` returns 503 and the widget shows an error; never expose or commit it |
+| `OPENAI_MODEL` | Optional | Model used by the assistant (default `gpt-4o-mini`); must support the Responses API and function calling |
 | `DATABASE_URL` | DB check or local seeds | Direct Postgres URL used by read-only `security:check-db` or local seed scripts; not used by the storefront |
 
 ---

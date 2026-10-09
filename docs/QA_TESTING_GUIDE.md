@@ -1,6 +1,6 @@
 # zeouf — QA coverage and test-generation guide
 
-**Baseline:** Working copy over `481a090`, reviewed 10 October 2026: purchase/stock safeguards, sized fixtures, metadata, visible listing counts, main landmarks and demo copy. Exact source inputs and reviewer assertions are recorded in requirements-source-snapshot.json and requirements-reviews.json. This guide accompanies [BRD.md](BRD.md) and [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv). Test designs and reviewer assertions are separate from executed evidence.
+**Baseline:** Merge working copy combining `2059710` purchase/stock fixes with `b431c0d` shopping assistant, reviewed 10 October 2026. Exact merged inputs and reviewer assertions are recorded in requirements-source-snapshot.json and requirements-reviews.json; pre-merge results below are historical scoped evidence. This guide accompanies [BRD.md](BRD.md) and [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv). Test designs and reviewer assertions are separate from executed evidence.
 
 ## 1. Start here
 
@@ -82,6 +82,9 @@ Use fictional identities and addresses. Resolve database UUIDs from created fixt
 | N-SIZESET | Pending alerts for whole product, S, M, alternate color and different email casing | Matching, duplicate, delivery eligibility |
 | IMG-VALID | JPEG/PNG/WebP each ≤2 MiB, including exact 2 MiB | Upload acceptance |
 | IMG-INVALID | Empty or >2 MiB, unsupported MIME, declared type with wrong file signature, misleading extension, fourth file | Upload validation |
+| AST-FAKE | Injected model/client dependencies and four named catalog fixtures, including zero-stock size and instruction-like product text | Assistant tools, safe errors, card IDs, cached prices and denied anonymous cart reads; no real provider call |
+| AST-WIDGET | Intercepted assistant response: first 502, then a held response with literal HTML, catalog card and proposed add | 390px layout, focus/Escape, Enter, typing/duplicate-send guard, retry and no cart change without Confirm |
+| AST-STALE | Sized product with missing/obsolete rows, cached stock, requested unavailable size, and a proposal confirmed after stock/session change | G-26 source limits; separate reproduction and actual confirmation-outcome checks |
 
 Seed scripts may change stock and insert sample orders. Measure final stock/records before testing. Current reset endpoint omits orders, auth users and browser localStorage and ignores delete failures. Do not use it as a guaranteed clean baseline. Never run destructive fixture setup against a shared or production database.
 
@@ -130,6 +133,10 @@ Unless testing missing-key validation or replay, every checkout API case needs a
 | TC-CAT-007-01 | CAT-07 | Given 49 matching products, when listing opens and Load More is clicked twice, then cards and Showing {visible} of 49 products both follow 24/48/49 and the final button is absent; filtering resets visible count to the first batch. | Baseline; automated batching, filter reset remains separate |
 | TC-SEA-002-01 | SEA-02 | Given a product matching both name and category query, when searching different-case text, then it occurs once in results. | Baseline |
 | TC-AUTH-002-01 | AUTH-02 | Given password A and confirmation B, when submitting, then mismatch alert appears and neither helper nor signup runs. Blank confirmation is required; matching values proceed without sending confirmation and clear it after success/tab change. | Baseline; resolved G-01 |
+| TC-AST-001-01 | AST-01–05 | Given fake model/tool/widget fixtures, open chat, search under INR 2000, inspect missing-size/anonymous results, retry failed request and inspect escaped text, product links and proposed Confirm. The automated widget case asserts no cart mutation before Confirm but does not click it or establish a successful signed-in add. | Scoped baseline tests; live model and confirmed-cart end-to-end separate |
+| TC-AST-002-01 | AST-02 | Given injected API deps, validate malformed/empty roles/text, 1,000-character bound, missing configuration, limiter responses and safe provider failure. Add 12/13/50/51 raw-history and 24,000-character body boundaries; only last 12 are validated/processed. | Existing scoped API checks plus unexecuted boundary scenarios |
+| TC-AST-003-01 | AST-03, AST-05 | Given AST-STALE, compare assistant search/availability/proposals with configured size rows and authoritative checkout; test empty/missing/obsolete rows and confirmation after sign-out or inventory changes. Record G-26, not a passing recommendation. | Known source gap; separate reproduction needed |
+| TC-AST-006-01 | AST-06, CNT-03, NFR-07 | Given getStorePolicies all/shipping/returns/payment, returned policy facts state no actual charge/shipment/exchanges/returns/support and contain no free-shipping or 30-day-return promises. Live generated wording requires separate review. | Deterministic policy regression; provider prose unverified |
 | TC-CART-002-01 | CART-02, CART-05 | Given U-A and P-COLOR, when adding M/red twice and L/red once, then two lines exist with quantities 2/1 and correct subtotal. | Baseline |
 | TC-CART-004-01 | CART-04, AUTH-06 | Given U-A's stored cart, when signing out and signing in as U-B in the same browser, then record the current shared cart; separately test the owner-approved account separation target. | Baseline finding plus pending target; G-10 |
 | TC-CART-004-02 | CART-02, CART-04, CART-05 | Given a saved line and mixed invalid rows, when loading and editing quantity then reloading, then valid items/totals persist and invalid rows do not crash rendering. Missing/null color variants merge; invalid JSON recovers with notice. | Baseline recovery; account ownership remains G-10 |
@@ -247,7 +254,7 @@ Record absent features as exclusions or target requirements, never imaginary wor
 
 ### Scoped verification on 10 October 2026
 
-Local runs used the reviewed working copy over 481a090; exact code/config inputs are in the source snapshot/review log. These are suite results, not full requirement acceptance. Existing matrix execution fields remain unchanged; all manual/custom fields for 116 existing rows and all 146 prior history entries were checked against HEAD and preserved. Three new requirements bring the matrix to 119.
+These pre-merge runs used the purchase/stock working copy later committed as 2059710. Its snapshot is retained in that commit and its reviews remain in the combined log. The current snapshot describes the merged code and must not be substituted for the tested pre-merge build. These are historical suite results, not full requirement acceptance or shopping-assistant evidence. At that review all manual/custom fields for 116 existing rows and all 146 prior history entries were preserved; three new requirements brought that branch to 119. The merged matrix also retains the incoming six AST requirements.
 
 | Check | Observed result | Scope / limit |
 |---|---|---|
@@ -261,6 +268,12 @@ Local runs used the reviewed working copy over 481a090; exact code/config inputs
 | test:live | 13 passed during the preceding assessment | Public deployed browsing only; deployed revision unverified and distinct from local working copy |
 
 No live auth/order/stock/review/restock mutation, migration application, mail delivery or multi-session test was performed. G-25 is an inspected source incompatibility, not an executed live database failure. Repeat deployed checks after the new deployment and separately verify matching schema and roles in isolated staging.
+
+### Merged-source verification on 10 October 2026
+
+The merge working copy combines 2059710 and b431c0d, with assistant policies/prompt aligned to the demo restrictions and the assistant test configuration added to review fingerprints. Its exact inputs are captured by the regenerated merged source snapshot. Conflict resolution retained manual fields for all 119 local and 122 incoming rows, producing 125 requirements. Every history/review record from each branch was checked as present in the combined audit arrays; common records are shared, not discarded.
+
+Observed merged checks: docs:check passed; docs:test 13 passed; test:purchase 10 passed; test:assistant 13 passed; test:ui 23 passed; production build passed; lint passed with zero errors and 28 warnings. These are scoped fixture/tool/build results. No current merged catalog or deployed-site suite was rerun, and earlier results above remain historical. No live provider, migration, authenticated database mutation, mail or multi-session test was performed. G-25/G-26 and other retained gaps remain open; no requirement execution field was changed to Passed by this merge review.
 
 ### Documentation regression coverage (OPS-06)
 
@@ -281,6 +294,12 @@ These cases do not cover live Supabase signup/RLS/checkout, copied-token revocat
 ### Isolated purchase SQL regressions (OPS-10)
 
 Run npm run test:purchase after npm ci. scripts/purchase.test.mjs applies base, checkout security, demo catalog and purchase safeguards SQL to PGlite with minimal auth roles/schema, then resets only this in-memory instance between cases. No DATABASE_URL, Supabase account, service key, live reset or network is used. It does not apply the full review/storage/rate-limit hardening stack and must not stand in for those integrations. Ten cases check original-order replay after depletion, changed items/address/method conflicts, customer-scoped keys, rejected size/color combinations, shared-color snapshots, later-line rollback including attempts, missing-row stock edits, obsolete-row totals, denied customer RPC/private-table access and staging fixture UUID preservation. It uses one connection: last-unit competition, simultaneous retries and stock-versus-checkout lock behavior need independent staging sessions. SQL exceptions prove local transaction behavior; they do not by themselves prove HTTP error mappings or live policy state.
+
+### Shopping assistant regressions (AST-01–06, OPS-07)
+
+Run npm run test:assistant sequentially with UI/catalog suites after npm ci and installing Chromium. Its configuration starts an isolated development server, uses the fallback catalog and fake model clients/intercepted widget requests, and writes test-results/assistant. ASSISTANT_TEST_PORT changes the port but does not provide a separate compilation cache, so it is not authorization for parallel browser suites. No provider key, live model, account, database mutation or email is needed.
+
+Thirteen cases cover search/argument validation, untrusted product text, approved card IDs, anonymous versus verified-token browser cart input, proposal-only adds, missing options/stock limits, model fallback/tool-loop termination, API errors, fallback catalog integration, widget focus/Enter/retry/HTML text and category grouping. Policy facts are aligned with the merged demo copy. The widget case does not click Confirm or prove a completed signed-in addition, cross-account chat isolation, live model grounding, provider retention or concurrent rate limiting. G-26 availability/cached-option/confirmation limits remain open. Model text is instructed rather than structurally guaranteed; test generated answers manually in separately configured staging.
 
 ### Deployed-site browsing checks (OPS-08)
 

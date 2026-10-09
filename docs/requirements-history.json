@@ -3023,6 +3023,388 @@
     }
   },
   {
+    "archived_at": "2026-10-06T11:54:27.760Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-01",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Footer newsletter shall require an email-shaped value, then show preview-only/no-save/no-send feedback. There shall be no implied successful real subscription.",
+      "source_codes": "FOOTER, INFO",
+      "qa_focus": "Invalid/valid email, no network subscription/write",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:27.760Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:27.760Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-01",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Every non-admin page shall show a bottom-right floating assistant launcher that opens a non-modal chat panel (Escape closes and returns focus; input focused on open; Enter sends, Shift+Enter inserts a newline; duplicate sends are blocked while a reply is pending). Messages render as escaped text; failures show an error with Retry. Mobile panel shall fit the viewport.",
+      "source_codes": "ASSIST, SHELL",
+      "qa_focus": "Keyboard, 390px viewport, escaped HTML, retry, no admin-page launcher",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:27.760Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall be server-side only (OPENAI_API_KEY never reaches the browser), rate-limited per client address, accept at most 12 recent messages of 1,000 characters ending with a user message, and return safe generic errors (400/413/429/502/503). Without OPENAI_API_KEY it shall return 503.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Invalid shapes, size/rate limits, missing key, error text without secrets",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:27.760Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Product, price, stock, category and policy answers shall come from validated deterministic tools over the existing catalog (searchProducts, getProduct, getProductAvailability, getRelatedProducts, getCategories, getStorePolicies). Tool arguments are validated; catalog text is passed as untrusted; stock is reported only as in/low/out of stock; unknown data shall produce a plain \"cannot find\" answer. Product cards are built from catalog data, never model text.",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Price filter, unknown product, injection text in description, no invented ids",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:27.760Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-04",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "getCart shall work only for a request whose bearer token verifies as a signed-in customer and shall price lines from the current catalog. Unauthenticated requests shall get a sign-in-required result. The assistant has no order, account, checkout or payment tools.",
+      "source_codes": "ASSIST, CART",
+      "qa_focus": "Anonymous vs signed-in, tampered client prices, no order lookup",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:27.760Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-05",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "addToCart shall only propose an action after explicit user intent, a verified session, and server validation of product, size, color and quantity (1-10) against stock. The cart changes only after the shopper presses Confirm, which uses the existing CartContext addItem (including its sign-in prompt).",
+      "source_codes": "ASSIST, CART",
+      "qa_focus": "Intent absent, missing size, stock limit, confirm vs ignore",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:27.760Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-06",
+      "module": "Shopping assistant",
+      "priority": "P2",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Store-policy answers shall use only published facts (free standard shipping, free 30-day returns for unworn tagged items, demo card/cash-on-delivery payment); no delivery dates, discounts or order status are available (G-22 content alignment applies).",
+      "source_codes": "ASSIST",
+      "qa_focus": "Policy topics, unknown-topic fallback",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:34.486Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:34.639Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:assistant runs the assistant tool/API/widget suite with a fake model on port 3100 (override with ASSISTANT_TEST_PORT). npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:34.639Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-01",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Every non-admin page shall show a bottom-right floating assistant launcher that opens a non-modal chat panel (Escape closes and returns focus; input focused on open; Enter sends, Shift+Enter inserts a newline; duplicate sends are blocked while a reply is pending). Messages render as escaped text; failures show an error with Retry. Mobile panel shall fit the viewport.",
+      "source_codes": "ASSIST, SHELL",
+      "qa_focus": "Keyboard, 390px viewport, escaped HTML, retry, no admin-page launcher",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:34.639Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall be server-side only (OPENAI_API_KEY never reaches the browser), rate-limited per client address, accept at most 12 recent messages of 1,000 characters ending with a user message, and return safe generic errors (400/413/429/502/503). Without OPENAI_API_KEY it shall return 503.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Invalid shapes, size/rate limits, missing key, error text without secrets",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:34.639Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Product, price, stock, category and policy answers shall come from validated deterministic tools over the existing catalog (searchProducts, getProduct, getProductAvailability, getRelatedProducts, getCategories, getStorePolicies). Tool arguments are validated; catalog text is passed as untrusted; stock is reported only as in/low/out of stock; unknown data shall produce a plain \"cannot find\" answer. Product cards are built from catalog data, never model text.",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Price filter, unknown product, injection text in description, no invented ids",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:34.639Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-04",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "getCart shall work only for a request whose bearer token verifies as a signed-in customer and shall price lines from the current catalog. Unauthenticated requests shall get a sign-in-required result. The assistant has no order, account, checkout or payment tools.",
+      "source_codes": "ASSIST, CART",
+      "qa_focus": "Anonymous vs signed-in, tampered client prices, no order lookup",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:34.639Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-05",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "addToCart shall only propose an action after explicit user intent, a verified session, and server validation of product, size, color and quantity (1-10) against stock. The cart changes only after the shopper presses Confirm, which uses the existing CartContext addItem (including its sign-in prompt).",
+      "source_codes": "ASSIST, CART",
+      "qa_focus": "Intent absent, missing size, stock limit, confirm vs ignore",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:54:34.639Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-06",
+      "module": "Shopping assistant",
+      "priority": "P2",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Store-policy answers shall use only published facts (free standard shipping, free 30-day returns for unworn tagged items, demo card/cash-on-delivery payment); no delivery dates, discounts or order status are available (G-22 content alignment applies).",
+      "source_codes": "ASSIST",
+      "qa_focus": "Policy topics, unknown-topic fallback",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:56:26.012Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-01",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Every non-admin page shall show a bottom-right floating assistant launcher that opens a non-modal chat panel (Escape closes and returns focus; input focused on open; Enter sends, Shift+Enter inserts a newline; duplicate sends are blocked while a reply is pending). Messages render as escaped text; failures show an error with Retry. Mobile panel shall fit the viewport.",
+      "source_codes": "ASSIST, SHELL",
+      "qa_focus": "Keyboard, 390px viewport, escaped HTML, retry, no admin-page launcher",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:56:26.012Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall be server-side only (OPENAI_API_KEY never reaches the browser), rate-limited per client address, accept at most 12 recent messages of 1,000 characters ending with a user message, and return safe generic errors (400/413/429/502/503). Without OPENAI_API_KEY it shall return 503.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Invalid shapes, size/rate limits, missing key, error text without secrets",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-06T11:56:26.012Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Product, price, stock, category and policy answers shall come from validated deterministic tools over the existing catalog (searchProducts, getProduct, getProductAvailability, getRelatedProducts, getCategories, getStorePolicies). Tool arguments are validated; catalog text is passed as untrusted; stock is reported only as in/low/out of stock; unknown data shall produce a plain \"cannot find\" answer. Product cards are built from catalog data, never model text.",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Price filter, unknown product, injection text in description, no invented ids",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
     "archived_at": "2026-10-09T19:26:22.024Z",
     "reason": "requirement_changed",
     "changed_fields": [
@@ -4190,6 +4572,697 @@
       "source_codes": "PURCHASETEST, UITEST",
       "qa_focus": "Reproducible migrations, 10 scoped cases, no live cleanup/mutation, single-connection limitations, CI command",
       "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:38:44.168Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:38:44.168Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall be server-side only (OPENAI_API_KEY never reaches the browser), rate-limited per client address, accept at most 12 recent messages of 1,000 characters ending with a user message, and return safe generic errors (400/413/429/502/503). Without OPENAI_API_KEY it shall return 503.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Invalid shapes, size/rate limits, missing key, error text without secrets",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:38:44.168Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Product, price, stock, category and policy answers shall come from validated deterministic tools over the existing catalog (searchProducts, getProduct, getProductAvailability, getRelatedProducts, getCategories, getStorePolicies). Tool arguments are validated; catalog text is passed as untrusted; stock is reported only as in/low/out of stock; unknown data shall produce a plain \"cannot find\" answer. Product cards are built from catalog data, never model text.",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Price filter, unknown product, injection text in description, no invented ids",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:38:44.168Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "AST-04",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "getCart shall work only for a request whose bearer token verifies as a signed-in customer and shall price lines from the current catalog. Unauthenticated requests shall get a sign-in-required result. The assistant has no order, account, checkout or payment tools.",
+      "source_codes": "ASSIST, CART",
+      "qa_focus": "Anonymous vs signed-in, tampered client prices, no order lookup",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:38:44.168Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "AST-05",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "addToCart shall only propose an action after explicit user intent, a verified session, and server validation of product, size, color and quantity (1-10) against stock. The cart changes only after the shopper presses Confirm, which uses the existing CartContext addItem (including its sign-in prompt).",
+      "source_codes": "ASSIST, CART",
+      "qa_focus": "Intent absent, missing size, stock limit, confirm vs ignore",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:38:44.168Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AST-06",
+      "module": "Shopping assistant",
+      "priority": "P2",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Store-policy answers shall use only published facts (free standard shipping, free 30-day returns for unworn tagged items, demo card/cash-on-delivery payment); no delivery dates, discounts or order status are available (G-22 content alignment applies).",
+      "source_codes": "ASSIST",
+      "qa_focus": "Policy topics, unknown-topic fallback",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:38:44.168Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NFR-08",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Admin login, checkout, review creation/upload and restock subscription shall use one atomic production database rate-limit counter across instances; missing shared configuration/RPC fails closed with 503 on those routes. Keys are HMAC-hashed, and the ingress proxy must append or overwrite x-forwarded-for. Nonproduction may use a process-local fallback.",
+      "source_codes": "RATELIMIT, SECURITYMIG, ADMINLOGIN, CHECKOUT, RESTOCK, REVIEWSAPI, REVIEWUPLOAD",
+      "qa_focus": "Multi-instance limits, 429 boundary, 503 unavailable, proxy-spoof test, account upload quota",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:05.453Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review is required to approve source changes and shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Home/checkout/privacy/terms/footer/history/detail shall explain demo limits and stored demo data. Detail shipping and confirmation copy shall promise no actual charge, shipment, returns or support follow-up; confirmation also states no email. Fictional contact details are requested. Attribution/license inconsistency remains G-22.",
+      "source_codes": "HOME, INFO, FOOTER, HISTORY, DETAIL, CHECKOUTUI",
+      "qa_focus": "Content consistency, no fulfillment/support promises, fictional data guidance, remaining attribution gap",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. All four browser configurations, including playwright.assistant.config.ts, require source review. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, assistant config coverage, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:assistant runs the assistant tool/API/widget suite with a fake model on port 3100 (override with ASSISTANT_TEST_PORT). npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-01",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Every non-admin page shall show a bottom-right floating assistant launcher that opens a non-modal chat panel (Escape closes and returns focus; input focused on open; Enter sends, Shift+Enter inserts a newline; duplicate sends are blocked while a reply is pending). Messages render as escaped text; failures show an error with Retry. Mobile panel shall fit the viewport.",
+      "source_codes": "ASSIST, SHELL",
+      "qa_focus": "Keyboard, 390px viewport, escaped HTML, retry, no admin-page launcher",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall keep OPENAI_API_KEY server-side and limit each address to 10 requests/minute. It accepts 1–50 messages, validates/processes only the last 12, each trimmed to nonblank text of at most 1,000 characters with user/assistant roles and a final user message. Raw body length above 24,000 JavaScript characters gives 413, not a measured byte limit. Missing key/shared production limiter gives 503; invalid input 400, rate limit 429, model failure 502.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Shape/history/body boundaries, missing key, safe errors, production limiter, unvalidated discarded history",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Tools shall read the existing catalog for search/detail/availability/related/category/policy facts, validate arguments and label authored text untrusted. Results return at most eight products per search/related call, with up to three catalog-derived cards; invented card IDs are dropped. Prompt instructs tool-grounded text but does not enforce model prose correctness. Catalog cache lasts 30 seconds and availability can use stale/overall size stock (G-26); low stock means 1–5 here, distinct from admin 1–4.",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Price/category filters, unknown product/ID, untrusted text, model prose limits, cache/missing/obsolete size rows",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-04",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "getCart shall require a verified customer bearer token, accept up to 30 valid browser-supplied lines and price them from the cached catalog. Anonymous/invalid-token requests receive sign-in-required tool output. It does not retrieve an account-owned database cart; browser cart remains shared across accounts (G-10). The assistant has no order, account, checkout or payment tools.",
+      "source_codes": "ASSIST, CART",
+      "qa_focus": "Anonymous/customer token, client price tampering, browser snapshot ownership, removed products, account switch",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-05",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "addToCart shall propose, without mutating, after a verified session, model intent flag and matching keyword heuristic. It checks product, listed options and quantity 1–10 against cached stock; Confirm calls CartContext.addItem. Stock rows can override configured sizes or fall back to overall stock; stale confirmation is not revalidated, and the UI marks Sent to your bag even if sign-out triggers a sign-in prompt (G-26). Checkout independently enforces current authoritative options/stock.",
+      "source_codes": "ASSIST, CART, PURCHASEMIG",
+      "qa_focus": "Intent heuristic, missing size/color, stock limits, confirm/ignore, sign-out/stale proposal, checkout denial",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-06",
+      "module": "Shopping assistant",
+      "priority": "P2",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Store-policy tool and prompt shall match portfolio-demo copy: no charges, shipment/delivery, shipping services, exchanges, returns or support follow-up. Demo card and simulated cash on delivery are available; fictional contact details are requested. No free shipping/30-day return promises, delivery dates, discounts or order lookup are provided.",
+      "source_codes": "ASSIST, INFO, DETAIL, CHECKOUTUI",
+      "qa_focus": "Shipping/returns/payment topics, no commercial promises, unknown-topic fallback, generated prose manual review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Purchase migration denies anon/customer access to attempts and purchase/stock RPC execution; API identities are verified. Live grants/policies and remaining admin product/reply writes must be verified or scoped as blockers; current inspector has G-25.",
+      "source_codes": "SCHEMA, REVIEWMIG, SECURITYMIG, CHECKOUTSEC, PURCHASEMIG, ADMINAPIS",
+      "qa_focus": "Cross-user reads/writes/replays, private attempts, RPC denial, moderation tampering, fake admin flag, applied policy",
+      "known_gap_ids": "G-04; G-24; G-25",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-02",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Service-role, per-admin password hashes, signing/rate-limit secrets, mail and test secrets stay server-side; QA utilities stay blocked in production. Production admin sessions use a separate signing secret and secure cookie attributes. Live environment/secret provisioning and MFA are unverified.",
+      "source_codes": "ADMINAUTH, ADMINLOGIN, TESTAPI, DEVUSER, CHECKOUT",
+      "qa_focus": "Client bundle/network/log exposure, production guards, secret separation/rotation, MFA gap",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-05",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "T",
+      "requirement_and_acceptance": "Proposed accessibility target is WCAG 2.2 AA; assess keyboard operation, meaningful labels, focus placement/trapping/restoration, contrast, announcements and reduced motion. Storefront shell supplies one main landmark, with listing/detail/search/favorites/checkout/history/privacy using div containers to avoid nested main elements; newsletter has an explicit field label/description. Scoped landmark/label checks do not prove conformance.",
+      "source_codes": "NAV, DETAIL, HOME, LIST, SHELL, SEARCH, FAVORITESPAGE, CHECKOUTUI, HISTORY, INFO, FOOTER",
+      "qa_focus": "One nonnested main on public routes, labelled preview field, keyboard/screen-reader audits, modal focus, hidden controls",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; detail/footer/checkout/history copy explicitly denies fulfillment/support and newsletter delivery. Analytics population/settings health and restock concurrency remain gaps. Purchase/stock safety uses transactional locks but requires live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG",
+      "qa_focus": "Content, metric definitions, concurrency/replay, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:41:06.044Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-08",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Admin login, checkout, review creation/upload, restock subscription and shopping assistant shall use one atomic production database rate-limit counter across instances; missing shared configuration/RPC fails closed with 503. Assistant allows 10 requests/address/minute. Keys are HMAC-hashed, and the ingress proxy must append or overwrite x-forwarded-for. Nonproduction may use a process-local fallback.",
+      "source_codes": "RATELIMIT, SECURITYMIG, ADMINLOGIN, CHECKOUT, RESTOCK, REVIEWSAPI, REVIEWUPLOAD, ASSIST",
+      "qa_focus": "Multi-instance limits, assistant limit, 429 boundary, 503 unavailable, proxy-spoof test, account upload quota",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-06",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Requirements CI shall run the checked-in synchronization regression tests. Build and lint shall reject stale derived documentation, unreviewed tracked website source, or a mismatched review snapshot/log. All four browser configurations, including playwright.assistant.config.ts, require source review. Synchronization preserves manual fields and archives changed/retired rows; affected executed results become Needs retest. An explicit descriptive review shall never mark tests Passed.",
+      "source_codes": "REQTOOLS",
+      "qa_focus": "Missing snapshot, source drift, assistant config coverage, CSV manual evidence, retired IDs, repeated sync, review assertions",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:assistant runs the assistant tool/API/widget suite with a fake model on port 3100 (override with ASSISTANT_TEST_PORT). npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-10",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:purchase shall execute the checked-in purchase migration on an isolated in-memory PostgreSQL instance using PGlite, testing snapshots, replay, option validation, rollback, stock totals, denied customer grants and staging fixtures. Browser CI shall run it before sequential UI/catalog suites. It uses one connection and no live URL; it does not prove multi-session concurrency or live Supabase configuration.",
+      "source_codes": "PURCHASETEST, UITEST",
+      "qa_focus": "Reproducible migrations, 10 scoped cases, no live cleanup/mutation, single-connection limitations, CI command",
+      "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-01",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Every non-admin page shall show a bottom-right floating assistant launcher that opens a non-modal chat panel (Escape closes and returns focus; input focused on open; Enter sends, Shift+Enter inserts a newline; duplicate sends are blocked while a reply is pending). Messages render as escaped text; failures show an error with Retry. Mobile panel shall fit the viewport.",
+      "source_codes": "ASSIST, SHELL",
+      "qa_focus": "Keyboard, 390px viewport, escaped HTML, retry, no admin-page launcher",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall keep OPENAI_API_KEY server-side and limit each address to 10 requests/minute. It accepts 1–50 messages, validates/processes only the last 12, each trimmed to nonblank text of at most 1,000 characters with user/assistant roles and a final user message. Raw body length above 24,000 JavaScript characters gives 413, not a measured byte limit. Missing key/shared production limiter gives 503; invalid input 400, rate limit 429, model failure 502.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Shape/history/body boundaries, missing key, safe errors, production limiter, unvalidated discarded history",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Tools shall read the existing catalog for search/detail/availability/related/category/policy facts, validate arguments and label authored text untrusted. Results return at most eight products per search/related call, with up to three catalog-derived cards; invented card IDs are dropped. Prompt instructs tool-grounded text but does not enforce model prose correctness. Catalog cache lasts 30 seconds and availability can use stale/overall size stock (G-26); low stock means 1–5 here, distinct from admin 1–4.",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Price/category filters, unknown product/ID, untrusted text, model prose limits, cache/missing/obsolete size rows",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-04",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "getCart shall require a verified customer bearer token, accept up to 30 valid browser-supplied lines and price them from the cached catalog. Anonymous/invalid-token requests receive sign-in-required tool output. It does not retrieve an account-owned database cart; browser cart remains shared across accounts (G-10). The assistant has no order, account, checkout or payment tools.",
+      "source_codes": "ASSIST, CART",
+      "qa_focus": "Anonymous/customer token, client price tampering, browser snapshot ownership, removed products, account switch",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-05",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "addToCart shall propose, without mutating, after a verified session, model intent flag and matching keyword heuristic. It checks product, listed options and quantity 1–10 against cached stock; Confirm calls CartContext.addItem. Stock rows can override configured sizes or fall back to overall stock; stale confirmation is not revalidated, and the UI marks Sent to your bag even if sign-out triggers a sign-in prompt (G-26). Checkout independently enforces current authoritative options/stock.",
+      "source_codes": "ASSIST, CART, PURCHASEMIG",
+      "qa_focus": "Intent heuristic, missing size/color, stock limits, confirm/ignore, sign-out/stale proposal, checkout denial",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-06",
+      "module": "Shopping assistant",
+      "priority": "P2",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Store-policy tool and prompt shall match portfolio-demo copy: no charges, shipment/delivery, shipping services, exchanges, returns or support follow-up. Demo card and simulated cash on delivery are available; fictional contact details are requested. No free shipping/30-day return promises, delivery dates, discounts or order lookup are provided.",
+      "source_codes": "ASSIST, INFO, DETAIL, CHECKOUTUI",
+      "qa_focus": "Shipping/returns/payment topics, no commercial promises, unknown-topic fallback, generated prose manual review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-09T19:43:31.041Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; detail/footer/checkout/history copy explicitly denies fulfillment/support and newsletter delivery. Analytics population/settings health and restock concurrency remain gaps. Purchase/stock safety uses transactional locks but requires live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG",
+      "qa_focus": "Content, metric definitions, concurrency/replay, retained limits",
+      "known_gap_ids": "G-24",
       "test_case_ids": "",
       "execution_status": "Not executed",
       "defect_ids": "",
