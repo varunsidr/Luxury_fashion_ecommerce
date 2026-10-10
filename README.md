@@ -205,8 +205,9 @@ Apply these SQL files in order in a dedicated Supabase demo project:
 5. [supabase_demo_catalog_migration.sql](supabase_demo_catalog_migration.sql) — size inventory, color/order option fields, private restock requests, and the current size-aware checkout transaction. Do not reapply step 4 afterward.
 6. [supabase_security_hardening_migration.sql](supabase_security_hardening_migration.sql) — restrict public reviews, remove direct review writes, create a private `review-images` bucket, and install the shared rate limiter. New uploads return private object paths; the admin moderation page uses short-lived signed URLs. Previously uploaded files in the old public bucket remain public until migrated or removed separately.
 7. [supabase_purchase_safeguards_migration.sql](supabase_purchase_safeguards_migration.sql) — install customer-scoped checkout replay protection, enforce size/color choices and update stock atomically. This removes the old four-argument checkout RPC and installs the five-argument version required by the current app, plus `set_product_stock`. Apply in isolated staging first and deploy the matching app/schema together; do not reapply older checkout definitions afterward.
+8. [supabase_admin_catalog_migration.sql](supabase_admin_catalog_migration.sql) - protected catalog save RPC, atomic size-row synchronization, future-write price/stock checks, and restrictive browser catalog/product-image write guards. Apply after purchase safeguards in isolated staging, then deploy the matching admin app. Product images use a public 2 MiB JPEG/PNG/WebP bucket; uploads require a verified server admin session. Existing invalid rows are retained for explicit repair.
 
-The read-only `npm run security:check-db` inspector still references the removed checkout signature and cannot complete after step 7 (BRD G-25). It must be updated before it can verify this schema. Separately verify current function definitions/grants, private checkout-attempt permissions and multi-session stock/replay behavior in staging; local tests do not prove live migration state.
+The read-only `npm run security:check-db` inspector now recognizes the five-argument checkout RPC, stock/catalog RPCs and private checkout attempts; it checks browser catalog writes, product-image guards and legacy invalid product values. Configure DATABASE_URL explicitly for an isolated staging database after all migrations. The catalog queries have isolated PostgreSQL regression coverage, but no full live Supabase inspector run or multi-session stock/replay test has been performed. Earlier checker results are historical (BRD G-25).
 
 Policies and schema do not resolve all current moderation/admin-write gaps; consult the BRD before treating the demo as a production store.
 
@@ -337,7 +338,7 @@ npm run docs:check
 
 Each browser suite launches its own localhost:3100 server with live Supabase/mail disabled and a separate `.next-browser-tests` cache. Run them sequentially. The catalog suite intercepts a reserved `.invalid` fixture domain to exercise configured-client loading, timeout, fallback, and retry states without a live database. See [docs/QA_TESTING_GUIDE.md](docs/QA_TESTING_GUIDE.md) for fixtures, coverage, and remaining manual checks.
 
-`test:purchase` runs ten migration/transaction regressions using in-memory PostgreSQL (PGlite), including replay, option validation, rollback, stock totals and denied customer permissions. It uses one connection and does not prove live Supabase integration or multi-session concurrency. Browser CI runs it before the UI/catalog suites.
+`test:purchase` runs 19 isolated PostgreSQL (PGlite) regressions covering checkout replay/options/rollback, atomic admin catalog saves and size rows, metadata edits after depletion, browser write/legacy storage-policy denial, preserved order history, migration reapply and inspector permission regressions. Minimal auth/storage fixtures do not establish real Supabase storage/auth or live multi-session safety. CI runs it before UI/catalog suites.
 
 ### Test the deployed site
 
@@ -449,6 +450,16 @@ You can deploy directly using the Vercel CLI, or by connecting your GitHub repo 
 Configure the public Supabase settings and the server-only values required by the enabled features under **Settings → Environment Variables**. Checkout/private admin APIs and the shared limiter need `SUPABASE_SERVICE_ROLE_KEY`; production admin login needs `ADMIN_CREDENTIALS` and `ADMIN_SESSION_SECRET`. The limiter needs `RATE_LIMIT_SECRET` and the hardening migration. Missing production limiter settings return 503 for admin login, checkout, review creation/upload and restock subscription. Keep test helpers disabled in production and mail settings optional.
 
 ---
+
+## Admin catalog and dashboard
+
+Admin product reads, saves, deletes and uploads use cookie-protected server routes under /api/admin/products and the server service role. Mutations reject cross-site requests, share a production limiter (60 catalog writes/admin/minute; 10 uploads/admin/minute), validate prices/options/image URLs and return safe errors. The browser public client no longer writes the catalog or uploads product images.
+
+Apply supabase_admin_catalog_migration.sql after purchase safeguards before using the updated admin. Atomic saves retain existing size quantities, initialize new sizes at zero, remove retired rows and recompute totals. Existing stock changes go through Stock Management; saving stale metadata cannot restore depleted stock. Removing all sizes starts overall stock at zero. Failed saves preserve the form for Retry. Product image URLs may be local root paths or HTTPS on the configured Supabase origin; upload JPEG/PNG/WebP files up to 2 MiB. Uploaded/removed/abandoned media is not garbage-collected.
+
+Dashboard improvements include working Add a product, refresh/data-failure feedback, unsized low-stock counts, a pending-order queue shortcut and active demo order value. Cancelled orders are excluded from order value/average/top-unit metrics; only approved reviews contribute to the rating metric. These are demo values, with no real payment collection. Review-reply workflows, lifecycle/cancellation stock rules and live integration/concurrency QA remain separate gaps.
+
+Run npm run test:ui for storefront plus admin API/dashboard/form tests, then other browser suites sequentially. Admin tests intercept fictional data and use fixture cookies/dependencies; they do not perform live catalog or storage writes.
 
 ## Shopping assistant
 

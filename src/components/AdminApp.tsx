@@ -30,6 +30,7 @@ interface Product {
   description: string;
   sizes: string[];
   created_at: string;
+  product_size_stock?: SizeStock[];
 }
 
 interface SizeStock {
@@ -48,6 +49,7 @@ interface Review {
   created_at: string;
   admin_reply: string | null;
   replied_at: string | null;
+  approved?: boolean;
 }
 
 interface Profile {
@@ -87,6 +89,9 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   const [page, setPage] = useState<Page>(initialPage ?? "dashboard");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [productsError, setProductsError] = useState("");
+  const [mutationError, setMutationError] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -117,6 +122,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   // Orders
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderSearch, setOrderSearch] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("all");
@@ -127,13 +133,12 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
 
   useEffect(() => {
     fetchProducts();
-    fetchAllSizeStocks();
     fetchOrders();
   }, []);
 
   useEffect(() => {
     if (page === "reviews") fetchReviews();
-    if (page === "stock") fetchAllSizeStocks();
+    if (page === "stock") fetchProducts();
     if (page === "users") fetchProfiles();
     if (page === "orders") fetchOrders();
     if (page === "analytics") {
@@ -144,16 +149,18 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
 
   async function fetchProducts() {
     setLoading(true);
-    const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
-    setProducts(data ?? []);
-    setLoading(false);
-  }
-
-  async function fetchAllSizeStocks() {
     setStockLoading(true);
-    const { data } = await supabase.from("product_size_stock").select("*");
-    setSizeStocks(data ?? []);
-    setStockLoading(false);
+    setProductsError("");
+    try {
+      const response = await fetch("/api/admin/products", { cache: "no-store" });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? "Could not load the catalog.");
+      const rows: Product[] = result.products ?? [];
+      setProducts(rows);
+      setSizeStocks(rows.flatMap(product => product.product_size_stock ?? []));
+    } catch (error) {
+      setProductsError(error instanceof Error ? error.message : "Could not load the catalog.");
+    } finally { setLoading(false); setStockLoading(false); }
   }
 
   async function fetchReviews() {
@@ -184,10 +191,14 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
 
   async function fetchOrders() {
     setOrdersLoading(true);
-    const response = await fetch("/api/admin/orders");
-    const result = await response.json().catch(() => ({}));
-    setOrders(response.ok ? result.orders ?? [] : []);
-    setOrdersLoading(false);
+    setOrdersError("");
+    try {
+      const response = await fetch("/api/admin/orders", { cache: "no-store" });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? "Could not load orders.");
+      setOrders(result.orders ?? []);
+    } catch { setOrdersError("Could not load orders. Please retry."); }
+    finally { setOrdersLoading(false); }
   }
 
   async function updateOrderStatus(orderId: string, status: string) {
@@ -201,7 +212,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
       setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status } : o));
       if (selectedOrder && selectedOrder.id === orderId) setSelectedOrder((s) => s ? { ...s, status } : s);
     } catch (err) {
-      console.error('Failed updating order status', err);
+      setOrdersError(err instanceof Error ? err.message : "Could not update order status.");
     }
   }
 
@@ -228,6 +239,8 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   });
 
   function openAdd() {
+    setMutationError("");
+    setPage("products");
     setForm(emptyForm);
     setImageInput("");
     setEditId(null);
@@ -235,6 +248,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   }
 
   function openEdit(p: Product) {
+    setMutationError("");
     setForm({
       name: p.name, category: p.category, price: String(p.price),
       stock: String(p.stock ?? 0), description: p.description ?? "",
@@ -255,6 +269,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   }
 
   function addImageUrl() {
+    if (form.images.length >= 12) { setMutationError("A product can have at most 12 images."); return; }
     const url = imageInput.trim();
     if (!url) return;
     setForm((f) => ({ ...f, image_url: f.image_url || url, images: [...f.images, url] }));
@@ -271,54 +286,64 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const fileName = `${Date.now()}.${file.name.split(".").pop()}`;
-    const { data, error } = await supabase.storage.from("product-images").upload(fileName, file);
-    if (error || !data) return;
-    const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(fileName);
-    const url = urlData.publicUrl;
-    setForm((f) => ({ ...f, image_url: f.image_url || url, images: [...f.images, url] }));
+    if (form.images.length >= 12) { setMutationError("A product can have at most 12 images."); return; }
+    setUploading(true);
+    setMutationError("");
+    try {
+      const body = new FormData(); body.append("image", file);
+      const response = await fetch("/api/admin/products/upload", { method: "POST", body });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? "Could not upload image.");
+      setForm(f => ({ ...f, image_url: f.image_url || result.url, images: [...f.images, result.url] }));
+    } catch (error) { setMutationError(error instanceof Error ? error.message : "Image upload failed."); }
+    finally { setUploading(false); if (fileInputRef.current) fileInputRef.current.value = ""; }
   }
 
   async function saveProduct() {
     if (!form.name || !form.price) return;
     setSaving(true);
+    setMutationError("");
     const payload = {
       name: form.name, category: form.category,
-      price: parseFloat(form.price), stock: parseInt(form.stock) || 0,
+      price: Number(form.price), stock: form.sizes.length ? 0 : Number(form.stock || 0),
       description: form.description, sizes: form.sizes,
       image_url: form.image_url, images: form.images,
     };
-    if (editId) {
-      await supabase.from("products").update(payload).eq("id", editId);
-    } else {
-      const { data: newProduct } = await supabase.from("products").insert(payload).select().single();
-      if (newProduct && form.sizes.length > 0) {
-        await supabase.from("product_size_stock").insert(
-          form.sizes.map((size) => ({ product_id: newProduct.id, size, stock: 0 }))
-        );
-      }
-    }
-    setSaving(false);
-    closeForm();
-    fetchProducts();
+    try {
+      const response = await fetch(editId ? `/api/admin/products/${editId}` : "/api/admin/products", {
+        method: editId ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? "Could not save product.");
+      closeForm(); await fetchProducts();
+    } catch (error) { setMutationError(error instanceof Error ? error.message : "Could not save product."); }
+    finally { setSaving(false); }
   }
 
   async function deleteProduct(id: string) {
     if (!confirm("Are you sure you want to delete this product?")) return;
-    await supabase.from("products").delete().eq("id", id);
-    fetchProducts();
+    setMutationError("");
+    try {
+      const response = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? "Could not delete product.");
+      await fetchProducts();
+    } catch (error) { setMutationError(error instanceof Error ? error.message : "Could not delete product."); }
   }
 
-  async function updateSizeStock(productId: string, size: string, stock: number) {
-    if (stock < 0) return;
+  async function updateSizeStock(productId: string, size: string | null, stock: number) {
+    if (!Number.isInteger(stock) || stock < 0 || stock > 2147483647) { setMutationError("Stock must be a nonnegative whole number."); return; }
+    setMutationError("");
+    try {
     const existing = sizeStocks.find((s) => s.product_id === productId && s.size === size);
     const response = await fetch("/api/admin/stock", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId, size, stock }) });
-    if (!response.ok) return;
     const result = await response.json();
-    if (existing) setSizeStocks((prev) => prev.map((s) => s.id === existing.id ? { ...s, stock } : s));
-    else setSizeStocks((prev) => [...prev, { id: `${productId}-${size}`, product_id: productId, size, stock }]);
+    if (!response.ok) throw new Error(result.error ?? "Could not update stock.");
+    if (size && existing) setSizeStocks((prev) => prev.map((s) => s.id === existing.id ? { ...s, stock } : s));
+    else if (size) setSizeStocks((prev) => [...prev, { id: `${productId}-${size}`, product_id: productId, size, stock }]);
     setProducts((previous) => previous.map((product) => product.id === productId ? { ...product, stock: result.stock } : product));
-    if (stock > 0) await notifyRestockRequests(productId, size);
+    if (stock > 0) await notifyRestockRequests(productId, size ?? undefined);
+    } catch (error) { setMutationError(error instanceof Error ? error.message : "Could not update stock."); }
   }
 
   async function notifyRestockRequests(productId: string, size?: string) {
@@ -370,13 +395,15 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
       : (p.stock ?? 0) === 0
   ).length;
   const lowStock = products.filter((p) =>
-    (p.sizes ?? []).some((size) => {
+    !(p.sizes ?? []).length ? (p.stock ?? 0) > 0 && (p.stock ?? 0) < 5 : (p.sizes ?? []).some((size) => {
       const s = getSizeStock(p.id, size);
       return s > 0 && s < 5;
     })
   ).length;
 
-  const analyticsRevenue = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+  const activeOrders = orders.filter(order => order.status !== "cancelled");
+  const analyticsRevenue = activeOrders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+  const approvedReviews = reviews.filter(review => review.approved === true);
   const orderStatusCounts = ["pending", "processing", "shipped", "delivered", "cancelled"].map((status) => ({
     status,
     count: orders.filter((order) => order.status === status).length,
@@ -384,7 +411,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   const topProducts = products
     .map((product) => ({
       product,
-      units: orders.flatMap((order) => order.order_items ?? []).filter((item) => item.product_id === product.id).reduce((sum, item) => sum + Number(item.quantity || 0), 0),
+      units: activeOrders.flatMap((order) => order.order_items ?? []).filter((item) => item.product_id === product.id).reduce((sum, item) => sum + Number(item.quantity || 0), 0),
     }))
     .filter((entry) => entry.units > 0)
     .sort((a, b) => b.units - a.units)
@@ -444,6 +471,10 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
 
       {/* Main */}
       <main className="flex-1 overflow-y-auto">
+        {(productsError || ordersError || mutationError) && <div role="alert" className="m-6 border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          {productsError && <p>{productsError}</p>}{ordersError && <p>{ordersError}</p>}{mutationError && <p>{mutationError}</p>}
+          {(productsError || ordersError) && <button className="mt-2 underline" onClick={() => { void fetchProducts(); void fetchOrders(); }}>Retry loading data</button>}
+        </div>}
         {/* Dashboard */}
         {page === "dashboard" && (
           <div className="mx-auto max-w-[1440px] p-6 sm:p-8 xl:p-10">
@@ -453,7 +484,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                 <h1 className="font-playfair text-[32px] font-normal text-neutral-900">Good day.</h1>
                 <p className="mt-2 text-[13px] text-neutral-500">Here&apos;s what&apos;s happening with your store.</p>
               </div>
-              <button onClick={openAdd} className="inline-flex items-center gap-2 bg-neutral-900 px-5 py-3 text-[10px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-700"><Plus size={14} /> Add a product</button>
+              <div className="flex flex-wrap gap-3"><button disabled={loading || ordersLoading} onClick={() => { void fetchProducts(); void fetchOrders(); }} className="border border-neutral-300 px-4 py-3 text-xs disabled:opacity-50">Refresh dashboard</button><button onClick={openAdd} className="inline-flex items-center gap-2 bg-neutral-900 px-5 py-3 text-[10px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-700"><Plus size={14} /> Add a product</button></div>
             </div>
             <div className="mb-3 flex items-center justify-between"><h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-500">Inventory snapshot</h2><button onClick={() => setPage("analytics")} className="inline-flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-900">View analytics <ArrowUpRight size={13} /></button></div>
             <div className="mb-9 grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4">
@@ -465,19 +496,23 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
               ].map((s) => (
                 <div key={s.label} className="border border-neutral-200 bg-white p-5 sm:p-6">
                   <div className="mb-7 flex items-center justify-between"><p className="text-[10px] tracking-[0.16em] text-neutral-500 uppercase">{s.label}</p><span className={s.color}>{s.icon}</span></div>
-                  <p className="font-playfair text-[34px] font-light leading-none text-neutral-900">{s.value}</p>
+                  <p className="font-playfair text-[34px] font-light leading-none text-neutral-900">{loading || stockLoading || productsError ? "—" : s.value}</p>
                 </div>
               ))}
+            </div>
+            <div className="mb-6 grid gap-3 sm:grid-cols-2">
+              <button onClick={() => { setOrderStatusFilter("pending"); setPage("orders"); }} className="border border-neutral-200 bg-white p-5 text-left"><span className="block text-xs text-neutral-500">Pending orders · Open queue</span><span className="mt-2 block text-2xl">{ordersLoading || ordersError ? "—" : orders.filter(order => order.status === "pending").length}</span></button>
+              <div className="border border-neutral-200 bg-white p-5"><p className="text-xs text-neutral-500">Active demo order value</p><p className="mt-2 text-2xl">{ordersLoading || ordersError ? "—" : fmt(analyticsRevenue)}</p><p className="mt-2 text-xs text-neutral-500">Excludes cancelled orders. No actual payments collected.</p></div>
             </div>
             <div className="grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
               <section className="border border-neutral-200 bg-white">
                 <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 sm:px-6"><div><h2 className="text-[13px] font-medium text-neutral-900">Recent orders</h2><p className="mt-1 text-[11px] text-neutral-500">Latest activity from your customers</p></div><button onClick={() => setPage("orders")} className="inline-flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-900">All orders <ArrowUpRight size={13} /></button></div>
-                {ordersLoading ? <div className="space-y-3 p-6">{[1,2,3].map((i) => <div key={i} className="h-10 animate-pulse bg-neutral-100" />)}</div> : orders.length === 0 ? <div className="px-6 py-10 text-center"><ShoppingCart size={20} className="mx-auto mb-3 text-neutral-300" /><p className="text-[13px] text-neutral-700">No orders yet</p><p className="mt-1 text-[11px] text-neutral-500">New orders will appear here.</p></div> : <div className="divide-y divide-neutral-100">{[...orders].sort((a,b) => new Date(b.placed_at ?? b.created_at ?? 0).getTime() - new Date(a.placed_at ?? a.created_at ?? 0).getTime()).slice(0,5).map((order) => <div key={order.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center bg-neutral-50 text-neutral-500"><ShoppingCart size={15} /></span><div><p className="text-[12px] font-medium text-neutral-800">Order {String(order.id).slice(0,8)}</p><p className="mt-1 flex items-center gap-1 text-[10px] text-neutral-400"><Clock3 size={11} />{order.placed_at ? formatDate(order.placed_at) : "Date unavailable"}</p></div></div><div className="flex items-center gap-4"><span className="text-[12px] text-neutral-700">{fmt(Number(order.total) || 0)}</span><span className="border border-neutral-200 px-2 py-1 text-[9px] uppercase tracking-wide text-neutral-500">{order.status ?? "New"}</span></div></div>)}</div>}
+                {ordersError ? <p className="p-6 text-sm text-red-700">Orders unavailable. Use Retry loading data above.</p> : ordersLoading ? <div className="space-y-3 p-6">{[1,2,3].map((i) => <div key={i} className="h-10 animate-pulse bg-neutral-100" />)}</div> : orders.length === 0 ? <div className="px-6 py-10 text-center"><ShoppingCart size={20} className="mx-auto mb-3 text-neutral-300" /><p className="text-[13px] text-neutral-700">No orders yet</p><p className="mt-1 text-[11px] text-neutral-500">New orders will appear here.</p></div> : <div className="divide-y divide-neutral-100">{[...orders].sort((a,b) => new Date(b.placed_at ?? b.created_at ?? 0).getTime() - new Date(a.placed_at ?? a.created_at ?? 0).getTime()).slice(0,5).map((order) => <div key={order.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center bg-neutral-50 text-neutral-500"><ShoppingCart size={15} /></span><div><p className="text-[12px] font-medium text-neutral-800">Order {String(order.id).slice(0,8)}</p><p className="mt-1 flex items-center gap-1 text-[10px] text-neutral-400"><Clock3 size={11} />{order.placed_at ? formatDate(order.placed_at) : "Date unavailable"}</p></div></div><div className="flex items-center gap-4"><span className="text-[12px] text-neutral-700">{fmt(Number(order.total) || 0)}</span><span className="border border-neutral-200 px-2 py-1 text-[9px] uppercase tracking-wide text-neutral-500">{order.status ?? "New"}</span></div></div>)}</div>}
               </section>
               <section className="border border-neutral-200 bg-white p-5 sm:p-6">
                 <h2 className="text-[13px] font-medium text-neutral-900">Quick access</h2><p className="mt-1 text-[11px] text-neutral-500">Go straight to a task</p>
-                <div className="mt-5 divide-y divide-neutral-100">{[{ label: "Manage products", detail: `${products.length} items in your catalog`, page: "products" as Page, icon: <Package size={16} /> }, { label: "Review inventory", detail: `${lowStock + outOfStock} items need attention`, page: "stock" as Page, icon: <Layers size={16} /> }, { label: "Read customer reviews", detail: "See feedback and reply", page: "reviews" as Page, icon: <MessageSquare size={16} /> }].map((item) => <button key={item.page} onClick={() => setPage(item.page)} className="group flex w-full items-center gap-3 py-4 text-left"><span className="text-neutral-400 transition group-hover:text-neutral-900">{item.icon}</span><span className="flex-1"><span className="block text-[12px] text-neutral-800">{item.label}</span><span className="mt-1 block text-[10px] text-neutral-400">{item.detail}</span></span><ArrowUpRight size={14} className="text-neutral-300 transition group-hover:text-neutral-900" /></button>)}</div>
-                {(outOfStock > 0 || lowStock > 0) && <button onClick={() => setPage("stock")} className="mt-3 flex w-full items-start gap-2 border border-amber-200 bg-amber-50 p-3 text-left"><AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-700" /><span className="text-[11px] leading-5 text-amber-900">{outOfStock + lowStock} products may need restocking. Review inventory.</span></button>}
+                <div className="mt-5 divide-y divide-neutral-100">{[{ label: "Manage products", detail: productsError || loading ? "Catalog unavailable or loading" : `${products.length} items in your catalog`, page: "products" as Page, icon: <Package size={16} /> }, { label: "Review inventory", detail: productsError || loading ? "Inventory unavailable or loading" : `${lowStock + outOfStock} items need attention`, page: "stock" as Page, icon: <Layers size={16} /> }, { label: "Read customer reviews", detail: "Read submitted feedback", page: "reviews" as Page, icon: <MessageSquare size={16} /> }].map((item) => <button key={item.page} onClick={() => setPage(item.page)} className="group flex w-full items-center gap-3 py-4 text-left"><span className="text-neutral-400 transition group-hover:text-neutral-900">{item.icon}</span><span className="flex-1"><span className="block text-[12px] text-neutral-800">{item.label}</span><span className="mt-1 block text-[10px] text-neutral-400">{item.detail}</span></span><ArrowUpRight size={14} className="text-neutral-300 transition group-hover:text-neutral-900" /></button>)}</div>
+                {!loading && !productsError && (outOfStock > 0 || lowStock > 0) && <button onClick={() => setPage("stock")} className="mt-3 flex w-full items-start gap-2 border border-amber-200 bg-amber-50 p-3 text-left"><AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-700" /><span className="text-[11px] leading-5 text-amber-900">{outOfStock + lowStock} products may need restocking. Review inventory.</span></button>}
               </section>
             </div>
           </div>
@@ -568,7 +603,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
               <h1 className="text-[20px] font-light text-neutral-800">{editId ? "Edit Product" : "Add New Product"}</h1>
               <div className="flex items-center gap-3">
                 <button onClick={closeForm} className="px-5 py-2.5 border border-neutral-200 text-[10px] tracking-[0.2em] uppercase text-neutral-500 hover:border-neutral-400 transition-colors">Cancel</button>
-                <button onClick={saveProduct} disabled={saving || !form.name || !form.price}
+                <button onClick={saveProduct} disabled={saving || uploading || !form.name.trim() || !form.price}
                   className="px-6 py-2.5 bg-neutral-900 text-white text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
                   {saving ? "Saving..." : "Save"}
                 </button>
@@ -597,13 +632,14 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                     <div className="grid grid-cols-2 gap-5">
                       <div>
                         <label className="text-[10px] tracking-[0.15em] text-neutral-500 uppercase block mb-2">Price (INR) *</label>
-                        <input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} placeholder="0"
+                        <input aria-label="Product price" type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} placeholder="0"
                           className="w-full border-b border-neutral-200 py-2 text-[14px] font-light focus:outline-none focus:border-neutral-800 transition-colors" />
                       </div>
                       <div>
                         <label className="text-[10px] tracking-[0.15em] text-neutral-500 uppercase block mb-2">Overall Stock</label>
-                        <input type="number" value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))} placeholder="0"
+                        <input aria-label="Overall stock" type="number" min="0" step="1" disabled={form.sizes.length > 0 || editId !== null} value={form.sizes.length ? form.sizes.reduce((total, size) => total + (editId ? getSizeStock(editId, size) : 0), 0) : form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))} placeholder="0"
                           className="w-full border-b border-neutral-200 py-2 text-[14px] font-light focus:outline-none focus:border-neutral-800 transition-colors" />
+                        {editId && <p className="mt-2 text-xs text-neutral-500">Change quantities on Stock Management. Removing all sizes starts overall stock at zero.</p>}
                       </div>
                     </div>
                   </div>
@@ -627,7 +663,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                     ))}
                   </div>
                   {form.sizes.length > 0 && (
-                    <p className="text-[10px] text-neutral-400 mt-3">For size-based stock, use the Stock Management page.</p>
+                    <p className="text-[10px] text-neutral-400 mt-3">Retained sizes keep their stock; new sizes start at zero. Removing a size removes its stock. Edit size quantities on Stock Management.</p>
                   )}
                 </div>
               </div>
@@ -657,12 +693,12 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                   />
                   <button onClick={addImageUrl} className="px-3 py-2 bg-neutral-100 text-[11px] text-neutral-600 hover:bg-neutral-200 transition-colors">Add</button>
                 </div>
-                <button onClick={() => fileInputRef.current?.click()}
+                <button disabled={uploading || saving} onClick={() => fileInputRef.current?.click()}
                   className="w-full border border-dashed border-neutral-200 py-5 flex flex-col items-center gap-2 hover:border-neutral-400 transition-colors text-neutral-400 hover:text-neutral-600">
                   <Upload size={18} strokeWidth={1.5} />
-                  <span className="text-[10px] tracking-wide">Upload File</span>
+                  <span className="text-[10px] tracking-wide">{uploading ? "Uploading…" : "Upload File"}</span>
                 </button>
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleUpload} />
               </div>
             </div>
           </div>
@@ -689,7 +725,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                       <tr key={`${row.product.id}-${row.size}`}>
                         <td className="px-4 py-3 text-[12px] text-neutral-800">{row.product.name}</td>
                         <td className="px-4 py-3 text-[11px] text-neutral-500">{row.size}</td>
-                        <td className="px-4 py-3">{row.overall ? <input type="number" min="0" defaultValue={row.stock} onBlur={async (event) => { const stock = Number(event.target.value); if (stock < 0) return; const response = await fetch("/api/admin/stock", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId: row.product.id, stock }) }); if (!response.ok) return; const result = await response.json(); setProducts((previous) => previous.map((product) => product.id === row.product.id ? { ...product, stock: result.stock } : product)); if (stock > 0) await notifyRestockRequests(row.product.id); }} className="w-20 border-b border-neutral-200 py-1 text-[12px] outline-none focus:border-black" /> : <input type="number" min="0" defaultValue={row.stock} onBlur={(event) => updateSizeStock(row.product.id, row.size, Number(event.target.value))} className="w-20 border-b border-neutral-200 py-1 text-[12px] outline-none focus:border-black" />}</td>
+                        <td className="px-4 py-3">{row.overall ? <input type="number" min="0" defaultValue={row.stock} onBlur={(event) => updateSizeStock(row.product.id, null, Number(event.target.value))} className="w-20 border-b border-neutral-200 py-1 text-[12px] outline-none focus:border-black" /> : <input type="number" min="0" defaultValue={row.stock} onBlur={(event) => updateSizeStock(row.product.id, row.size, Number(event.target.value))} className="w-20 border-b border-neutral-200 py-1 text-[12px] outline-none focus:border-black" />}</td>
                         <td className="px-4 py-3 text-[10px] uppercase tracking-wide text-neutral-400">{row.stock === 0 ? "Out of stock" : row.stock < 5 ? "Low stock" : "Available"}</td>
                       </tr>
                     ))}
@@ -838,9 +874,9 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
         {page === "analytics" && (
           <div className="p-8">
             <h1 className="text-[20px] font-light text-neutral-800 mb-2">Analytics</h1>
-            <p className="text-[11px] text-neutral-400 mb-6">Live summaries from your catalog, inventory, reviews, and orders.</p>
+            <p className="text-[11px] text-neutral-400 mb-6">Loaded demo data. Order value and top units exclude cancelled orders; ratings include approved reviews only. No actual payments are collected.</p>
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-              {[{ label: "Revenue", value: fmt(analyticsRevenue) }, { label: "Orders", value: orders.length }, { label: "Average order", value: fmt(orders.length ? analyticsRevenue / orders.length : 0) }, { label: "Units in stock", value: totalStock }].map((metric) => <div key={metric.label} className="bg-white border border-neutral-100 p-5"><p className="text-[24px] font-light text-neutral-800">{metric.value}</p><p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-neutral-400">{metric.label}</p></div>)}
+              {[{ label: "Active demo order value", value: ordersLoading || ordersError ? "\u2014" : fmt(analyticsRevenue) }, { label: "Active orders", value: ordersLoading || ordersError ? "\u2014" : activeOrders.length }, { label: "Average active order", value: ordersLoading || ordersError ? "\u2014" : fmt(activeOrders.length ? analyticsRevenue / activeOrders.length : 0) }, { label: "Units in stock", value: loading || productsError ? "\u2014" : totalStock }].map((metric) => <div key={metric.label} className="bg-white border border-neutral-100 p-5"><p className="text-[24px] font-light text-neutral-800">{metric.value}</p><p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-neutral-400">{metric.label}</p></div>)}
             </div>
             <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
               <section className="bg-white border border-neutral-100 p-6">
@@ -857,7 +893,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
               </section>
               <section className="bg-white border border-neutral-100 p-6">
                 <div className="flex items-center justify-between mb-5"><div><h2 className="text-[13px] font-medium text-neutral-800">Customer signal</h2><p className="mt-1 text-[11px] text-neutral-400">Review activity</p></div><Star size={17} className="text-amber-500" /></div>
-                <p className="text-[30px] font-light text-neutral-800">{reviews.length ? (reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length).toFixed(1) : "0.0"}<span className="ml-2 text-[12px] text-neutral-400">/ 5 average</span></p><p className="mt-2 text-[11px] text-neutral-400">{reviews.length} total reviews</p>
+                <p className="text-[30px] font-light text-neutral-800">{reviewsLoading || reviewsError ? "\u2014" : approvedReviews.length ? (approvedReviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / approvedReviews.length).toFixed(1) : "0.0"}<span className="ml-2 text-[12px] text-neutral-400">/ 5 average</span></p><p className="mt-2 text-[11px] text-neutral-400">{reviewsLoading || reviewsError ? "Unavailable" : approvedReviews.length} approved reviews</p>
               </section>
             </div>
           </div>

@@ -103,7 +103,7 @@ async function verifySupabaseToken(token: string): Promise<boolean> {
   return !error && Boolean(data.user);
 }
 
-export function createGroqClient(env: NodeJS.ProcessEnv = process.env): OpenAI | null {
+export function createGroqClient(env: Record<string, string | undefined> = process.env): OpenAI | null {
   const apiKey = env.GROQ_API_KEY?.trim();
   return apiKey ? new OpenAI({
     apiKey,

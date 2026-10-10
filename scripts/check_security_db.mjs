@@ -1,3 +1,4 @@
+import { inspectAdminCatalog } from './admin_security_inventory.mjs';
 import pg from 'pg';
 
 if (!process.env.DATABASE_URL) {
@@ -11,12 +12,13 @@ const check = (label, passed) => findings.push({ label, passed: Boolean(passed) 
 
 try {
   await client.connect();
+  const tableNames = ['reviews', 'orders', 'order_items', 'api_rate_limits', 'checkout_attempts', 'products', 'product_size_stock'];
   const { rows: tables } = await client.query(`
     SELECT c.relname, c.relrowsecurity
     FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = 'public' AND c.relname = ANY($1)
-  `, [['reviews', 'orders', 'order_items', 'api_rate_limits']]);
-  for (const name of ['reviews', 'orders', 'order_items', 'api_rate_limits']) {
+  `, [tableNames]);
+  for (const name of tableNames) {
     check(`${name} has RLS`, tables.find((table) => table.relname === name)?.relrowsecurity);
   }
   const { rows: buckets } = await client.query('SELECT "public" FROM storage.buckets WHERE id = \'review-images\'');
@@ -44,16 +46,18 @@ try {
       has_table_privilege('authenticated', 'public.reviews', 'DELETE') AS customer_review_delete,
       has_table_privilege('anon', 'public.api_rate_limits', 'SELECT') AS anon_limit_read,
       has_table_privilege('authenticated', 'public.api_rate_limits', 'SELECT') AS customer_limit_read,
-      has_function_privilege('anon', 'public.create_checkout_order(uuid,jsonb,jsonb,text)', 'EXECUTE') AS anon_checkout,
-      has_function_privilege('authenticated', 'public.create_checkout_order(uuid,jsonb,jsonb,text)', 'EXECUTE') AS customer_checkout,
+      has_table_privilege('anon', 'public.checkout_attempts', 'SELECT') AS anon_attempt_read,
+      has_table_privilege('authenticated', 'public.checkout_attempts', 'SELECT') AS customer_attempt_read,
       has_function_privilege('authenticated', 'public.consume_api_rate_limit(text,integer,integer)', 'EXECUTE') AS customer_limit_rpc,
       has_function_privilege('service_role', 'public.consume_api_rate_limit(text,integer,integer)', 'EXECUTE') AS service_limit_rpc
   `);
   const grant = grants[0];
-  for (const name of ['anon_review_insert', 'customer_review_insert', 'customer_review_update', 'customer_review_delete', 'anon_limit_read', 'customer_limit_read', 'anon_checkout', 'customer_checkout', 'customer_limit_rpc']) {
+  for (const name of ['anon_review_insert', 'customer_review_insert', 'customer_review_update', 'customer_review_delete', 'anon_limit_read', 'customer_limit_read', 'anon_attempt_read', 'customer_attempt_read', 'customer_limit_rpc']) {
     check(`${name} denied`, grant[name] === false);
   }
   check('service_limit_rpc allowed', grant.service_limit_rpc === true);
+
+  findings.push(...await inspectAdminCatalog(client));
 
   for (const result of findings) process.stdout.write(`${result.passed ? 'PASS' : 'FAIL'} ${result.label}\n`);
   if (findings.some((result) => !result.passed)) process.exitCode = 1;

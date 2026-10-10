@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { PGlite } from '@electric-sql/pglite';
+import { inspectAdminCatalog } from './admin_security_inventory.mjs';
 
 // Real PostgreSQL in memory, with no URL, network, or shared database cleanup.
 // Single connection: this does not establish multi-session concurrency safety.
@@ -17,8 +18,15 @@ const address = { fullName: 'Fictional Tester', phone: '000', address: 'Demo', c
 before(async () => {
   await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
     CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY, email text, raw_user_meta_data jsonb DEFAULT '{}');
-    CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS 'SELECT NULL::uuid';`);
-  for (const path of ['supabase_schema.sql', 'supabase_checkout_security_migration.sql', 'supabase_demo_catalog_migration.sql', 'supabase_purchase_safeguards_migration.sql']) {
+    CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS 'SELECT NULL::uuid';
+    CREATE SCHEMA storage;
+    CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+    CREATE TABLE storage.objects(id uuid DEFAULT gen_random_uuid(),bucket_id text,name text);
+    ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+    GRANT USAGE ON SCHEMA storage TO authenticated;
+    GRANT ALL ON storage.objects TO authenticated;
+    CREATE POLICY legacy_storage_write ON storage.objects FOR ALL TO authenticated USING (true) WITH CHECK (true);`);
+  for (const path of ['supabase_schema.sql', 'supabase_checkout_security_migration.sql', 'supabase_demo_catalog_migration.sql', 'supabase_purchase_safeguards_migration.sql', 'supabase_admin_catalog_migration.sql']) {
     await db.exec(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
   }
 });
@@ -49,6 +57,98 @@ async function state() {
     (SELECT jsonb_agg(jsonb_build_array(id,stock) ORDER BY id) FROM products) AS products,
     (SELECT jsonb_agg(jsonb_build_array(product_id,size,stock) ORDER BY product_id,size) FROM product_size_stock) AS sizes`)).rows[0];
 }
+
+const catalogInput = (over = {}) => ({ name: 'Admin Fixture', category: 'Bags', price: 1500.25,
+  stock: 4, description: 'Fictional fixture', sizes: [], image_url: '/canta-5.jpg', images: ['/canta-5.jpg'], ...over });
+async function saveCatalog(id, over = {}) {
+  return (await db.query('SELECT save_admin_product($1,$2::jsonb) AS product', [id, JSON.stringify(catalogInput(over))])).rows[0].product;
+}
+
+test('catalog create initializes sized inventory to zero instead of trusting overall stock', async () => {
+  const product = await saveCatalog(null, { category: "Women's Dress", sizes: ['S', 'M'], stock: 900 });
+  assert.equal(product.stock, 0);
+  assert.deepEqual((await db.query('SELECT size, stock FROM product_size_stock WHERE product_id=$1 ORDER BY size', [product.id])).rows,
+    [{ size: 'M', stock: 0 }, { size: 'S', stock: 0 }]);
+  assert.equal((await saveCatalog(null)).stock, 4);
+});
+
+test('catalog size edits retain quantities, remove obsolete rows and initialize new rows atomically', async () => {
+  await stock(sized, 'S', 2);
+  await db.query("INSERT INTO product_size_stock(product_id,size,stock) VALUES($1,'XXL',99)", [sized]);
+  const product = await saveCatalog(sized, { category: "Women's Dress", sizes: ['S', 'L'], stock: 900 });
+  assert.equal(product.stock, 2);
+  assert.deepEqual((await db.query('SELECT size,stock FROM product_size_stock WHERE product_id=$1 ORDER BY size', [sized])).rows,
+    [{ size: 'L', stock: 0 }, { size: 'S', stock: 2 }]);
+  await assert.rejects(checkout([{ id: sized, size: 'M', quantity: 1, color: 'Brown' }]), /INVALID_OPTION/);
+  await assert.rejects(checkout([{ id: sized, size: 'L', quantity: 1, color: 'Brown' }]), /OUT_OF_STOCK|INSUFFICIENT_STOCK/);
+});
+
+test('failure initializing a size rolls back the product insert', async () => {
+  const before = await state();
+  await db.exec(`CREATE FUNCTION fixture_fail_size() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'FIXTURE_SIZE_FAILURE'; END $$;
+    CREATE TRIGGER fixture_fail_size BEFORE INSERT ON product_size_stock FOR EACH ROW EXECUTE FUNCTION fixture_fail_size();`);
+  try {
+    await assert.rejects(saveCatalog(null, { sizes: ['M'] }), /FIXTURE_SIZE_FAILURE/); assert.deepEqual(await state(), before);
+    await assert.rejects(saveCatalog(sized, { sizes: ['S','L'] }), /FIXTURE_SIZE_FAILURE/); assert.deepEqual(await state(), before);
+  }
+  finally { await db.exec('DROP TRIGGER fixture_fail_size ON product_size_stock; DROP FUNCTION fixture_fail_size()'); }
+});
+
+test('metadata edits cannot restore stock consumed after opening an unsized product form', async () => {
+  await checkout([{ id: unsized, quantity: 1 }]);
+  assert.equal((await saveCatalog(unsized, { stock: 999 })).stock, 0);
+  const changed = await saveCatalog(sized, { sizes: [], stock: 999 });
+  assert.equal(changed.stock, 0);
+  assert.equal((await db.query('SELECT count(*)::int AS count FROM product_size_stock WHERE product_id=$1', [sized])).rows[0].count, 0);
+});
+
+test('catalog rejects invalid data and missing IDs without changing inventory', async () => {
+  const before = await state();
+  for (const invalid of [{ name: ' ' }, { price: -1 }, { price: null }, { price: 2.123 }, { stock: -1 }, { stock: 0.5 }, { stock: 2147483648 }, { sizes: ['M','M'] }, { sizes: ['wrong'] }, { sizes: [36] }, { category: 'wrong' }]) {
+    await assert.rejects(saveCatalog(sized, invalid), /INVALID_PRODUCT/);
+    assert.deepEqual(await state(), before);
+  }
+  await assert.rejects(saveCatalog(randomUUID()), /PRODUCT_NOT_FOUND/);
+  await assert.rejects(db.query('UPDATE products SET price=-1 WHERE id=$1', [unsized]), /products_admin_price_check/);
+  await assert.rejects(db.query('UPDATE products SET stock=-1 WHERE id=$1', [unsized]), /products_admin_stock_check/);
+});
+
+test('browser roles cannot save products or bypass product-image guards through legacy policies', async () => {
+  const { rows: [permissions] } = await db.query(`SELECT
+    has_function_privilege('anon','save_admin_product(uuid,jsonb)','EXECUTE') AS anon,
+    has_function_privilege('authenticated','save_admin_product(uuid,jsonb)','EXECUTE') AS customer,
+    has_function_privilege('service_role','save_admin_product(uuid,jsonb)','EXECUTE') AS service`);
+  assert.deepEqual(permissions, { anon: false, customer: false, service: true });
+  // Prove restrictive RLS guards still deny a historical column grant.
+  await db.exec('GRANT INSERT(name,category,price) ON products TO authenticated; SET ROLE authenticated');
+  try {
+    await assert.rejects(db.exec("INSERT INTO products(name,category,price) VALUES('Forged','Bags',10)"), /row-level security/);
+    await assert.rejects(db.exec("INSERT INTO storage.objects(bucket_id,name) VALUES('product-images','forged.jpg')"), /row-level security/);
+  } finally { await db.exec('RESET ROLE; REVOKE INSERT(name,category,price) ON products FROM authenticated'); }
+});
+
+test('catalog migration can be reapplied without losing products or quantities', async () => {
+  const before = await state();
+  await db.exec(readFileSync(new URL('../supabase_admin_catalog_migration.sql', import.meta.url), 'utf8'));
+  assert.deepEqual(await state(), before);
+});
+
+test('read-only catalog inspector recognizes current RPCs and detects permission regressions', async () => {
+  const findings = await inspectAdminCatalog(db);
+  assert.equal(findings.every(finding => finding.passed), true, JSON.stringify(findings.filter(finding => !finding.passed)));
+  await db.exec('GRANT EXECUTE ON FUNCTION save_admin_product(uuid,jsonb) TO authenticated');
+  try {
+    const findings = await inspectAdminCatalog(db);
+    assert.equal(findings.find(finding => finding.label.includes('save_admin_product')).passed, false);
+  } finally { await db.exec('REVOKE EXECUTE ON FUNCTION save_admin_product(uuid,jsonb) FROM authenticated'); }
+});
+
+test('deleting a product preserves purchased quantity and price in historical order lines', async () => {
+  const order = await checkout([{ id: unsized, quantity: 1 }]);
+  await db.query('DELETE FROM products WHERE id=$1', [unsized]);
+  const { rows: [line] } = await db.query('SELECT product_id,quantity,unit_price FROM order_items WHERE order_id=$1', [order.order_id]);
+  assert.equal(line.product_id, null); assert.equal(line.quantity, 1); assert.equal(Number(line.unit_price), 999.5);
+});
 
 test('identical replay returns the original order even after the last unit is gone', async () => {
   const key = randomUUID();

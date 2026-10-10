@@ -5418,5 +5418,1448 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ADM-02",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Server mutations/private reads shall require admin authority independent of local UI flag; product writes and reply helpers do not use that authority in current implementation (G-06).",
+      "source_codes": "ADMIN, ADMINAUTH, ADMINAPIS, SCHEMA",
+      "qa_focus": "Fake local flag, expired/forged cookie, customer-only session",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "ADM-04",
+      "module": "Admin access and dashboard",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Dashboard shall show product/stock/out-of-stock/low-stock counts, up to five newest orders, inventory warning and quick links; no-order state shall display when empty.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Known fixture metrics, newest five, route/sidebar state",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PRD-01",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Admin product table shall list newest created products and combine case-insensitive name search with exact category filter, showing no-match state.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Search, category, combined/empty, reload",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "PRD-02",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Add/edit shall save name/category/price/overall stock/description/sizes/main image/image list and reflect persisted values; current anonymous-client writes lack admin write policies (G-06).",
+      "source_codes": "ADMIN, SCHEMA",
+      "qa_focus": "Create/edit/reload, permission denied, failed save feedback",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PRD-03",
+      "module": "Admin product management",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Product saves shall enforce nonblank name, finite nonnegative price and integer nonnegative stock; current check only ensures name/price presence and parsing (G-17).",
+      "source_codes": "ADMIN, SCHEMA",
+      "qa_focus": "Whitespace, zero, negative, fraction, invalid number",
+      "known_gap_ids": "G-06; G-17",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PRD-04",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Product image form shall append pasted URL or one uploaded image per selection, set first image as main, and promote first remaining image when one is removed; uploads use product-images bucket.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Multiple sequential adds, delete first/last, upload failure/host",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PRD-05",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Sizes shall be selectable from XS–XXL and 36–44; new sized products initialize zero stock rows. Editing sizes shall synchronize rows/aggregate stock, which is currently incomplete (G-18).",
+      "source_codes": "ADMIN, DEMOMIG",
+      "qa_focus": "Add/remove size, zero initialized rows, old stock",
+      "known_gap_ids": "G-06; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PRD-06",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Delete shall require confirmation and reflect actual database removal; dependent favorite/review/size/alert rows cascade and historical order lines retain price/quantity with null product. Permission/error reporting gap applies.",
+      "source_codes": "ADMIN, SCHEMA, DEMOMIG",
+      "qa_focus": "Cancel/confirm, referenced product, failed delete, history",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "STK-01",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock view shall expose one row per configured size or one Overall row for unsized products; edits save on field blur through protected stock PATCH.",
+      "source_codes": "ADMIN, STOCKAPI",
+      "qa_focus": "Sized/unsized, blur versus typing, expired cookie",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "STK-03",
+      "module": "Admin stock",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Row labels shall be Out of stock for zero, Low stock for 1–4, Available for 5+; dashboard low-stock count currently considers sized products only.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Thresholds, unsized low stock discrepancy",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "STK-04",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Purchase safeguards stock RPC shall update size/aggregate in one transaction using the same product-first lock order as checkout; unsupported size or overall edits on sized products fail without changes. Catalog size-list edits and direct product form writes still have G-18 consistency gaps; this requirement covers protected stock RPC writes only. Live multi-session behavior remains unverified.",
+      "source_codes": "STOCKAPI, PURCHASEMIG, ADMIN, PURCHASETEST",
+      "qa_focus": "Transaction failure, concurrent checkout/edit, unsupported size, configured aggregate, remaining catalog-edit gap",
+      "known_gap_ids": "G-08; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ANL-01",
+      "module": "Analytics and settings",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Analytics shall show sum of all loaded order totals, order count, average total per order (zero when empty), and stock units in INR/base values. Cancelled orders currently contribute.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Known totals, zero orders, cancelled inclusion",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ANL-04",
+      "module": "Analytics and settings",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Top products shall rank up to five currently existing products by quantities in all loaded orders, including cancelled orders; empty sales state shall be shown.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Ties, deleted product, cancelled items, no sales",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ANL-05",
+      "module": "Analytics and settings",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Customer signal shall show loaded review count and mean rating to one decimal, zero when empty; current calculation is not approved-only.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Mixed approvals, 0/1/multiple reviews",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:assistant runs the assistant tool/API/widget suite with fake/intercepted model requests and an explicitly blank GROQ_API_KEY on its server, port 3100 (override with ASSISTANT_TEST_PORT). npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, disabled provider key, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "OPS-09",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "`npm run security:check-db` inspects legacy review/order/limiter policy inventory read-only with an explicit DATABASE_URL. It still references the removed four-argument checkout RPC and cannot complete after purchase safeguards (G-25); it does not inspect checkout_attempts or stock RPC permissions. Its contract needs updating before use as current migration evidence.",
+      "source_codes": "SECCHECK, SECURITYMIG, CHECKOUTSEC, PURCHASEMIG",
+      "qa_focus": "Missing URL, legacy versus current signature, private attempts/stock grants, no writes/secrets, explicit environment blocker",
+      "known_gap_ids": "G-25",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "OPS-10",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:purchase shall execute the checked-in purchase migration on an isolated in-memory PostgreSQL instance using PGlite, testing snapshots, replay, option validation, rollback, stock totals, denied customer grants and staging fixtures. Browser CI shall run it before sequential UI/catalog suites. It uses one connection and no live URL; it does not prove multi-session concurrency or live Supabase configuration.",
+      "source_codes": "PURCHASETEST, UITEST",
+      "qa_focus": "Reproducible migrations, 10 scoped cases, no live cleanup/mutation, single-connection limitations, CI command",
+      "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data and admin actions shall enforce ownership/authority server-side or in RLS; public users shall not forge totals, moderation or another customer's records. Purchase migration denies anon/customer access to attempts and purchase/stock RPC execution; API identities are verified. Live grants/policies and remaining admin product/reply writes must be verified or scoped as blockers; current inspector has G-25.",
+      "source_codes": "SCHEMA, REVIEWMIG, SECURITYMIG, CHECKOUTSEC, PURCHASEMIG, ADMINAPIS",
+      "qa_focus": "Cross-user reads/writes/replays, private attempts, RPC denial, moderation tampering, fake admin flag, applied policy",
+      "known_gap_ids": "G-04; G-24; G-25",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; detail/footer/checkout/history copy explicitly denies fulfillment/support and newsletter delivery. Analytics population/settings health and restock concurrency remain gaps. Purchase/stock safety uses transactional locks but requires live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG",
+      "qa_focus": "Content, metric definitions, concurrency/replay, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:00.481Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes"
+    ],
+    "row": {
+      "requirement_id": "NFR-08",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Admin login, checkout, review creation/upload, restock subscription and shopping assistant shall use one atomic production database rate-limit counter across instances; missing shared configuration/RPC fails closed with 503. Assistant allows 10 requests/address/minute. Keys are HMAC-hashed, and the ingress proxy must append or overwrite x-forwarded-for. Nonproduction may use a process-local fallback.",
+      "source_codes": "RATELIMIT, SECURITYMIG, ADMINLOGIN, CHECKOUT, RESTOCK, REVIEWSAPI, REVIEWUPLOAD, ASSIST",
+      "qa_focus": "Multi-instance limits, assistant limit, 429 boundary, 503 unavailable, proxy-spoof test, account upload quota",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-02",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin catalog reads/saves/deletes/uploads shall require a signed admin cookie independent of the local UI flag; server service-role writes use validated routes and same-origin mutation guards. Migration restricts browser catalog/image writes. Unwired review-reply helpers still lack an admin server workflow (G-06); applied live permissions remain unverified.",
+      "source_codes": "ADMIN, ADMINAUTH, ADMINAPIS, ADMINCAT, SCHEMA",
+      "qa_focus": "Forged/expired/customer cookies, cross-site writes, storage/RPC privileges, remaining reply workflow",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-04",
+      "module": "Admin access and dashboard",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Dashboard shall show product/configured-stock/out-of-stock/low-stock counts including unsized low stock, up to five newest orders, inventory warning and quick links. Refresh/retry shall reload catalog/stock and orders; failed/loading inventory metrics show an unavailable dash and failed order reads do not show a successful empty state. Add a product shall open its form.",
+      "source_codes": "ADMIN, ADMINCAT, ADMINAPIS",
+      "qa_focus": "Known sized/unsized counts, newest five, failed reads versus empty, refresh, working Add product",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-05",
+      "module": "Admin access and dashboard",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Dashboard shall show a pending-order count linking to the pending queue and active demo order value excluding cancelled orders, with explicit no-payment-collected copy. Failed/loading order metrics show an unavailable dash.",
+      "source_codes": "ADMIN, ADMINAPIS, ADMINCAT",
+      "qa_focus": "Pending-queue navigation, mixed status/value fixtures, unavailable states, demo copy",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-01",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Admin product table shall load products with configured size rows through signed-cookie GET /api/admin/products, newest first, and combine case-insensitive name search with exact category filter. Failed reads show actionable feedback rather than a successful empty catalog.",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "Cookie/503 failures, search/category/no matches, nested inventory, refresh",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-02",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Add/edit shall persist validated name/category/price/description/sizes/main image/image list through server-only catalog routes and save_admin_product. Initial unsized stock can be supplied on create; existing quantities are changed only on Stock Management. Failed writes keep the form and values, release saving state and show a safe error.",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "Create/edit/reload, denied writes, retained fields, retry, stale metadata form versus checkout",
+      "known_gap_ids": "G-06; G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-03",
+      "module": "Admin product management",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Server product saves shall require a trimmed name of 1-200 characters, configured category, finite numeric price 0 to less than 10000000000 with at most two decimals, numeric integer stock 0-2147483647, description at most 10000 characters, unique configured sizes and at most 12 image URLs. Images accept local root paths or HTTPS on the configured Supabase origin, never executable/protocol-relative URLs. JSON body above 50000 JavaScript characters gives 413. Database price/stock checks enforce future writes; NOT VALID preserves legacy rows for explicit inspection/repair (G-17).",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "NaN/string/negative/fraction/overflow, duplicate/unknown size/category, URL/malformed/body boundaries, legacy invalid rows",
+      "known_gap_ids": "G-06; G-17",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-04",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Product image upload shall use signed-cookie, same-origin server POST /api/admin/products/upload with shared limit 10/admin/minute; choose one 1-byte to 2-MiB JPEG/PNG/WebP file with matching signature. Declared Content-Length above 3 MiB gives 413. Server generates a UUID path in public product-images; storage bucket has matching size/type limits and restrictive browser-write guards. Upload failures show feedback; Save/Upload are disabled during upload. Removing a URL or abandoning a form does not delete stored objects.",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "Anonymous/cross-site denial, size/type/signature, failed upload, public URL, max images, signature-not-full-decode and multipart limits",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-05",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Atomic catalog save shall lock the parent product before size rows, preserving retained-size quantities, inserting new configured sizes at zero, deleting removed/obsolete rows and deriving sized total from current rows. Client overall stock cannot override a sized total or an existing unsized quantity. Removing all sizes starts unsized stock at zero. This shares checkout/stock lock order; live multi-session verification and separate seed-insert repair remain G-18.",
+      "source_codes": "ADMIN, ADMINCAT, PURCHASEMIG, PURCHASETEST",
+      "qa_focus": "Retain/add/remove/missing/obsolete rows, sized-to-unsized, stale form after depletion, forced rollback, live concurrency",
+      "known_gap_ids": "G-06; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-06",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Delete shall require browser confirmation and signed-cookie server DELETE /api/admin/products/[id]. Missing product gives 404; failed writes show feedback and retain the list. Database cascades dependent favorite/review/size/alert rows; historical order lines retain price/quantity with null product. Stored image files are not garbage-collected.",
+      "source_codes": "ADMIN, ADMINCAT, SCHEMA, DEMOMIG",
+      "qa_focus": "Cancel/confirm, missing ID, denial/error, referenced product/history snapshots, image retention",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-01",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock view shall expose one row per configured size or one Overall row for unsized products. Whole-number nonnegative edits save on blur through protected stock PATCH; failed writes/invalid values show feedback and do not update in-memory stock. Positive saves may still trigger notifications with G-12 limits.",
+      "source_codes": "ADMIN, STOCKAPI",
+      "qa_focus": "Sized/unsized, blur, invalid/failing write, expired cookie, notification limits",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-03",
+      "module": "Admin stock",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Row labels shall be Out of stock for zero, Low stock for 1-4, Available for 5+. Dashboard and analytics low-stock counts include unsized products with 1-4 units and sized products with at least one configured size in that range.",
+      "source_codes": "ADMIN",
+      "qa_focus": "0/1/4/5, unsized low stock, configured size versus obsolete rows",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-04",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Purchase stock RPC and atomic catalog save shall use parent-product-first locking with checkout. Stock RPC rejects unsupported size or overall edits on sized products; catalog save synchronizes configured rows/totals and preserves current existing unsized stock. Local rollback/permission tests are scoped evidence; separate seeding and live multi-session behavior remain G-18.",
+      "source_codes": "STOCKAPI, PURCHASEMIG, ADMINCAT, ADMIN, PURCHASETEST",
+      "qa_focus": "Transaction failure, checkout/edit concurrency, configured aggregate, stale form, seed-repair limitation",
+      "known_gap_ids": "G-08; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ANL-01",
+      "module": "Analytics and settings",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Analytics shall show active demo order value and active order count excluding cancelled orders, average active order value (zero when empty), and configured stock units in INR/base values. Failed/loading data shows an unavailable dash for its summary metrics. These are demo order values, not collected revenue. Pipeline still includes all five statuses.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Known active/cancelled totals, zero orders, failed reads, average denominator, demo labels",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ANL-04",
+      "module": "Analytics and settings",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Top products shall rank up to five existing products by quantities in loaded noncancelled orders. Deleted products do not appear; ties follow existing product order and empty sales state is shown.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Ties, deleted product, cancelled exclusion, no active sales",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ANL-05",
+      "module": "Analytics and settings",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Customer signal shall show approved review count and mean approved rating to one decimal, zero when no approved reviews. Pending/unapproved reviews are excluded; failed/loading review data shows unavailable rather than zero.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Mixed approvals, 0/1/multiple approved, failed read, correct denominator",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui includes storefront and admin API/dashboard/form regressions. Assistant suite uses fake/intercepted models with blank GROQ_API_KEY. UI/catalog/assistant Chromium suites run sequentially on dedicated servers (assistant port override allowed) with disabled live Supabase/mail, no existing server reuse, separate artifacts and isolated browser compilation. Catalog fixtures intercept a reserved .invalid domain. Mocks/local cookies are not live integration acceptance.",
+      "source_codes": "UITEST, REQTOOLS, ADMINCAT",
+      "qa_focus": "Reproducible admin/source fixtures, disabled provider key, no live mutations, cache isolation, CI artifacts/review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-09",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Read-only npm run security:check-db with explicit DATABASE_URL shall inspect review/order/limiter RLS/grants plus current five-argument checkout, stock/catalog service-only RPCs, removed legacy RPC, private attempts, browser catalog write denial, product-image bucket/guards and legacy invalid price/stock rows. Shared catalog-inspector queries are exercised in isolated PostgreSQL, including a permission regression. Full applied Supabase verification remains pending; G-25 history is retained.",
+      "source_codes": "SECCHECK, SECURITYMIG, CHECKOUTSEC, PURCHASEMIG, ADMINCAT",
+      "qa_focus": "Missing URL/migrations, current signatures, private attempts, table/column grants, storage guards, legacy invalid rows, no writes",
+      "known_gap_ids": "G-25",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-10",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:purchase shall apply base, checkout security, demo catalog, purchase safeguards and admin catalog migrations to isolated in-memory PGlite with minimal auth/storage fixtures. Nineteen cases cover replay/options/rollback/totals, catalog row synchronization, metadata-after-depletion, browser grant/policy denial, history after deletion, migration reapply and read-only inspector permission regressions. CI runs it before browser suites. One connection and mocked storage schema do not prove live Supabase/Auth/Storage or multi-session safety.",
+      "source_codes": "PURCHASETEST, UITEST, ADMINCAT",
+      "qa_focus": "19 scoped cases, no live cleanup/mutation, storage fixture limits, concurrency remains separate",
+      "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall keep GROQ_API_KEY server-side, use Groq Responses API with default openai/gpt-oss-20b or nonblank GROQ_MODEL, and limit each address to 10 requests/minute. No OpenAI credential fallback or automatic SDK retries; each provider request times out after 25 seconds. It accepts 1–50 messages, validates/processes only the last 12, each trimmed to nonblank text of at most 1,000 characters with user/assistant roles and a final user message. Raw body length above 24,000 JavaScript characters gives 413, not a measured byte limit. Missing/blank key or shared production limiter gives 503; invalid input 400, address limit 429, provider quota 429 with a safe usage-limit message, other model failures 502.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Groq URL/key/model and SDK wire format, blank key/no fallback, safe quota errors/no retries, shape/history/body boundaries, production limiter, unvalidated discarded history",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data/admin actions shall enforce ownership/authority server-side or in RLS. Checkout/stock/catalog RPCs deny browser execution; catalog routes verify signed admin identity and use service role, with restrictive table/storage write guards in migration. Current inspector checks these contracts. Applied live permissions, remaining review workflow and other role acceptance still require verification.",
+      "source_codes": "ADMINCAT, SCHEMA, SECURITYMIG, CHECKOUTSEC, PURCHASEMIG, ADMINAUTH, SECCHECK",
+      "qa_focus": "Forged identities, public/customer write denial, service-only RPCs, applied migrations, live cross-role checks",
+      "known_gap_ids": "G-04; G-24; G-25",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; storefront denies fulfillment/support/newsletter delivery and admin order values are labelled demo, excluding cancelled orders; approved-only rating metrics and unsized low stock are corrected. Settings connection label and restock concurrency remain gaps. Transaction locks require live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG, ADMINCAT",
+      "qa_focus": "Demo copy, metric definitions, settings label, live permissions/concurrency, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:49:12.788Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-08",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Admin login, checkout, review creation/upload, restock subscription and shopping assistant shall use one atomic production database rate-limit counter across instances; missing shared configuration/RPC fails closed with 503. Assistant allows 10 requests/address/minute. Keys are HMAC-hashed, and the ingress proxy must append or overwrite x-forwarded-for. Nonproduction may use a process-local fallback. Catalog writes and product uploads also use shared per-admin limits of 60 and 10/minute respectively.",
+      "source_codes": "RATELIMIT, SECURITYMIG, ADMINLOGIN, CHECKOUT, RESTOCK, REVIEWSAPI, REVIEWUPLOAD, ASSIST, ADMINCAT",
+      "qa_focus": "Multi-instance limits, assistant limit, 429 boundary, 503 unavailable, proxy-spoof test, account upload quota",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:29.790Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ANL-03",
+      "module": "Analytics and settings",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Inventory health shall show healthy=max(products−low−out,0), low/out counts and units derived from configured sizes or unsized stock.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Sized-only low count, inconsistent stored rows",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-02",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin catalog reads/saves/deletes/uploads shall require a signed admin cookie independent of the local UI flag; server service-role writes use validated routes and same-origin mutation guards. Migration restricts browser catalog/image writes. Unwired review-reply helpers still lack an admin server workflow (G-06); applied live permissions remain unverified.",
+      "source_codes": "ADMIN, ADMINAUTH, ADMINAPIS, ADMINCAT, SCHEMA",
+      "qa_focus": "Forged/expired/customer cookies, cross-site writes, storage/RPC privileges, remaining reply workflow",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-04",
+      "module": "Admin access and dashboard",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Dashboard shall show product/configured-stock/out-of-stock/low-stock counts including unsized low stock, up to five newest orders, inventory warning and quick links. Refresh/retry shall reload catalog/stock and orders; failed/loading inventory metrics show an unavailable dash and failed order reads do not show a successful empty state. Add a product shall open its form.",
+      "source_codes": "ADMIN, ADMINCAT, ADMINAPIS",
+      "qa_focus": "Known sized/unsized counts, newest five, failed reads versus empty, refresh, working Add product",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-05",
+      "module": "Admin access and dashboard",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Dashboard shall show a pending-order count linking to the pending queue and active demo order value excluding cancelled orders, with explicit no-payment-collected copy. Failed/loading order metrics show an unavailable dash.",
+      "source_codes": "ADMIN, ADMINAPIS, ADMINCAT",
+      "qa_focus": "Pending-queue navigation, mixed status/value fixtures, unavailable states, demo copy",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-01",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Admin product table shall load products with configured size rows through signed-cookie GET /api/admin/products, newest first, and combine case-insensitive name search with exact category filter. Failed reads show actionable feedback rather than a successful empty catalog.",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "Cookie/503 failures, search/category/no matches, nested inventory, refresh",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-02",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Add/edit shall persist validated name/category/price/description/sizes/main image/image list through server-only catalog routes and save_admin_product. Initial unsized stock can be supplied on create; existing quantities are changed only on Stock Management. Failed writes keep the form and values, release saving state and show a safe error.",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "Create/edit/reload, denied writes, retained fields, retry, stale metadata form versus checkout",
+      "known_gap_ids": "G-06; G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-03",
+      "module": "Admin product management",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Server product saves shall require a trimmed name of 1-200 characters, configured category, finite numeric price 0 to less than 10000000000 with at most two decimals, numeric integer stock 0-2147483647, description at most 10000 characters, unique configured sizes and at most 12 image URLs. Images accept local root paths or HTTPS on the configured Supabase origin, never executable/protocol-relative URLs. JSON body above 50000 JavaScript characters gives 413. Database price/stock checks enforce future writes; NOT VALID preserves legacy rows for explicit inspection/repair (G-17).",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "NaN/string/negative/fraction/overflow, duplicate/unknown size/category, URL/malformed/body boundaries, legacy invalid rows",
+      "known_gap_ids": "G-06; G-17",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-04",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Product image upload shall use signed-cookie, same-origin server POST /api/admin/products/upload with shared limit 10/admin/minute; choose one 1-byte to 2-MiB JPEG/PNG/WebP file with matching signature. Declared Content-Length above 3 MiB gives 413. Server generates a UUID path in public product-images; storage bucket has matching size/type limits and restrictive browser-write guards. Upload failures show feedback; Save/Upload are disabled during upload. Removing a URL or abandoning a form does not delete stored objects.",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "Anonymous/cross-site denial, size/type/signature, failed upload, public URL, max images, signature-not-full-decode and multipart limits",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-05",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Atomic catalog save shall lock the parent product before size rows, preserving retained-size quantities, inserting new configured sizes at zero, deleting removed/obsolete rows and deriving sized total from current rows. Client overall stock cannot override a sized total or an existing unsized quantity. Removing all sizes starts unsized stock at zero. This shares checkout/stock lock order; live multi-session verification and separate seed-insert repair remain G-18.",
+      "source_codes": "ADMIN, ADMINCAT, PURCHASEMIG, PURCHASETEST",
+      "qa_focus": "Retain/add/remove/missing/obsolete rows, sized-to-unsized, stale form after depletion, forced rollback, live concurrency",
+      "known_gap_ids": "G-06; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-06",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Delete shall require browser confirmation and signed-cookie server DELETE /api/admin/products/[id]. Missing product gives 404; failed writes show feedback and retain the list. Database cascades dependent favorite/review/size/alert rows; historical order lines retain price/quantity with null product. Stored image files are not garbage-collected.",
+      "source_codes": "ADMIN, ADMINCAT, SCHEMA, DEMOMIG",
+      "qa_focus": "Cancel/confirm, missing ID, denial/error, referenced product/history snapshots, image retention",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-01",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock view shall expose one row per configured size or one Overall row for unsized products. Whole-number nonnegative edits save on blur through protected stock PATCH; failed writes/invalid values show feedback and do not update in-memory stock. Positive saves may still trigger notifications with G-12 limits.",
+      "source_codes": "ADMIN, STOCKAPI",
+      "qa_focus": "Sized/unsized, blur, invalid/failing write, expired cookie, notification limits",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-03",
+      "module": "Admin stock",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Row labels shall be Out of stock for zero, Low stock for 1-4, Available for 5+. Dashboard and analytics low-stock counts include unsized products with 1-4 units and sized products with at least one configured size in that range.",
+      "source_codes": "ADMIN",
+      "qa_focus": "0/1/4/5, unsized low stock, configured size versus obsolete rows",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-04",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Purchase stock RPC and atomic catalog save shall use parent-product-first locking with checkout. Stock RPC rejects unsupported size or overall edits on sized products; catalog save synchronizes configured rows/totals and preserves current existing unsized stock. Local rollback/permission tests are scoped evidence; separate seeding and live multi-session behavior remain G-18.",
+      "source_codes": "STOCKAPI, PURCHASEMIG, ADMINCAT, ADMIN, PURCHASETEST",
+      "qa_focus": "Transaction failure, checkout/edit concurrency, configured aggregate, stale form, seed-repair limitation",
+      "known_gap_ids": "G-08; G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ANL-01",
+      "module": "Analytics and settings",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Analytics shall show active demo order value and active order count excluding cancelled orders, average active order value (zero when empty), and configured stock units in INR/base values. Failed/loading data shows an unavailable dash for its summary metrics. These are demo order values, not collected revenue. Pipeline still includes all five statuses.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Known active/cancelled totals, zero orders, failed reads, average denominator, demo labels",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ANL-03",
+      "module": "Analytics and settings",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Inventory health shall show healthy=max(products−low−out,0), low/out counts and units derived from configured sizes or unsized stock.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Sized/unsized low counts, inconsistent stored rows",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ANL-04",
+      "module": "Analytics and settings",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Top products shall rank up to five existing products by quantities in loaded noncancelled orders. Deleted products do not appear; ties follow existing product order and empty sales state is shown.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Ties, deleted product, cancelled exclusion, no active sales",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ANL-05",
+      "module": "Analytics and settings",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Customer signal shall show approved review count and mean approved rating to one decimal, zero when no approved reviews. Pending/unapproved reviews are excluded; failed/loading review data shows unavailable rather than zero.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Mixed approvals, 0/1/multiple approved, failed read, correct denominator",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:ui includes storefront and admin API/dashboard/form regressions. Assistant suite uses fake/intercepted models with blank GROQ_API_KEY. UI/catalog/assistant Chromium suites run sequentially on dedicated servers (assistant port override allowed) with disabled live Supabase/mail, no existing server reuse, separate artifacts and isolated browser compilation. Catalog fixtures intercept a reserved .invalid domain. Mocks/local cookies are not live integration acceptance.",
+      "source_codes": "UITEST, REQTOOLS, ADMINCAT",
+      "qa_focus": "Reproducible admin/source fixtures, disabled provider key, no live mutations, cache isolation, CI artifacts/review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-09",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Read-only npm run security:check-db with explicit DATABASE_URL shall inspect review/order/limiter RLS/grants plus current five-argument checkout, stock/catalog service-only RPCs, removed legacy RPC, private attempts, browser catalog write denial, product-image bucket/guards and legacy invalid price/stock rows. Shared catalog-inspector queries are exercised in isolated PostgreSQL, including a permission regression. Full applied Supabase verification remains pending; G-25 history is retained.",
+      "source_codes": "SECCHECK, SECURITYMIG, CHECKOUTSEC, PURCHASEMIG, ADMINCAT",
+      "qa_focus": "Missing URL/migrations, current signatures, private attempts, table/column grants, storage guards, legacy invalid rows, no writes",
+      "known_gap_ids": "G-25",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-10",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:purchase shall apply base, checkout security, demo catalog, purchase safeguards and admin catalog migrations to isolated in-memory PGlite with minimal auth/storage fixtures. Nineteen cases cover replay/options/rollback/totals, catalog row synchronization, metadata-after-depletion, browser grant/policy denial, history after deletion, migration reapply and read-only inspector permission regressions. CI runs it before browser suites. One connection and mocked storage schema do not prove live Supabase/Auth/Storage or multi-session safety.",
+      "source_codes": "PURCHASETEST, UITEST, ADMINCAT",
+      "qa_focus": "19 scoped cases, no live cleanup/mutation, storage fixture limits, concurrency remains separate",
+      "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall keep GROQ_API_KEY server-side, use Groq Responses API with default openai/gpt-oss-20b or nonblank GROQ_MODEL, and limit each address to 10 requests/minute. No OpenAI credential fallback or automatic SDK retries; each provider request times out after 25 seconds. It accepts 1–50 messages, validates/processes only the last 12, each trimmed to nonblank text of at most 1,000 characters with user/assistant roles and a final user message. Raw body length above 24,000 JavaScript characters gives 413, not a measured byte limit. Missing/blank key or shared production limiter gives 503; invalid input 400, address limit 429, provider quota 429 with a safe usage-limit message, other model failures 502.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Groq URL/key/model and SDK wire format, blank key/no fallback, safe quota errors/no retries, shape/history/body boundaries, production limiter, unvalidated discarded history",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-01",
+      "module": "Nonfunctional requirements",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Customer-owned data/admin actions shall enforce ownership/authority server-side or in RLS. Checkout/stock/catalog RPCs deny browser execution; catalog routes verify signed admin identity and use service role, with restrictive table/storage write guards in migration. Current inspector checks these contracts. Applied live permissions, remaining review workflow and other role acceptance still require verification.",
+      "source_codes": "ADMINCAT, SCHEMA, SECURITYMIG, CHECKOUTSEC, PURCHASEMIG, ADMINAUTH, SECCHECK",
+      "qa_focus": "Forged identities, public/customer write denial, service-only RPCs, applied migrations, live cross-role checks",
+      "known_gap_ids": "G-04; G-24; G-25",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; storefront denies fulfillment/support/newsletter delivery and admin order values are labelled demo, excluding cancelled orders; approved-only rating metrics and unsized low stock are corrected. Settings connection label and restock concurrency remain gaps. Transaction locks require live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG, ADMINCAT",
+      "qa_focus": "Demo copy, metric definitions, settings label, live permissions/concurrency, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T19:51:32.968Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-08",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Admin login, checkout, review creation/upload, restock subscription and shopping assistant shall use one atomic production database rate-limit counter across instances; missing shared configuration/RPC fails closed with 503. Assistant allows 10 requests/address/minute. Keys are HMAC-hashed, and the ingress proxy must append or overwrite x-forwarded-for. Nonproduction may use a process-local fallback. Catalog writes and product uploads also use shared per-admin limits of 60 and 10/minute respectively.",
+      "source_codes": "RATELIMIT, SECURITYMIG, ADMINLOGIN, CHECKOUT, RESTOCK, REVIEWSAPI, REVIEWUPLOAD, ASSIST, ADMINCAT",
+      "qa_focus": "Multi-instance limits, assistant limit, 429 boundary, 503 unavailable, proxy-spoof test, account upload quota",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

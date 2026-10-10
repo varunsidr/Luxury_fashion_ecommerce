@@ -4,7 +4,7 @@ import { defineConfig } from "@playwright/test";
 // Never reuse a server that might be connected to the user's actual database.
 export default defineConfig({
   testDir: "./tests",
-  testMatch: "storefront.spec.ts",
+  testMatch: ["storefront.spec.ts", "admin.spec.ts"],
   timeout: 30_000,
   workers: 1,
   retries: 0,
@@ -35,6 +35,7 @@ export default defineConfig({
       RESEND_API_KEY: "",
       RESTOCK_FROM_EMAIL: "",
       TEST_API_SECRET: "",
+      GROQ_API_KEY: "",
     },
   },
 });
