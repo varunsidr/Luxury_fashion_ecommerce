@@ -7,7 +7,7 @@ import { supabaseCatalogStore } from "./catalogStore";
 import { MAX_CART_LINES, MAX_MESSAGES, MAX_MESSAGE_LENGTH, type CartLineInput, type CatalogStore, type ChatMessage } from "./types";
 
 const MAX_BODY_BYTES = 24_000;
-const DEFAULT_MODEL = "gpt-4o-mini";
+const DEFAULT_MODEL = "openai/gpt-oss-20b";
 
 export interface AssistantDeps {
   store: CatalogStore;
@@ -88,6 +88,9 @@ export async function handleAssistantRequest(request: Request, deps: AssistantDe
       name: error instanceof Error ? error.name : "unknown",
       status: (error as { status?: number })?.status,
     });
+    if ((error as { status?: number })?.status === 429) {
+      return json({ error: "The assistant has reached its usage limit. Please try again later or browse the store directly." }, 429);
+    }
     return json({ error: "The assistant couldn't answer right now. Please try again." }, 502);
   }
 }
@@ -100,13 +103,21 @@ async function verifySupabaseToken(token: string): Promise<boolean> {
   return !error && Boolean(data.user);
 }
 
+export function createGroqClient(env: NodeJS.ProcessEnv = process.env): OpenAI | null {
+  const apiKey = env.GROQ_API_KEY?.trim();
+  return apiKey ? new OpenAI({
+    apiKey,
+    baseURL: "https://api.groq.com/openai/v1",
+    timeout: 25_000,
+    // Let the shopper retry; automatic retries also consume the free allowance.
+    maxRetries: 0,
+  }) : null;
+}
+
 export const defaultDeps: AssistantDeps = {
   store: supabaseCatalogStore,
-  createClient: () => {
-    const apiKey = process.env.OPENAI_API_KEY;
-    return apiKey ? (new OpenAI({ apiKey, timeout: 25_000, maxRetries: 1 }) as unknown as ResponsesClient) : null;
-  },
+  createClient: () => createGroqClient() as unknown as ResponsesClient | null,
   verifyToken: verifySupabaseToken,
   rateLimit: (key) => isRateLimited(key, 10, 60_000),
-  model: () => process.env.OPENAI_MODEL || DEFAULT_MODEL,
+  model: () => process.env.GROQ_MODEL?.trim() || DEFAULT_MODEL,
 };

@@ -14,6 +14,6 @@ export default defineConfig({
     ...server,
     command: `npm run dev -- --port ${port}`,
     url: `http://localhost:${port}/api/health`,
-    env: { ...server.env, NEXT_PUBLIC_SITE_URL: `http://localhost:${port}` },
+    env: { ...server.env, NEXT_PUBLIC_SITE_URL: `http://localhost:${port}`, GROQ_API_KEY: "", GROQ_MODEL: "" },
   },
 });

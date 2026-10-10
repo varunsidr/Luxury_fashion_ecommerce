@@ -28,8 +28,9 @@ export async function runAssistant(client: ResponsesClient, model: string, messa
 
   for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
     const response = await client.responses.create({
-      model, instructions: SYSTEM_PROMPT, input, tools: TOOL_DEFINITIONS, store: false,
-      max_output_tokens: 700, parallel_tool_calls: false,
+      // Groq manages no conversation state; send history and omit unsupported store.
+      model, instructions: SYSTEM_PROMPT, input, tools: TOOL_DEFINITIONS,
+      max_output_tokens: 700, parallel_tool_calls: false, reasoning: { effort: "low" },
       // Final round: force a text answer instead of another tool call.
       tool_choice: round === MAX_TOOL_ROUNDS ? "none" : "auto",
     });

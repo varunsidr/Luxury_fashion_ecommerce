@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { executeTool, newRunState } from "../src/lib/assistant/tools";
 import { runAssistant, FALLBACK_REPLY, type ResponsesClient } from "../src/lib/assistant/chat";
-import { handleAssistantRequest, parseMessages, type AssistantDeps } from "../src/lib/assistant/handler";
+import { createGroqClient, handleAssistantRequest, parseMessages, type AssistantDeps } from "../src/lib/assistant/handler";
 import { supabaseCatalogStore } from "../src/lib/assistant/catalogStore";
 import type { Product } from "../src/lib/productTypes";
 import type { ToolContext } from "../src/lib/assistant/types";
@@ -92,7 +92,7 @@ test("runAssistant executes tools, builds cards from catalog data only and drops
   expect(result.reply).not.toContain("[[");
   expect(result.products.map((p) => p.id)).toEqual(["p3"]);
   expect(result.products[0].url).toBe("/bags/p3");
-  expect(calls[0].store).toBe(false);
+  expect(calls[0]).not.toHaveProperty("store");
   expect(JSON.stringify(calls[1].input)).toContain("function_call_output");
 });
 
@@ -120,6 +120,58 @@ const deps = (over: Partial<AssistantDeps> = {}): AssistantDeps => ({
 });
 const post = (body: unknown, headers: Record<string, string> = {}) =>
   new Request("http://localhost/api/assistant", { method: "POST", headers, body: typeof body === "string" ? body : JSON.stringify(body) });
+
+test("Groq SDK requests use the server key and round-trip local function outputs without unsupported settings", async () => {
+  const requests: Request[] = [];
+  const bodies: Record<string, unknown>[] = [];
+  const sdk = createGroqClient({ GROQ_API_KEY: "fixture-groq-key", OPENAI_API_KEY: "unused-openai-key" })!;
+  const client = sdk.withOptions({ fetch: async (url, init) => {
+    const request = new Request(url, init);
+    requests.push(request);
+    bodies.push(await request.json());
+    const output = bodies.length === 1
+      ? [{ type: "function_call", name: "searchProducts", arguments: '{"query":"bag"}', call_id: "groq-call" }]
+      : [{ type: "message", role: "assistant", content: [{ type: "output_text", text: "Leather Tote Bag [[product:p3]]" }] }];
+    return new Response(JSON.stringify({ id: "fixture-response", object: "response", output }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } });
+  const result = await runAssistant(client as unknown as ResponsesClient, "openai/gpt-oss-20b", [{ role: "user", content: "show bags" }], ctx());
+  expect(requests).toHaveLength(2);
+  for (const request of requests) {
+    expect(request.url).toBe("https://api.groq.com/openai/v1/responses");
+    expect(request.headers.get("authorization")).toBe("Bearer fixture-groq-key");
+  }
+  expect(bodies[0]).toMatchObject({ model: "openai/gpt-oss-20b", reasoning: { effort: "low" }, parallel_tool_calls: false });
+  expect(bodies[0]).not.toHaveProperty("store");
+  expect(bodies[1].input).toEqual(expect.arrayContaining([
+    expect.objectContaining({ type: "function_call_output", call_id: "groq-call", output: expect.stringContaining("Leather Tote Bag") }),
+  ]));
+  expect(result.products.map((p) => p.id)).toEqual(["p3"]);
+});
+
+test("missing or blank Groq key never falls back to OpenAI credentials", async () => {
+  for (const GROQ_API_KEY of [undefined, "", "  "]) {
+    expect(createGroqClient({ GROQ_API_KEY, OPENAI_API_KEY: "unused-openai-key" })).toBeNull();
+  }
+});
+
+test("provider quota errors return a safe 429 without automatic retry", async () => {
+  let calls = 0;
+  const client = createGroqClient({ GROQ_API_KEY: "fixture-groq-key" })!.withOptions({ fetch: async () => {
+    calls++;
+    return new Response(JSON.stringify({ error: { message: "private quota details fixture-groq-key", type: "rate_limit_error" } }), {
+      status: 429, headers: { "Content-Type": "application/json" },
+    });
+  } });
+  const response = await handleAssistantRequest(post({ messages: [{ role: "user", content: "hi" }] }),
+    deps({ createClient: () => client as unknown as ResponsesClient }));
+  expect(response.status).toBe(429);
+  const body = await response.json();
+  expect(body.error).toContain("usage limit");
+  expect(body.error).not.toMatch(/private quota|fixture-groq-key/);
+  expect(calls).toBe(1);
+});
 
 test("API route validates input, rate limits, and hides internals", async () => {
   const ok = await handleAssistantRequest(post({ messages: [{ role: "user", content: "hi" }] }), deps());
@@ -175,7 +227,7 @@ test.describe("chat widget", () => {
     let release: () => void = () => {};
     await page.route("**/api/assistant", async (route) => {
       calls += 1;
-      if (calls === 1) return route.fulfill({ status: 502, json: { error: "The assistant couldn't answer right now." } });
+      if (calls === 1) return route.fulfill({ status: 429, json: { error: "The assistant has reached its usage limit. Please try again later or browse the store directly." } });
       await new Promise<void>((resolve) => { release = resolve; });
       return route.fulfill({ json: {
         reply: "<b>Tote</b> is ₹1,500.",
@@ -187,11 +239,14 @@ test.describe("chat widget", () => {
     const launcher = page.getByTestId("assistant-launcher");
     await expect(launcher).toHaveAttribute("aria-label", "Open shopping assistant");
     await launcher.click();
+    await expect(page.getByRole("heading", { name: "Zeouf Shopping Assistant" })).toBeVisible();
+    await expect(page.getByText("Please don't share personal or payment details.")).toBeVisible();
     const input = page.getByLabel("Message the shopping assistant");
     await expect(input).toBeFocused();
     await input.fill("show bags");
     await input.press("Enter");
     await expect(page.getByTestId("assistant-error")).toBeVisible();
+    await expect(page.getByTestId("assistant-error")).toContainText("usage limit");
     await page.getByRole("button", { name: "Retry" }).click();
     await expect(page.getByTestId("assistant-typing")).toBeVisible();
     await expect(page.getByRole("button", { name: "Send message" })).toBeDisabled();

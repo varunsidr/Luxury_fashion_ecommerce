@@ -662,5 +662,38 @@
     "changed_sources": [],
     "source_digest": "9fd918ed3cbaeb23036c647ef7f9d869d96dc06b536044219074642f3fd79db3",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-10T18:56:44.441Z",
+    "summary": "Connect Zeouf Shopping Assistant to Groq using server-only GROQ_API_KEY and optional GROQ_MODEL; omit unsupported store, use low reasoning, disable automatic retries/OpenAI fallback, surface safe quota errors, update display/privacy copy and isolated SDK/widget fixtures; 16 assistant regressions and a two-request live fictional-fixture search/card smoke passed",
+    "requirement_ids": [
+      "AST-01",
+      "AST-02",
+      "AST-03",
+      "OPS-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      ".env.example",
+      "README.md",
+      "playwright.assistant.config.ts",
+      "src/components/ShoppingAssistant.tsx",
+      "src/lib/assistant/chat.ts",
+      "src/lib/assistant/handler.ts",
+      "tests/assistant.spec.ts"
+    ],
+    "source_digest": "3a817369a0fabe6c2fb666a7242f21cc6e6457f4800d2ef1321e88c0794f3ac0",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-10T18:57:49.839Z",
+    "summary": "Escape the privacy reminder apostrophe in JSX to satisfy lint; inspected output is identical and the Groq behavior, BRD and QA scenarios are unchanged",
+    "requirement_ids": [],
+    "no_functional_change": true,
+    "changed_sources": [
+      "src/components/ShoppingAssistant.tsx"
+    ],
+    "source_digest": "0b11aec8a16a581528390af6ddd3243ae8fb94d99bda416ad42750a7906d931a",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

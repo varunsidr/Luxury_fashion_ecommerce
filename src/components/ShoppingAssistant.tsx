@@ -16,7 +16,7 @@ interface UiMessage extends ChatMessage {
   actions?: AddToCartAction[];
 }
 
-const GREETING = "Hi, I'm your zeouf shopping assistant. Ask me about products, prices, availability, categories or our shipping and returns information.";
+const GREETING = "Hi! I'm your Zeouf Shopping Assistant. I can help you find products, check available sizes, and build your bag.";
 const SUGGESTIONS = ["Show me products under ₹2000", "Recommend a gift", "What is your returns policy?"];
 
 export default function ShoppingAssistant() {
@@ -124,15 +124,16 @@ export default function ShoppingAssistant() {
           id="shopping-assistant-panel"
           role="dialog"
           aria-modal="false"
-          aria-label="Shopping assistant"
+          aria-label="Zeouf Shopping Assistant"
           data-testid="assistant-panel"
           onKeyDown={(event) => { if (event.key === "Escape") close(); }}
           className="fixed inset-x-0 bottom-0 z-[55] flex h-[min(85dvh,640px)] flex-col border border-neutral-200 bg-[#fdfcf9] shadow-2xl sm:inset-x-auto sm:bottom-24 sm:right-6 sm:h-[min(640px,calc(100dvh-8rem))] sm:w-[400px]"
         >
           <header className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
             <div>
-              <h2 className="font-playfair text-lg text-neutral-900">Shopping assistant</h2>
+              <h2 className="font-playfair text-lg text-neutral-900">Zeouf Shopping Assistant</h2>
               <p className="text-[11px] text-neutral-500">AI-generated answers can be wrong. Check product pages.</p>
+              <p className="text-[11px] text-neutral-500">Please don&apos;t share personal or payment details.</p>
             </div>
             <button type="button" onClick={close} aria-label="Close shopping assistant" className="flex h-11 w-11 items-center justify-center text-neutral-600 hover:text-neutral-900">
               <X size={20} aria-hidden="true" />

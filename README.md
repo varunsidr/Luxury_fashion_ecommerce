@@ -452,28 +452,30 @@ Configure the public Supabase settings and the server-only values required by th
 
 ## Shopping assistant
 
-A floating chat widget (bottom-right, all non-admin pages) answers shopping questions using real catalog data.
+A floating chat widget named **Zeouf Shopping Assistant** (bottom-right, all non-admin pages) answers shopping questions using catalog data and Groq-hosted AI. The panel asks shoppers not to share personal or payment details.
 
 **Architecture**
 
 - `src/components/ShoppingAssistant.tsx` — client widget mounted in `SiteShell`. Keeps history in memory, sends accumulated messages (plus the browser bag when signed in), renders product cards and an "Add to bag?" confirmation. The API processes the last 12 messages but rejects more than 50 raw entries. Confirming calls the existing `CartContext.addItem`; stale proposal/session feedback has the limits tracked in BRD G-26.
 - `src/app/api/assistant/route.ts` → `src/lib/assistant/handler.ts` — validates the request, applies the shared `isRateLimited` limiter (10 requests/minute/address), verifies the optional Supabase bearer token server-side, then calls `runAssistant`.
-- `src/lib/assistant/chat.ts` — OpenAI Responses API loop (`openai` SDK, `store: false`, max 4 tool rounds, non-streaming). Product cards are built from tool results using `[[product:ID]]` markers; unknown ids are dropped.
+- `src/lib/assistant/chat.ts` — Groq Responses API loop through the `openai` SDK, default model `openai/gpt-oss-20b`, low reasoning effort, 700 output tokens/call, max 4 tool rounds then a text-only final round, non-streaming. Every request carries its history; unsupported `store` is omitted. Product cards are built from tool results using `[[product:ID]]` markers; unknown ids are dropped.
 - `src/lib/assistant/tools.ts` — deterministic, validated tools: `searchProducts`, `getProduct`, `getProductAvailability`, `getRelatedProducts`, `getCategories`, `getCart`, `addToCart`, `getStorePolicies`. They read the same `products` / `product_size_stock` tables as the storefront through `catalogStore.ts` (cached 30 s) and reuse `categories.ts` URL helpers. At most 8 products are returned per call; the catalog is never sent to the model.
 - `getCart` needs a verified signed-in customer and uses their browser-supplied cart snapshot; prices come from the cached catalog. `addToCart` returns a proposal and only Confirm calls the cart. Assistant size/stock checks can differ from authoritative checkout and need further alignment (G-26); cached proposals do not reserve inventory.
 - `src/lib/assistant/policies.ts` — demo policy facts aligned with the storefront: no charge, shipment, exchanges, returns or customer support follow-up. The prompt instructs the model to use these facts; generated prose still needs review.
 
 **Local setup**
 
-1. `npm install`, then copy `.env.example` to `.env.local` and set `OPENAI_API_KEY` (and optionally `OPENAI_MODEL`).
+1. `npm install`, then copy `.env.example` to `.env.local` if it does not already exist and set `GROQ_API_KEY` (and optionally `GROQ_MODEL`, default `openai/gpt-oss-20b`). Keep your existing Supabase and other settings. Restart the dev server after changing environment variables.
 2. `npm run dev` and open the chat button. Without Supabase configured the bundled demo catalog is used.
-3. Tests: `npm run test:assistant` (set `ASSISTANT_TEST_PORT` to change the port). Run sequentially with the other browser suites because they share the isolated compilation cache. They use fake model clients/intercepted chat requests; no real model key or calls are needed.
+3. Tests: `npm run test:assistant` (set `ASSISTANT_TEST_PORT` to change the port). Run sequentially with the other browser suites because they share the isolated compilation cache. They use fake model clients/intercepted SDK and chat requests; the test server explicitly disables the Groq key. No real model key or calls are needed.
+
+Use Groq's Free plan to start with capped usage. One shopper message can make up to five model requests; the application's 10/address/minute limit does not enforce the provider's shared request/token allowance. Provider 429 responses produce a safe usage-limit message and Retry; there are no automatic SDK retries or fallback calls to OpenAI. Other provider failures return a generic 502. Check your account's exact limits in the [Groq rate-limit documentation](https://console.groq.com/docs/rate-limits). Groq's [Responses API](https://console.groq.com/docs/responses-api) is currently beta; test any model override for Responses/function-calling and low-effort reasoning compatibility.
 
 **Changing the system prompt safely** — edit `src/lib/assistant/prompt.ts`. Keep the FACTS and SAFETY rules (tool-only facts, untrusted catalog text, no checkout, confirmation before cart changes). Add new store facts to `policies.ts`, not the prompt. Re-run `npm run test:assistant` and try a prompt-injection query manually. Do not put secrets or customer data in the prompt.
 
-**Deployment** — set `OPENAI_API_KEY` as a server-only secret (not `NEXT_PUBLIC_*`). Configure `RATE_LIMIT_SECRET` and the Supabase service role so the shared limiter works across instances (production returns 503 if the limiter is unavailable). Behind a proxy, make sure `x-forwarded-for` is set by the trusted proxy. Allow outbound HTTPS to `api.openai.com`.
+**Deployment** — set `GROQ_API_KEY` as a server-only secret (not `NEXT_PUBLIC_*`), optionally set `GROQ_MODEL`, and redeploy. Old `OPENAI_API_KEY`/`OPENAI_MODEL` settings are no longer read by the assistant. Configure `RATE_LIMIT_SECRET` and the Supabase service role so the shared limiter works across instances (production returns 503 if the limiter is unavailable). Behind a proxy, make sure `x-forwarded-for` is set by the trusted proxy. Allow outbound HTTPS to `api.groq.com`; each SDK request has a 25-second timeout and no automatic retry.
 
-**Security** — the key stays server-side; tool arguments are validated and ids/prices/stock are re-read from the catalog; catalog text is flagged `untrusted_*`; clients receive generic errors; logs contain only error type/status, never prompts, keys or customer data; React escapes all message text; the assistant has no order, account, checkout or payment tools. Message content is sent to OpenAI, so tell users not to share personal data in chat.
+**Security** — the key stays server-side; tool arguments are validated and ids/prices/stock are re-read from the catalog; catalog text is flagged `untrusted_*`; clients receive generic errors; logs contain only error type/status, never prompts, keys or customer data; React escapes all message text; the assistant has no order, account, checkout or payment tools. Recent message content and tool results are sent to Groq. The panel asks users not to share personal/payment data; the application does not store conversations in a database, but this does not establish provider retention behavior.
 
 ---
 
@@ -493,8 +495,8 @@ A floating chat widget (bottom-right, all non-admin pages) answers shopping ques
 | `RESTOCK_FROM_EMAIL` | Optional | Verified sender address for Resend restock alerts |
 | `NEXT_PUBLIC_SITE_URL` | For configured site links | Storefront origin used in configured email links; set the deployed URL for hosted environments |
 | `TEST_API_SECRET` | Local test helpers only | Separate secret for `x-test-api-secret`; test helpers are disabled in production |
-| `OPENAI_API_KEY` | For the shopping assistant | Server-only OpenAI key. Without it `/api/assistant` returns 503 and the widget shows an error; never expose or commit it |
-| `OPENAI_MODEL` | Optional | Model used by the assistant (default `gpt-4o-mini`); must support the Responses API and function calling |
+| `GROQ_API_KEY` | For the shopping assistant | Server-only Groq key. Without a nonblank key `/api/assistant` returns 503 and the widget shows an error; never expose or commit it |
+| `GROQ_MODEL` | Optional | Groq model used by the assistant (default `openai/gpt-oss-20b`); must support Responses API, function calling and low-effort reasoning |
 | `DATABASE_URL` | DB check or local seeds | Direct Postgres URL used by read-only `security:check-db` or local seed scripts; not used by the storefront |
 
 ---

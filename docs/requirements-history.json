@@ -5269,5 +5269,154 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-10T18:56:44.122Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:assistant runs the assistant tool/API/widget suite with a fake model on port 3100 (override with ASSISTANT_TEST_PORT). npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T18:56:44.122Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AST-01",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Every non-admin page shall show a bottom-right floating assistant launcher that opens a non-modal chat panel (Escape closes and returns focus; input focused on open; Enter sends, Shift+Enter inserts a newline; duplicate sends are blocked while a reply is pending). Messages render as escaped text; failures show an error with Retry. Mobile panel shall fit the viewport.",
+      "source_codes": "ASSIST, SHELL",
+      "qa_focus": "Keyboard, 390px viewport, escaped HTML, retry, no admin-page launcher",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T18:56:44.122Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall keep OPENAI_API_KEY server-side and limit each address to 10 requests/minute. It accepts 1–50 messages, validates/processes only the last 12, each trimmed to nonblank text of at most 1,000 characters with user/assistant roles and a final user message. Raw body length above 24,000 JavaScript characters gives 413, not a measured byte limit. Missing key/shared production limiter gives 503; invalid input 400, rate limit 429, model failure 502.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Shape/history/body boundaries, missing key, safe errors, production limiter, unvalidated discarded history",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T18:56:44.441Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:assistant runs the assistant tool/API/widget suite with fake/intercepted model requests and an explicitly blank GROQ_API_KEY on its server, port 3100 (override with ASSISTANT_TEST_PORT). npm run test:ui and test:catalog run sequential Chromium suites using dedicated localhost:3100 servers, fixture credentials and disabled live Supabase/mail integration. Catalog tests intercept a reserved .invalid domain to exercise the configured client. Existing servers are not reused; .next-browser-tests separates test compilation from ordinary development. Suite artifacts use separate directories. Configuration, test and workflow changes require documentation review; scoped mocks/local cookies are not live integration acceptance evidence.",
+      "source_codes": "UITEST, REQTOOLS",
+      "qa_focus": "Reproducible fixtures, disabled provider key, no live mutations, cache/server isolation, configured and fallback clients, CI artifacts, source review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T18:56:44.441Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-01",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Every non-admin page shall show a bottom-right floating assistant launcher that opens a non-modal panel named Zeouf Shopping Assistant with a product/size/bag greeting, AI-answer warning and personal/payment-data reminder (Escape closes and returns focus; input focused on open; Enter sends, Shift+Enter inserts a newline; duplicate sends are blocked while a reply is pending). Messages render as escaped text; failures show an error with Retry. Mobile panel shall fit the viewport.",
+      "source_codes": "ASSIST, SHELL",
+      "qa_focus": "Display name/privacy copy, keyboard, 390px viewport, escaped HTML, quota message/retry, no admin-page launcher",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T18:56:44.441Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-02",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "POST /api/assistant shall keep GROQ_API_KEY server-side, use Groq Responses API with default openai/gpt-oss-20b or nonblank GROQ_MODEL, and limit each address to 10 requests/minute. No OpenAI credential fallback or automatic SDK retries; each provider request times out after 25 seconds. It accepts 1–50 messages, validates/processes only the last 12, each trimmed to nonblank text of at most 1,000 characters with user/assistant roles and a final user message. Raw body length above 24,000 JavaScript characters gives 413, not a measured byte limit. Missing/blank key or shared production limiter gives 503; invalid input 400, address limit 429, provider quota 429 with a safe usage-limit message, other model failures 502.",
+      "source_codes": "ASSIST, RATELIMIT",
+      "qa_focus": "Groq URL/key/model and SDK wire format, blank key/no fallback, safe quota errors/no retries, shape/history/body boundaries, production limiter, unvalidated discarded history",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-10T18:56:44.441Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Tools shall read the existing catalog for search/detail/availability/related/category/policy facts, validate arguments and label authored text untrusted. Results return at most eight products per search/related call, with up to three catalog-derived cards; invented card IDs are dropped. Prompt instructs tool-grounded text but does not enforce model prose correctness. Catalog cache lasts 30 seconds and availability can use stale/overall size stock (G-26); low stock means 1–5 here, distinct from admin 1–4.",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Price/category filters, unknown product/ID, untrusted text, model prose limits, cache/missing/obsolete size rows",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]
