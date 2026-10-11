@@ -778,5 +778,32 @@
     ],
     "source_digest": "5a24430aba8ead26ab8fce709cb3f3062079ec40a77f4f78d0b7b848fdbd833b",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-11T13:37:29.839Z",
+    "summary": "Restore Women/Men disclosure focus when Escape dismisses a desktop menu from its link or trigger; cancel pending hover closure and preserve subsequent hover opening. Extend existing isolated keyboard regressions and clarify NAV-03 and TC-NAV-005-01; verification recorded separately.",
+    "requirement_ids": [
+      "NAV-03",
+      "NAV-05"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "src/components/Navbar.tsx",
+      "tests/storefront.spec.ts"
+    ],
+    "source_digest": "a1b1814a708d46373f3e76826ae49ba1a3af6071c2309786c8086669c1fdb4be",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-11T18:25:09.578Z",
+    "summary": "Reviewed prepared Women/Men Escape focus restoration, timer cancellation and preserved hover reopening; NAV-03 acceptance and TC-NAV-005-01 updated, UI suite count corrected to 32. Both isolated desktop regressions, lint and production build passed; deployed ecommerce-chromium verification remains pending.",
+    "requirement_ids": [
+      "NAV-03",
+      "NAV-05"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [],
+    "source_digest": "a1b1814a708d46373f3e76826ae49ba1a3af6071c2309786c8086669c1fdb4be",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

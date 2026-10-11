@@ -87,16 +87,30 @@ test("mobile navigation exposes subcategories and closes with Escape", async ({ 
   await expect(menu).toHaveAttribute("inert", "");
 });
 
-test("desktop mega menu can be opened and dismissed with the keyboard", async ({ page }) => {
-  await page.goto("/");
-  const toggle = page.getByRole("button", { name: "Browse women categories" });
-  await toggle.focus();
-  await page.keyboard.press("Enter");
-  await expect(toggle).toHaveAttribute("aria-expanded", "true");
-  await expect(page.locator("#mega-menu-women").getByRole("link", { name: "Dress", exact: true })).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(toggle).toHaveAttribute("aria-expanded", "false");
-});
+for (const group of ["women", "men"] as const) {
+  test(`desktop ${group} mega menu restores focus after Escape from a link or disclosure`, async ({ page }) => {
+    await page.goto("/");
+    const toggle = page.getByRole("button", { name: `Browse ${group} categories` });
+    const panel = page.locator(`#mega-menu-${group}`);
+    const category = panel.getByRole("link", { name: group === "women" ? "Dress" : "Suit", exact: true });
+    await toggle.focus();
+    await toggle.press("Enter");
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await expect(category).toBeVisible();
+    await category.focus();
+    await page.keyboard.press("Escape");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(panel).toHaveAttribute("inert", "");
+    await expect(toggle).toBeFocused();
+    await toggle.press("Enter");
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await toggle.press("Escape");
+    await expect(panel).toHaveAttribute("inert", "");
+    await expect(toggle).toBeFocused();
+    await toggle.hover();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  });
+}
 
 test("registration mismatch makes no account creation request; matching values continue", async ({ page }) => {
   const calls: object[] = [];

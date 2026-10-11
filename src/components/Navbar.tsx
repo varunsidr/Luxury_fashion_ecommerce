@@ -96,6 +96,14 @@ export default function Navbar() {
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [megaOpen, setMegaOpen] = useState<string | null>(null);
   const megaTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const megaTriggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  const dismissMegaMenu = (href: string) => {
+    if (megaTimeout.current) clearTimeout(megaTimeout.current);
+    setMegaOpen(null);
+    setHoveredLink(null);
+    megaTriggerRefs.current[href]?.focus();
+  };
   const [loginOpen, setLoginOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
@@ -464,8 +472,15 @@ export default function Navbar() {
                       }`}
                   />
                 </Link>
-                {link.mega && <button type="button" onClick={() => setMegaOpen(megaOpen === link.href ? null : link.href)}
-                  onKeyDown={(event) => { if (event.key === "Escape") setMegaOpen(null); }}
+                {link.mega && <button type="button" ref={(element) => { megaTriggerRefs.current[link.href] = element; }}
+                  onClick={() => setMegaOpen(megaOpen === link.href ? null : link.href)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      dismissMegaMenu(link.href);
+                    }
+                  }}
                   aria-label={`Browse ${link.label.toLowerCase()} categories`} aria-expanded={megaOpen === link.href}
                   aria-controls={`mega-menu-${link.href.slice(1)}`} className="!min-w-6 !min-h-8 text-neutral-500"><ChevronDown size={12} /></button>}
               </li>
@@ -511,7 +526,13 @@ export default function Navbar() {
             key={link.href}
             id={`mega-menu-${link.href.slice(1)}`}
             inert={megaOpen !== link.href}
-            onKeyDown={(event) => { if (event.key === "Escape") setMegaOpen(null); }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.preventDefault();
+                event.stopPropagation();
+                dismissMegaMenu(link.href);
+              }
+            }}
             onMouseEnter={() => {
               if (megaTimeout.current) clearTimeout(megaTimeout.current);
               setMegaOpen(link.href);

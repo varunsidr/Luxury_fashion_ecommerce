@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_at": "2026-10-10T19:51:32.968Z",
+  "reviewed_at": "2026-10-11T18:25:09.578Z",
   "files": {
     ".env.example": "aacd593bac4962d145bea1d7e30c519d99b26368db7350a6985539d1b4d35e2c",
     ".github/workflows/ci-local.yml": "def9628741d7200e015816bf0a04dd1424d5e207ee84ab9d0e438064e395dc20",
@@ -90,7 +90,7 @@
     "src/app/privacy/page.tsx": "3b3cf2f550abd9f24df431dd15520a294bb87dc6400cdfeefc4015facdb57eff",
     "src/components/AdminApp.tsx": "3032837009463fc34cce200ca08318c9030699ddcc1938fa5949bd113a6c5037",
     "src/components/Footer.tsx": "91bd2f14f723a46f7fc6805e575f4173d5c7e6f8a2efb3b7c6f1fb72dcbc56d3",
-    "src/components/Navbar.tsx": "abccb15ee8151f6b210e6b19aec3fcea2a9a10fc94122483978d3b7b404e1a66",
+    "src/components/Navbar.tsx": "7a573a04dfb2fec8babde90c78c3b5eb1f57cad48929c833b7897bca91ea8ecf",
     "src/components/ProductCard.tsx": "59da1b12867e73227efc3de92a85854e9ba3a98ed9be666213574964b368c730",
     "src/components/ProductDetailView.tsx": "5ff933f6e98717a6b424a4b5f6070ff4d2dec5cad50d12d5d298aac58777e282",
     "src/components/ProductListing.tsx": "ae123c915139e15a4f0360a3a9b1827d6e57001c811c0766e9ce501c08eed31c",
@@ -135,7 +135,7 @@
     "tests/assistant.spec.ts": "66f9866bd6de224078b0fcb503bfc1b0fc0c866a242b346611543c5af6ae25ee",
     "tests/catalog.spec.ts": "6da8c860220a5daa3923ad7ff03f6b5d71127d4472f73a9044253abfb6c05469",
     "tests/live.spec.ts": "ca34ca434c982442cb54481ad63a35599fc3682f94dc5f6808d07ec085ef2cd1",
-    "tests/storefront.spec.ts": "0c3da2b27cc64a11f77e0647bc5aaeb6f6f66090b4ee8cabee8999712d757d07",
+    "tests/storefront.spec.ts": "d9b0a2bfba3f18381f70b81a495a6095ff86f4cd67956610f95b472b3fd2f872",
     "tsconfig.json": "db3d4b2621989dfd7fff2a85df0a90aea7dd4ba115acd6e6d2a1f13e45a3f54e",
     "update-prices.sql": "eef6c00dcbedee75ed6961bbb931b4544e8aebd1bd6be0deb214985c0e0bf9e8",
     "upload-images.js": "0f8363c7dc4db4027128909a60615094d704391aad76ee6abdbaa4c978b414cb"

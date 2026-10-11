@@ -6861,5 +6861,108 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-11T13:37:29.769Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NAV-03",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Desktop navigation shall expose seven categories and women's/men's subcategory/highlight menus, with pointer hover and keyboard-operable expanded-state disclosure controls. Escape closes menus; closed menu links are inert.",
+      "source_codes": "NAV, CATDEF",
+      "qa_focus": "Hover, disclosure click/Enter, Escape, inert links, current route",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-11T13:37:29.839Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-03",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Desktop navigation shall expose seven categories and women's/men's subcategory/highlight menus, with pointer hover and keyboard-operable expanded-state disclosure controls. Escape closes menus and restores focus to the corresponding disclosure button, including when a menu link holds focus; closed menu links are inert.",
+      "source_codes": "NAV, CATDEF",
+      "qa_focus": "Hover, disclosure click/Enter, Escape from link/disclosure, trigger focus restoration, inert links, current route",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-11T13:37:29.839Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-05",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Header shall expose account, search, favorites and cart; logo returns home. Active account/cart/search/mobile dialogs lock background scrolling, contain keyboard focus, and support Escape/close/backdrop dismissal with focus restoration; closed drawers are inert.",
+      "source_codes": "NAV, SHELL",
+      "qa_focus": "Dialog roles, Tab/Shift+Tab, Escape, counts, scroll lock, focus restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-11T18:25:09.578Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-03",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Desktop navigation shall expose seven categories and women's/men's subcategory/highlight menus, with pointer hover and keyboard-operable expanded-state disclosure controls. Escape closes menus and restores focus to the corresponding disclosure button, including when a menu link holds focus; closed menu links are inert.",
+      "source_codes": "NAV, CATDEF",
+      "qa_focus": "Hover, disclosure click/Enter, Escape from link/disclosure, trigger focus restoration, inert links, current route",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-11T18:25:09.578Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-05",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Header shall expose account, search, favorites and cart; logo returns home. Active account/cart/search/mobile dialogs lock background scrolling, contain keyboard focus, and support Escape/close/backdrop dismissal with focus restoration; closed drawers are inert.",
+      "source_codes": "NAV, SHELL",
+      "qa_focus": "Dialog roles, Tab/Shift+Tab, Escape, counts, scroll lock, focus restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]
