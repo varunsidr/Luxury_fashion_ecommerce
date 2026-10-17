@@ -805,5 +805,64 @@
     "changed_sources": [],
     "source_digest": "a1b1814a708d46373f3e76826ae49ba1a3af6071c2309786c8086669c1fdb4be",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-11T19:21:24.576Z",
+    "summary": "Reviewed assistant fresh bearer-protected confirmation with current price/options/stock and shared bag quantities; truthful cart acceptance with expected-account guard; configured-size availability and demo color membership; identity reset, late-response cancellation, bounded history, browser deadlines and New conversation. Added AST-07 and documented route/fixtures/cache and live-concurrency limits. 30 isolated assistant and 32 storefront/admin cases passed; no live provider/database mutation performed.",
+    "requirement_ids": [
+      "AST-01",
+      "AST-02",
+      "AST-03",
+      "AST-04",
+      "AST-05",
+      "AST-07",
+      "CART-01",
+      "CART-02",
+      "CART-03",
+      "CART-04",
+      "AUTH-06",
+      "OPS-07",
+      "NFR-08"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md",
+      "playwright.assistant.config.ts",
+      "src/app/api/assistant/confirm/route.ts",
+      "src/components/ShoppingAssistant.tsx",
+      "src/context/CartContext.tsx",
+      "src/lib/assistant/catalogStore.ts",
+      "src/lib/assistant/confirm.ts",
+      "src/lib/assistant/inventory.ts",
+      "src/lib/assistant/requestLifetime.ts",
+      "src/lib/assistant/tools.ts",
+      "src/lib/assistant/types.ts",
+      "tests/assistant.spec.ts"
+    ],
+    "source_digest": "08a2ff6126805a92409233c0e3007d7f7dc6f39f93b1b93fb2e9a7d2e7ee6b1e",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-11T19:23:00.434Z",
+    "summary": "Finalize assistant review and scoped evidence: 30 assistant, 32 storefront/admin, 9 catalog and 13 documentation regressions passed; production build/docs gate passed and lint retains 28 existing warnings. Verified manual fields for all 126 prior requirements and all audit history preserved; AST-07 adds the identity/history/deadline contract. Real-provider, Supabase and concurrency acceptance remain pending; no production changes made.",
+    "requirement_ids": [
+      "AST-01",
+      "AST-02",
+      "AST-03",
+      "AST-04",
+      "AST-05",
+      "AST-07",
+      "CART-01",
+      "CART-02",
+      "CART-03",
+      "CART-04",
+      "AUTH-06",
+      "OPS-07",
+      "NFR-08"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [],
+    "source_digest": "08a2ff6126805a92409233c0e3007d7f7dc6f39f93b1b93fb2e9a7d2e7ee6b1e",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

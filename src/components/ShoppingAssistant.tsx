@@ -8,7 +8,8 @@ import { supabase } from "@/lib/supabase";
 import { useCart } from "@/context/CartContext";
 import { useCurrency } from "@/context/CurrencyContext";
 import type { AddToCartAction, AssistantReply, ChatMessage, ProductCardData } from "@/lib/assistant/types";
-import { MAX_MESSAGE_LENGTH } from "@/lib/assistant/types";
+import { MAX_MESSAGE_LENGTH, MAX_MESSAGES, MAX_CART_LINES } from "@/lib/assistant/types";
+import { withAbort } from "@/lib/assistant/requestLifetime";
 
 interface UiMessage extends ChatMessage {
   id: number;
@@ -28,12 +29,58 @@ export default function ShoppingAssistant() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<Set<string>>(new Set());
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const confirmedRef = useRef(new Set<string>());
+  const confirmBusy = useRef(false);
+  const identity = useRef<string | null | undefined>(undefined);
+  const generation = useRef(0);
+  const controllers = useRef(new Set<AbortController>());
+  const currentCart = useRef(items);
   const nextId = useRef(1);
   const busy = useRef(false);
   const failedHistory = useRef<ChatMessage[] | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { currentCart.current = items; }, [items]);
+
+  const resetConversation = useCallback(() => {
+    generation.current++;
+    controllers.current.forEach(controller => controller.abort());
+    controllers.current.clear();
+    busy.current = false;
+    confirmBusy.current = false;
+    failedHistory.current = null;
+    confirmedRef.current = new Set();
+    setMessages([]); setDraft(""); setError(null); setLoading(false);
+    setConfirmed(new Set()); setConfirming(null);
+  }, []);
+
+  useEffect(() => {
+    let active = true, observed = false;
+    const pendingControllers = controllers.current;
+    const invalidate = () => { generation.current++; };
+    const observe = (id: string | null) => {
+      if (!active) return;
+      if (identity.current !== undefined && identity.current !== id) resetConversation();
+      identity.current = id;
+    };
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      observed = true;
+      observe(session?.user?.id ?? null);
+    });
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!observed) observe(data.session?.user?.id ?? null);
+    }).catch(() => { if (!observed) observe(null); });
+    return () => {
+      active = false; invalidate();
+      data.subscription.unsubscribe();
+      pendingControllers.forEach(controller => controller.abort());
+      pendingControllers.clear();
+      busy.current = false; confirmBusy.current = false;
+    };
+  }, [resetConversation]);
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
@@ -54,29 +101,42 @@ export default function ShoppingAssistant() {
     setLoading(true);
     setError(null);
     failedHistory.current = null;
+    const scope = generation.current;
+    const controller = new AbortController();
+    controllers.current.add(controller);
+    const timer = setTimeout(() => controller.abort(), 45000);
     try {
-      const { data } = await supabase.auth.getSession();
+      const { data } = await withAbort(() => supabase.auth.getSession(), controller.signal);
+      if (generation.current !== scope) return;
+      const userId = data?.session?.user?.id ?? null;
+      if (identity.current !== undefined && identity.current !== userId) {
+        identity.current = userId; resetConversation(); return;
+      }
+      identity.current = userId;
       const token = data?.session?.access_token;
       const response = await fetch("/api/assistant", {
         method: "POST",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) },
         body: JSON.stringify({
-          messages: history,
-          cart: token ? items.map((item) => ({ id: item.id, size: item.size, color: item.color ?? null, quantity: item.quantity })) : [],
+          messages: history.slice(-MAX_MESSAGES).map(({ role, content }) => ({ role, content: content.slice(0, MAX_MESSAGE_LENGTH) })),
+          cart: token ? currentCart.current.slice(0, MAX_CART_LINES).map((item) => ({ id: item.id, size: item.size, color: item.color ?? null, quantity: item.quantity })) : [],
         }),
       });
       const body = await response.json().catch(() => null);
+      if (generation.current !== scope || identity.current !== userId) return;
       if (!response.ok || !body) throw new Error(typeof body?.error === "string" ? body.error : "Something went wrong.");
       const reply = body as AssistantReply;
       setMessages((prev) => [...prev, { id: nextId.current++, role: "assistant", content: reply.reply, products: reply.products, actions: reply.actions }]);
     } catch (caught) {
+      if (generation.current !== scope) return;
       failedHistory.current = history;
-      setError(caught instanceof Error && caught.message ? caught.message : "Something went wrong.");
+      setError(controller.signal.aborted ? "The assistant took too long. Please try again." : caught instanceof Error && caught.message ? caught.message : "Something went wrong.");
     } finally {
-      busy.current = false;
-      setLoading(false);
+      clearTimeout(timer); controllers.current.delete(controller);
+      if (generation.current === scope) { busy.current = false; setLoading(false); }
     }
-  }, [items]);
+  }, [resetConversation]);
 
   const send = useCallback((text: string) => {
     const content = text.trim();
@@ -99,9 +159,45 @@ export default function ShoppingAssistant() {
     }
   };
 
-  const confirmAdd = (messageId: number, action: AddToCartAction) => {
-    addItem({ id: action.productId, name: action.name, price: action.price, image_url: action.image_url, category: action.category, size: action.size, color: action.color }, action.quantity);
-    setConfirmed((prev) => new Set(prev).add(`${messageId}:${action.productId}`));
+  const confirmAdd = async (messageId: number, action: AddToCartAction) => {
+    const key = `${messageId}:${action.productId}`;
+    if (confirmBusy.current || confirmedRef.current.has(key)) return;
+    confirmBusy.current = true; setConfirming(key); setError(null); failedHistory.current = null;
+    const scope = generation.current, owner = identity.current;
+    const controller = new AbortController();
+    controllers.current.add(controller);
+    const timer = setTimeout(() => controller.abort(), 15000);
+    try {
+      const { data } = await withAbort(() => supabase.auth.getSession(), controller.signal);
+      if (generation.current !== scope) return;
+      const session = data?.session;
+      if (!session?.user?.id || session.user.id !== owner) throw new Error("Your session changed. Sign in and ask for a new recommendation.");
+      const cart = currentCart.current.map(item => ({ id: item.id, size: item.size, color: item.color ?? null, quantity: item.quantity }));
+      const response = await fetch("/api/assistant/confirm", {
+        method: "POST", signal: controller.signal,
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ productId: action.productId, size: action.size, color: action.color, quantity: action.quantity, price: action.price, cart }),
+      });
+      const body = await response.json().catch(() => null);
+      if (generation.current !== scope || identity.current !== owner) return;
+      if (!response.ok || !body?.action) throw new Error(body?.error || "Could not verify this addition. Please try again.");
+      const latest = await withAbort(() => supabase.auth.getSession(), controller.signal);
+      if (generation.current !== scope) return;
+      if (latest.data.session?.user?.id !== owner) throw new Error("Your session changed. Ask for a new recommendation.");
+      const now = currentCart.current.map(item => ({ id: item.id, size: item.size, color: item.color ?? null, quantity: item.quantity }));
+      if (JSON.stringify(cart) !== JSON.stringify(now)) throw new Error("Your bag changed while checking stock. Please confirm again.");
+      const fresh = body.action as AddToCartAction;
+      if (!addItem({ id: fresh.productId, name: fresh.name, price: fresh.price, image_url: fresh.image_url, category: fresh.category, size: fresh.size, color: fresh.color }, fresh.quantity, session.user.id)) {
+        throw new Error("The item was not added. Check your session and try again.");
+      }
+      confirmedRef.current.add(key);
+      setConfirmed(new Set(confirmedRef.current));
+    } catch (caught) {
+      if (generation.current === scope) setError(controller.signal.aborted ? "Stock validation took too long. Please try again." : caught instanceof Error ? caught.message : "The item was not added.");
+    } finally {
+      clearTimeout(timer); controllers.current.delete(controller);
+      if (generation.current === scope) { confirmBusy.current = false; setConfirming(null); }
+    }
   };
 
   return (
@@ -135,6 +231,9 @@ export default function ShoppingAssistant() {
               <p className="text-[11px] text-neutral-500">AI-generated answers can be wrong. Check product pages.</p>
               <p className="text-[11px] text-neutral-500">Please don&apos;t share personal or payment details.</p>
             </div>
+            <button type="button" onClick={resetConversation} aria-label="New conversation" className="flex h-11 w-11 items-center justify-center text-neutral-600 hover:text-neutral-900">
+              <RotateCcw size={18} aria-hidden="true" />
+            </button>
             <button type="button" onClick={close} aria-label="Close shopping assistant" className="flex h-11 w-11 items-center justify-center text-neutral-600 hover:text-neutral-900">
               <X size={20} aria-hidden="true" />
             </button>
@@ -176,8 +275,8 @@ export default function ShoppingAssistant() {
                         {action.quantity} × {action.name}{action.size ? `, size ${action.size}` : ""}{action.color ? `, ${action.color}` : ""} — {formatPrice(action.price * action.quantity)}
                       </p>
                       {done ? <p className="mt-2 text-xs text-neutral-500">Sent to your bag.</p> : (
-                        <button type="button" onClick={() => confirmAdd(message.id, action)} className="mt-2 min-h-11 bg-neutral-900 px-4 text-xs uppercase tracking-widest text-white">
-                          Confirm
+                        <button type="button" disabled={confirming !== null} onClick={() => void confirmAdd(message.id, action)} className="mt-2 min-h-11 bg-neutral-900 px-4 text-xs uppercase tracking-widest text-white disabled:opacity-40">
+                          {confirming === `${message.id}:${action.productId}` ? "Checking…" : "Confirm"}
                         </button>
                       )}
                     </div>

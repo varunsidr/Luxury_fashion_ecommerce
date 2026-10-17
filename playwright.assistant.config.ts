@@ -14,6 +14,9 @@ export default defineConfig({
     ...server,
     command: `npm run dev -- --port ${port}`,
     url: `http://localhost:${port}/api/health`,
-    env: { ...server.env, NEXT_PUBLIC_SITE_URL: `http://localhost:${port}`, GROQ_API_KEY: "", GROQ_MODEL: "" },
+    env: { ...server.env, NEXT_PUBLIC_SITE_URL: `http://localhost:${port}`, GROQ_API_KEY: "", GROQ_MODEL: "",
+      NEXT_PUBLIC_SUPABASE_URL: "https://supabase.co.assistant-fixture.invalid",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "assistant-fixture-anon-key",
+    },
   },
 });

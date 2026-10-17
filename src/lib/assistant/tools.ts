@@ -1,7 +1,8 @@
 import { MAIN_CATEGORY_ALIASES, MAIN_CATEGORY_LABELS, getStorefrontSlugForCategory } from "../categories";
 import { normalizeCatalogText, type Product } from "../productTypes";
 import { POLICY_TOPICS, STORE_POLICIES } from "./policies";
-import type { AddToCartAction, ProductCardData, ToolContext, ToolRunState } from "./types";
+import type { ProductCardData, ToolContext, ToolRunState } from "./types";
+import { availableUnits, configuredSizes, configuredColors, cartAction, validVariant } from "./inventory";
 
 export const MAX_TOOL_RESULTS = 8;
 const MAX_QUANTITY = 10;
@@ -56,11 +57,7 @@ export const productUrl = (product: Pick<Product, "id" | "category">) =>
 type Availability = "in_stock" | "low_stock" | "out_of_stock";
 
 function availabilityOf(product: Product, size?: string | null): Availability {
-  const sizeRows = product.size_stock ?? [];
-  let units: number;
-  if (sizeRows.length) {
-    units = sizeRows.filter((row) => !size || row.size === size).reduce((sum, row) => sum + Math.max(0, row.stock), 0);
-  } else units = Math.max(0, product.stock ?? 0);
+  const units = availableUnits(product, size ?? null);
   if (units <= 0) return "out_of_stock";
   return units <= LOW_STOCK_THRESHOLD ? "low_stock" : "in_stock";
 }
@@ -80,7 +77,7 @@ function summarize(product: Product, state: ToolRunState) {
   return {
     id: card.id, name: product.name, category: product.category, brand: product.brand ?? null,
     price_inr: product.price, tag: product.tag ?? null, availability: availabilityOf(product),
-    colors: (product.color_options ?? []).map((color) => color.name), url: card.url,
+    colors: configuredColors(product).map((color) => color.name), url: card.url,
   };
 }
 
@@ -149,10 +146,9 @@ async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState)
     .filter((product) => !category || mainCategoryMatches(product, category))
     .filter((product) => minPrice === undefined || product.price >= minPrice)
     .filter((product) => maxPrice === undefined || product.price <= maxPrice)
-    .filter((product) => !color || (product.color_options ?? []).some((option) => normalizeCatalogText(option.name) === normalizeCatalogText(color)))
-    .filter((product) => !size || (product.sizes ?? []).some((value) => normalizeCatalogText(value) === normalizeCatalogText(size)) ||
-      (product.size_stock ?? []).some((row) => normalizeCatalogText(row.size) === normalizeCatalogText(size)))
-    .filter((product) => !inStockOnly || isInStock(product))
+    .filter((product) => !color || configuredColors(product).some((option) => normalizeCatalogText(option.name) === normalizeCatalogText(color)))
+    .filter((product) => !size || configuredSizes(product).some((value) => normalizeCatalogText(value) === normalizeCatalogText(size)))
+    .filter((product) => !inStockOnly || availabilityOf(product, size ? configuredSizes(product).find(value => normalizeCatalogText(value) === normalizeCatalogText(size)) : null) !== "out_of_stock")
     .map((product) => ({ product, score: score(product, queryTokens) }))
     .filter((entry) => entry.score > 0);
 
@@ -184,10 +180,10 @@ async function getProductAvailability(args: Args, ctx: ToolContext) {
   const id = str(args.productId, "productId", 100, true)!;
   const product = findProduct(await ctx.store.listProducts(), id);
   if (!product) return { found: false, message: "No product with that id exists." };
-  const sizeRows = product.size_stock ?? [];
+  const sizes = configuredSizes(product);
   return {
     found: true, productId: String(product.id), availability: availabilityOf(product),
-    sizes: sizeRows.length ? sizeRows.map((row) => ({ size: row.size, availability: availabilityOf(product, row.size) })) : undefined,
+    sizes: sizes.length ? sizes.map((size) => ({ size, availability: availabilityOf(product, size) })) : undefined,
     note: "Exact quantities and delivery dates are not shared.",
   };
 }
@@ -263,28 +259,24 @@ async function addToCart(args: Args, ctx: ToolContext, state: ToolRunState) {
   const product = findProduct(await ctx.store.listProducts(), productId);
   if (!product) return { error: "not_found", message: "No product with that id exists." };
 
-  const sizes = product.size_stock?.length ? product.size_stock.map((row) => row.size) : product.sizes ?? [];
+  const sizes = configuredSizes(product);
   let chosenSize = size;
   if (sizes.length) {
     chosenSize = sizes.find((value) => normalizeCatalogText(value) === normalizeCatalogText(size)) ?? null;
     if (!chosenSize) return { error: "size_required", message: "Ask the shopper to choose a size.", available_sizes: sizes };
-  } else if (size) chosenSize = null;
+  } else if (size) return { error: "invalid_option", message: "This product does not offer sizes." };
   let chosenColor = color;
-  const colors = product.color_options ?? [];
+  const colors = configuredColors(product);
   if (colors.length) {
     chosenColor = colors.find((option) => normalizeCatalogText(option.name) === normalizeCatalogText(color))?.name ?? null;
     if (!chosenColor) return { error: "color_required", message: "Ask the shopper to choose a color.", available_colors: colors.map((option) => option.name) };
-  } else chosenColor = null;
+  } else if (color) return { error: "invalid_option", message: "This product does not offer selectable colors." };
 
-  const units = product.size_stock?.length
-    ? product.size_stock.filter((row) => row.size === chosenSize).reduce((sum, row) => sum + Math.max(0, row.stock), 0)
-    : Math.max(0, product.stock ?? 0);
-  if (units < quantity) return { error: "insufficient_stock", message: "That variant is out of stock or has fewer units than requested." };
+  const units = availableUnits(product, chosenSize);
+  const inBag = ctx.cart.filter(line => line.id === String(product.id) && line.size === chosenSize).reduce((sum, line) => sum + line.quantity, 0);
+  if (!validVariant(product, chosenSize, chosenColor) || units < quantity + inBag) return { error: "insufficient_stock", message: "That variant is out of stock or has fewer units than requested, including items already in the bag." };
 
-  const action: AddToCartAction = {
-    type: "add_to_cart", productId: String(product.id), name: product.name, price: product.price,
-    image_url: product.image_url, category: product.category, size: chosenSize, color: chosenColor, quantity,
-  };
+  const action = cartAction(product, chosenSize, chosenColor, quantity);
   state.actions = [action];
   state.seenProducts.set(action.productId, toCard(product));
   return {

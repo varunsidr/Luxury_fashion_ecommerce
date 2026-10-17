@@ -48,7 +48,7 @@ export interface AssistantReply {
 
 /** Read-only catalog access; the production implementation reuses the storefront's Supabase client. */
 export interface CatalogStore {
-  listProducts(): Promise<Product[]>;
+  listProducts(options?: { fresh?: boolean }): Promise<Product[]>;
 }
 
 export interface ToolContext {

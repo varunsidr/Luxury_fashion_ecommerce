@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuthPrompt } from "@/context/AuthPromptContext";
 import type { User } from "@supabase/supabase-js";
@@ -10,7 +10,7 @@ export type { CartItem } from "@/lib/cartStorage";
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Omit<CartItem, "quantity">, quantity?: number) => void;
+  addItem: (product: Omit<CartItem, "quantity">, quantity?: number, expectedUserId?: string) => boolean;
   removeItem: (id: string, size: string | null, color?: string | null) => void;
   updateQuantity: (id: string, size: string | null, quantity: number, color?: string | null) => void;
   clearCart: () => void;
@@ -26,21 +26,25 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const userRef = useRef<User | null>(null);
+  const itemsRef = useRef<CartItem[]>([]);
+  const restoredRef = useRef(false);
   const [restored, setRestored] = useState(false);
   const [cartNotice, setCartNotice] = useState<string | null>(null);
   const { openLoginPrompt } = useAuthPrompt();
 
   useEffect(() => {
+    let active = true, authChanged = false;
     supabase.auth.getSession().then((result: { data: { session: { user: User } | null } }) => {
       const session = result?.data?.session;
-      setUser(session?.user ?? null);
-    }).catch(() => setUser(null));
+      if (active && !authChanged) userRef.current = session?.user ?? null;
+    }).catch(() => { if (active && !authChanged) userRef.current = null; });
     const sessionResult = supabase.auth.onAuthStateChange((_event: string, session: { user: User } | null) => {
-      setUser(session?.user ?? null);
+      authChanged = true;
+      userRef.current = session?.user ?? null;
     });
     const subscription = sessionResult?.data?.subscription;
-    return () => subscription?.unsubscribe?.();
+    return () => { active = false; subscription?.unsubscribe?.(); };
   }, []);
 
   useEffect(() => {
@@ -50,11 +54,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (!active) return;
       try {
         const result = restoreCart(localStorage.getItem(CART_STORAGE_KEY));
+        itemsRef.current = result.items;
         setItems(result.items);
         if (result.recovered) setCartNotice("Some saved bag items could not be restored. Please check your bag before checkout.");
       } catch {
         setCartNotice("Your browser cannot save this bag. Items will stay available while this page is open.");
       }
+      restoredRef.current = true;
       setRestored(true);
     });
     return () => { active = false; };
@@ -66,29 +72,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     catch { queueMicrotask(() => setCartNotice("Your browser cannot save this bag. Items will stay available while this page is open.")); }
   }, [items, restored]);
 
-  const addItem = (product: Omit<CartItem, "quantity">, quantity = 1) => {
-    if (!restored || !Number.isSafeInteger(quantity) || quantity < 1) return;
-    if (!user) {
+  const changeItems = (next: CartItem[]) => { itemsRef.current = next; setItems(next); };
+
+  const addItem = (product: Omit<CartItem, "quantity">, quantity = 1, expectedUserId?: string) => {
+    if (!restoredRef.current || !Number.isSafeInteger(quantity) || quantity < 1) return false;
+    if (!userRef.current || expectedUserId && userRef.current.id !== expectedUserId) {
       openLoginPrompt("You need to sign in to add items to the cart.");
-      return;
+      return false;
     }
-    setItems(prev => {
-      const existing = prev.find(i => sameVariant(i, product.id, product.size, product.color));
-      if (existing) {
-        if (!Number.isSafeInteger(existing.quantity + quantity)) return prev;
-        return prev.map(i =>
-          sameVariant(i, product.id, product.size, product.color)
-            ? { ...i, quantity: i.quantity + quantity }
-            : i
-        );
-      }
-      return [...prev, { ...product, color: product.color || null, quantity }];
-    });
+    const previous = itemsRef.current;
+    const existing = previous.find(i => sameVariant(i, product.id, product.size, product.color));
+    if (existing && !Number.isSafeInteger(existing.quantity + quantity)) return false;
+    changeItems(existing ? previous.map(i => sameVariant(i, product.id, product.size, product.color)
+      ? { ...i, quantity: i.quantity + quantity } : i)
+      : [...previous, { ...product, color: product.color || null, quantity }]);
     setCartOpen(true);
+    return true;
   };
 
   const removeItem = (id: string, size: string | null, color?: string | null) => {
-    setItems(prev => prev.filter(i => !sameVariant(i, id, size, color)));
+    changeItems(itemsRef.current.filter(i => !sameVariant(i, id, size, color)));
   };
 
   const updateQuantity = (id: string, size: string | null, quantity: number, color?: string | null) => {
@@ -97,12 +100,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem(id, size, color);
       return;
     }
-    setItems(prev =>
-      prev.map(i => sameVariant(i, id, size, color) ? { ...i, quantity } : i)
-    );
+    changeItems(itemsRef.current.map(i => sameVariant(i, id, size, color) ? { ...i, quantity } : i));
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => changeItems([]);
 
   const totalCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);

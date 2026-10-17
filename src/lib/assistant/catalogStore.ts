@@ -11,22 +11,28 @@ type Rows<T> = { data: T[] | null; error: unknown };
 
 /** Read-only catalog via the storefront's existing Supabase client (public RLS read policy). */
 export const supabaseCatalogStore: CatalogStore = {
-  listProducts() {
+  listProducts(options) {
+    if (options?.fresh) return loadProducts(false);
     if (cache && Date.now() - cache.at < CACHE_MS) return Promise.resolve(cache.products);
     inflight ??= loadProducts().finally(() => { inflight = null; });
     return inflight;
   },
 };
 
-async function loadProducts(): Promise<Product[]> {
+async function loadProducts(updateCache = true): Promise<Product[]> {
   // catalogRequest bounds the wait; the local fallback client has no abortSignal().
   const signal = new AbortController().signal;
   const [productResult, stockResult] = await Promise.all([
-    catalogRequest<Rows<Product>>(() => supabase.from("products").select("*"), signal),
-    catalogRequest<Rows<ProductSizeStock>>(() => supabase.from("product_size_stock").select("product_id,size,stock"), signal)
-      .catch(() => ({ data: [] as ProductSizeStock[], error: null })),
+    catalogRequest<Rows<Product>>((abort) => {
+      const query = supabase.from("products").select("*");
+      return typeof query.abortSignal === "function" ? query.abortSignal(abort) : query;
+    }, signal),
+    catalogRequest<Rows<ProductSizeStock>>((abort) => {
+      const query = supabase.from("product_size_stock").select("product_id,size,stock");
+      return typeof query.abortSignal === "function" ? query.abortSignal(abort) : query;
+    }, signal),
   ]);
-  if (productResult.error || !productResult.data) throw new Error("Catalog unavailable");
+  if (productResult.error || !productResult.data || stockResult.error || !stockResult.data) throw new Error("Catalog unavailable");
   const stockByProduct = new Map<string, ProductSizeStock[]>();
   for (const row of stockResult.data ?? []) {
     const key = String(row.product_id);
@@ -35,8 +41,8 @@ async function loadProducts(): Promise<Product[]> {
   const products = productResult.data.map((product) => ({
     ...product,
     id: String(product.id),
-    size_stock: stockByProduct.get(String(product.id)) ?? product.size_stock ?? [],
+    size_stock: stockByProduct.get(String(product.id)) ?? [],
   }));
-  cache = { at: Date.now(), products };
+  if (updateCache) cache = { at: Date.now(), products };
   return products;
 }

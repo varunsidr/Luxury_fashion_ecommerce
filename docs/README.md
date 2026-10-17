@@ -2,14 +2,14 @@
 
 Start with [BRD.md](BRD.md) for the complete customer/admin feature inventory, routes, user journeys, business rules, acceptance criteria, implementation gaps and source references.
 
-The BRD maps 126 requirements across 20 modules and records 26 source-level gaps separately from implemented behavior.
+The BRD maps 127 requirements across 20 modules and records 26 source-level gaps separately from implemented behavior.
 
 - [QA_TESTING_GUIDE.md](QA_TESTING_GUIDE.md): fixture catalog, coverage checklist, test-case format, scenario seeds and a ready-to-use test-generation prompt.
 - [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv): spreadsheet-friendly requirement matrix with blank test/defect/owner fields and Not executed status.
 
 Prepared from repository source on 2 October 2026; updated on 10 October for checkout replay/stock safeguards, sized fixtures, product metadata, visible counts, landmarks and demo copy. Historical finding IDs remain, including earlier G-01/G-13 fixes and the remaining portions of G-08/G-09/G-15/G-18/G-22. G-25 retains the historical inspector incompatibility; the current queries recognize the repaired signatures, with full live inspection still pending. Implementation states are source observations, not passing test results. Payment and delivery are simulated.
 
-The merge with the shopping-assistant branch retains both requirement sets, manual matrix fields and both audit histories. Assistant policies now match the demo shipping/returns limits; G-26 records remaining cached inventory/confirmation limits. Pre-merge test evidence remains historical; use the regenerated snapshot for the merged source.
+The merge with the shopping-assistant branch retains both requirement sets, manual matrix fields and both audit histories. Assistant policies now match the demo shipping/returns limits; G-26 retains historical assistant defects and the remaining recommendation-cache/live-concurrency limits. Pre-merge test evidence remains historical; use the regenerated snapshot for the merged source.
 
 On 11 October 2026, the assistant connection changed to Groq with server-only GROQ_API_KEY, optional GROQ_MODEL (default openai/gpt-oss-20b), stateless history requests without unsupported store, no automatic retries/OpenAI fallback, and safe provider-quota errors. The panel now uses Zeouf Shopping Assistant and asks shoppers not to share personal/payment details. All 16 assistant regressions and a separate two-request live Groq search/card smoke with a fictional fixture passed; this does not resolve G-26 or establish production model/cart acceptance.
 
@@ -19,8 +19,10 @@ For changes, inspect source and update the BRD/guide, run `npm run docs:sync`, r
 
 Run `npm run test:ui` then `npm run test:catalog` sequentially after installing Chromium. The second suite uses an intercepted .invalid fixture domain to check configured-client loading, timeout, fallback and retry; both disable live Supabase/mail integration and use an isolated compilation cache. CI retains both artifact directories. Passing these regressions is scoped evidence and does not complete the full website acceptance matrix.
 
-`npm run test:assistant` runs fake-client tools/API, intercepted Groq SDK requests and an intercepted widget case; its server blanks the Groq key. Run sequentially with UI/catalog even if ASSISTANT_TEST_PORT changes the port; the compilation cache is shared. The assistant config is included in the source-review gate. These tests do not establish live model answers or successful confirmed cart additions; the separately recorded live smoke has its own narrow fixture scope.
+`npm run test:assistant` runs fake-client tools/API, intercepted Groq SDK requests and intercepted widget/confirmation cases with fictional .invalid Supabase sessions; its server blanks the Groq key. Run sequentially with UI/catalog even if ASSISTANT_TEST_PORT changes the port; the compilation cache is shared. The assistant config is included in the source-review gate. These tests cover successful local confirmed cart additions and account isolation, but do not establish live model/Supabase/concurrent acceptance; the separately recorded live smoke has its own narrow fixture scope.
 
 `npm run test:purchase` executes nineteen SQL/fixture regressions in isolated in-memory PostgreSQL (PGlite). CI runs it before the browser suites. One connection cannot prove concurrent checkout/stock safety. Apply purchase safeguards after demo catalog and hardening, then admin catalog in staging. The app requires five-argument checkout, stock and catalog RPCs. Shared inspector catalog queries are tested locally; full live inspection remains pending (G-25).
 
 `npm run test:live` separately checks public browsing on the deployed Vercel site, with no local server, no saved authentication and blocked state-changing requests. PLAYWRIGHT_BASE_URL selects another accessible deployment origin. Results describe the deployed revision at execution time and stay separate from local fixtures; this optional smoke suite does not prove live customer/admin mutations or full acceptance.
+
+On 12 October 2026, assistant confirmation gained a read-only bearer-protected fresh-validation route; configured-size availability no longer uses retired/missing stock rows. Identity changes and New conversation clear chat/proposals and cancel browser work; bounded history/deadlines improve recovery. The 30 assistant and 32 storefront/admin regressions passed locally. AST-07 records the new lifecycle contract. Browser cart ownership (G-10), cached recommendations and live/concurrent verification (G-26) remain separate limits.
