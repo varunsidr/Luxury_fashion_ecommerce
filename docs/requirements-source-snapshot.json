@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_at": "2026-10-11T19:23:00.434Z",
+  "reviewed_at": "2026-10-17T11:05:02.012Z",
   "files": {
     ".env.example": "aacd593bac4962d145bea1d7e30c519d99b26368db7350a6985539d1b4d35e2c",
     ".github/workflows/ci-local.yml": "def9628741d7200e015816bf0a04dd1424d5e207ee84ab9d0e438064e395dc20",
@@ -94,7 +94,7 @@
     "src/components/Navbar.tsx": "7a573a04dfb2fec8babde90c78c3b5eb1f57cad48929c833b7897bca91ea8ecf",
     "src/components/ProductCard.tsx": "59da1b12867e73227efc3de92a85854e9ba3a98ed9be666213574964b368c730",
     "src/components/ProductDetailView.tsx": "5ff933f6e98717a6b424a4b5f6070ff4d2dec5cad50d12d5d298aac58777e282",
-    "src/components/ProductListing.tsx": "ae123c915139e15a4f0360a3a9b1827d6e57001c811c0766e9ce501c08eed31c",
+    "src/components/ProductListing.tsx": "113842563c0204a9d5952e885e92c9bb62d4e0e7c8062ee96aa0f39102af6c7a",
     "src/components/SaleBanner.tsx": "ca3d35df3d9ba1df1c7a6461e84ed0dcf774ac5d7b502c77ba559cec5681685a",
     "src/components/ShoppingAssistant.tsx": "c8263149a99196461df5a5d9547e347a7f972f5016af5b6c3403515636f0fa7b",
     "src/components/SiteShell.tsx": "8959171c53db520746904b68b0eeb2604de87b452aa242d0066c52c2f2c19080",

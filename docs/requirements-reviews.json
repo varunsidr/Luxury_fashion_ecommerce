@@ -864,5 +864,29 @@
     "changed_sources": [],
     "source_digest": "08a2ff6126805a92409233c0e3007d7f7dc6f39f93b1b93fb2e9a7d2e7ee6b1e",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-17T11:01:46.230Z",
+    "summary": "Reviewed CAT-01 ordinary subcategory filtering: require existing main-collection membership before normalized exact/substring matches, preventing women's trousers/jackets in men's routes. Preserve aliases, normalization and tag-route branches; document unchanged external fixtures and local/preview validation with production CI rerun after deployment.",
+    "requirement_ids": [
+      "CAT-01"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "src/components/ProductListing.tsx"
+    ],
+    "source_digest": "9cae6fe6c6e3bd514f1edb277504d47f560f25a4c8db07194b4659aedc6fb7de",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-17T11:05:02.012Z",
+    "summary": "Record inspected CAT-01 fix and scoped 17 October local validation: unchanged external category-membership fixtures passed 16/16 and full public read-only suite passed 144/144 with ECOMMERCE_BASE_URL=http://localhost:3200 and retries=0 against the fixed production build. Lint, TypeScript, build and 13 documentation regressions passed. Preserve matrix manual fields/history; production CI rerun remains required after deployment.",
+    "requirement_ids": [
+      "CAT-01"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [],
+    "source_digest": "9cae6fe6c6e3bd514f1edb277504d47f560f25a4c8db07194b4659aedc6fb7de",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

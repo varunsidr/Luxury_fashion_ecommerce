@@ -101,9 +101,15 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
     const targetCategory = normalizeValue(dbCategory);
     const subCategoryName = normalizeValue(categoryDef?.name ?? subCategory ?? "");
 
-    return Boolean(subCategoryName) && (productCategory === targetCategory ||
-      productCategory.includes(targetCategory) ||
-      productCategory.includes(subCategoryName));
+    return (
+      matchesMainCategory(product) &&
+      Boolean(subCategoryName) &&
+      (
+        productCategory === targetCategory ||
+        productCategory.includes(targetCategory) ||
+        productCategory.includes(subCategoryName)
+      )
+    );
   }, [isMainCategoryOnly, matchesMainCategory, subCategorySlug, dbCategory, categoryDef?.name, subCategory, normalizeValue]);
 
   const filterProducts = useCallback((items: Product[]) => items.filter(matchesProductFilter), [matchesProductFilter]);

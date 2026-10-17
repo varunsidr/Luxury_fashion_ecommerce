@@ -7646,5 +7646,68 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-17T11:01:45.907Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CAT-01",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listings shall restrict products to the selected category/subcategory using configured English categories and normalized matching; women's and men's collections remain distinct.",
+      "source_codes": "LIST, CATDEF",
+      "qa_focus": "All 14 database categories, alias/normalization cases",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-17T11:01:46.230Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-01",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listings shall restrict products to the selected category/subcategory using configured English categories and normalized matching. Ordinary subcategory matches shall also require membership of the selected main collection, so /men/trousers excludes Women's Trousers and /men/jacket excludes Women's Jacket. Existing main-category normalization/aliases and new-arrivals, best-sellers and collection tag-route rules remain applicable to live and fallback catalogs.",
+      "source_codes": "LIST, CATDEF",
+      "qa_focus": "All 14 database categories, mixed men's/women's trousers and jackets, alias/normalization cases, tag routes, live/fallback catalogs",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-17T11:05:02.012Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-01",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listings shall restrict products to the selected category/subcategory using configured English categories and normalized matching. Ordinary subcategory matches shall also require membership of the selected main collection, so /men/trousers excludes Women's Trousers and /men/jacket excludes Women's Jacket. Existing main-category normalization/aliases and new-arrivals, best-sellers and collection tag-route rules remain applicable to live and fallback catalogs.",
+      "source_codes": "LIST, CATDEF",
+      "qa_focus": "All 14 database categories, mixed men's/women's trousers and jackets, alias/normalization cases, tag routes, live/fallback catalogs",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]
