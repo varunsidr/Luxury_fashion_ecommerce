@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_at": "2026-10-17T11:05:02.012Z",
+  "reviewed_at": "2026-10-21T15:53:35.991Z",
   "files": {
     ".env.example": "aacd593bac4962d145bea1d7e30c519d99b26368db7350a6985539d1b4d35e2c",
     ".github/workflows/ci-local.yml": "def9628741d7200e015816bf0a04dd1424d5e207ee84ab9d0e438064e395dc20",

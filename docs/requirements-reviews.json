@@ -888,5 +888,17 @@
     "changed_sources": [],
     "source_digest": "9cae6fe6c6e3bd514f1edb277504d47f560f25a4c8db07194b4659aedc6fb7de",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-21T15:53:35.991Z",
+    "summary": "Reviewed product-navigation investigation against website routes/product lookup/rendering and corrected external helpers; verified retained 17 October JSON counts of 9 deployed, 3 local targeted and 144 local public passes with zero retries. Document exact selected-product readiness and pending-navigation diagnostics, correct repeatEach=3 scope and baseline dates, and preserve historical failure evidence, unresolved stall cause and production CI requirement. Documentation-only continuation; no website runtime change or new browser execution claimed.",
+    "requirement_ids": [
+      "PDP-01",
+      "NFR-03"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [],
+    "source_digest": "9cae6fe6c6e3bd514f1edb277504d47f560f25a4c8db07194b4659aedc6fb7de",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

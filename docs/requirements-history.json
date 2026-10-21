@@ -7709,5 +7709,89 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-21T15:53:05.303Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PDP-01",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards/detail shall present name, price, image, optional brand/tag/category and product links; detail uses applicable gallery thumbnails. Cards use consistent crops and responsive image sizes, show loading placeholders, and retain readable product information with Image unavailable feedback after photo failure.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Single/multiple/missing images, supported remote host, loading/failure state",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-21T15:53:05.303Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-21T15:53:35.991Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-01",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards/detail shall present name, price, image, optional brand/tag/category and product links; detail uses applicable gallery thumbnails. Cards use consistent crops and responsive image sizes, show loading placeholders, and retain readable product information with Image unavailable feedback after photo failure.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Selected-card destination, exact product heading and detail controls, pending navigation/browser errors, single/multiple/missing images, supported remote host, loading/failure state",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-21T15:53:35.991Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry, pending product navigation with exact destination and browser/server timing correlation",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]
