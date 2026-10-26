@@ -12,6 +12,9 @@ type Rows<T> = { data: T[] | null; error: unknown };
 /** Read-only catalog via the storefront's existing Supabase client (public RLS read policy). */
 export const supabaseCatalogStore: CatalogStore = {
   listProducts(options) {
+    // A request-owned query can be cancelled without cancelling another shopper's shared load.
+    if (options?.signal) return options.fresh ? loadProducts(false, options.signal)
+      : cache && Date.now() - cache.at < CACHE_MS ? Promise.resolve(cache.products) : loadProducts(true, options.signal);
     if (options?.fresh) return loadProducts(false);
     if (cache && Date.now() - cache.at < CACHE_MS) return Promise.resolve(cache.products);
     inflight ??= loadProducts().finally(() => { inflight = null; });
@@ -19,9 +22,8 @@ export const supabaseCatalogStore: CatalogStore = {
   },
 };
 
-async function loadProducts(updateCache = true): Promise<Product[]> {
+async function loadProducts(updateCache = true, signal = new AbortController().signal): Promise<Product[]> {
   // catalogRequest bounds the wait; the local fallback client has no abortSignal().
-  const signal = new AbortController().signal;
   const [productResult, stockResult] = await Promise.all([
     catalogRequest<Rows<Product>>((abort) => {
       const query = supabase.from("products").select("*");

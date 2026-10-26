@@ -1,15 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Loader2, MessageCircle, RotateCcw, Send, X } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, Check, Gift, Loader2, MessageCircle, RotateCcw, ShieldCheck, ShoppingBag, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useCart } from "@/context/CartContext";
 import { useCurrency } from "@/context/CurrencyContext";
-import type { AddToCartAction, AssistantReply, ChatMessage, ProductCardData } from "@/lib/assistant/types";
+import type { AddToCartAction, AssistantInteraction, AssistantReply, ChatMessage, ProductCardData } from "@/lib/assistant/types";
 import { MAX_MESSAGE_LENGTH, MAX_MESSAGES, MAX_CART_LINES } from "@/lib/assistant/types";
 import { withAbort } from "@/lib/assistant/requestLifetime";
+import AssistantProductCard from "./AssistantProductCard";
+import "./shopping-assistant.css";
 
 interface UiMessage extends ChatMessage {
   id: number;
@@ -17,19 +17,28 @@ interface UiMessage extends ChatMessage {
   actions?: AddToCartAction[];
 }
 
-const GREETING = "Hi! I'm your Zeouf Shopping Assistant. I can help you find products, check available sizes, and build your bag.";
-const SUGGESTIONS = ["Show me products under ₹2000", "Recommend a gift", "What is your returns policy?"];
+const GREETING = "Find new favourites, check sizes, compare the details, and build your bag. What catches your eye?";
+
+function historyOf(messages: UiMessage[]): ChatMessage[] {
+  return messages.map(({ role, content, products, productIds }) => ({ role, content,
+    ...(role === "assistant" ? { productIds: products?.map(product => product.id) ?? productIds ?? [] } : {}),
+  }));
+}
 
 export default function ShoppingAssistant() {
-  const { items, addItem } = useCart();
-  const { formatPrice } = useCurrency();
+  const { items, addItem, setCartOpen } = useCart();
+  const { formatPrice, currency, rate } = useCurrency();
+  const suggestions = [`Show me products under ${currency === "USD" ? "$25" : "₹2000"}`, "Recommend a gift", "What is your returns policy?"];
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [showLatest, setShowLatest] = useState(false);
   const [messages, setMessages] = useState<UiMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<Set<string>>(new Set());
   const [confirming, setConfirming] = useState<string | null>(null);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
   const confirmedRef = useRef(new Set<string>());
   const confirmBusy = useRef(false);
   const identity = useRef<string | null | undefined>(undefined);
@@ -38,10 +47,15 @@ export default function ShoppingAssistant() {
   const currentCart = useRef(items);
   const nextId = useRef(1);
   const busy = useRef(false);
-  const failedHistory = useRef<ChatMessage[] | null>(null);
+  const failedHistory = useRef<{ history: ChatMessage[]; interaction?: AssistantInteraction } | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const logRef = useRef<HTMLDivElement>(null);
+  const pinned = useRef(true);
+  const autoScrolling = useRef(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { currentCart.current = items; }, [items]);
 
@@ -55,6 +69,12 @@ export default function ShoppingAssistant() {
     confirmedRef.current = new Set();
     setMessages([]); setDraft(""); setError(null); setLoading(false);
     setConfirmed(new Set()); setConfirming(null);
+    setCompareIds([]);
+    pinned.current = true;
+    autoScrolling.current = false;
+    if (scrollTimer.current) clearTimeout(scrollTimer.current);
+    logRef.current?.scrollTo({ top: 0, behavior: "instant" });
+    setShowLatest(false);
   }, []);
 
   useEffect(() => {
@@ -86,16 +106,77 @@ export default function ShoppingAssistant() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
+  const scrollToLatest = useCallback(() => {
+    const log = logRef.current;
+    if (!log) return;
+    if (scrollTimer.current) clearTimeout(scrollTimer.current);
+    pinned.current = true;
+    autoScrolling.current = true;
+    log.scrollTo({ top: log.scrollHeight, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    scrollTimer.current = setTimeout(() => { autoScrolling.current = false; }, 600);
+  }, []);
+
   useEffect(() => {
-    endRef.current?.scrollIntoView?.({ block: "end" });
-  }, [messages, loading, error, open]);
+    if (open && pinned.current && (messages.length > 0 || loading || error)) scrollToLatest();
+  }, [messages, loading, error, open, scrollToLatest]);
+
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input || !open) return;
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 128) + "px";
+  }, [draft, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const viewport = window.visualViewport;
+    const fitViewport = () => {
+      panelRef.current?.style.setProperty("--assistant-vh", (viewport?.height ?? window.innerHeight) + "px");
+      panelRef.current?.style.setProperty("--assistant-keyboard", Math.max(0, window.innerHeight - (viewport ? viewport.height + viewport.offsetTop : window.innerHeight)) + "px");
+    };
+    fitViewport();
+    viewport?.addEventListener("resize", fitViewport);
+    viewport?.addEventListener("scroll", fitViewport);
+    window.addEventListener("resize", fitViewport);
+    return () => { viewport?.removeEventListener("resize", fitViewport); viewport?.removeEventListener("scroll", fitViewport); window.removeEventListener("resize", fitViewport); };
+  }, [open]);
+
+  useEffect(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    if (scrollTimer.current) clearTimeout(scrollTimer.current);
+  }, []);
+
+  const openPanel = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setClosing(false);
+    pinned.current = true;
+    setShowLatest(false);
+    setOpen(true);
+  }, []);
 
   const close = useCallback(() => {
     setOpen(false);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setClosing(!reduced);
+    if (!reduced) closeTimer.current = setTimeout(() => setClosing(false), 180);
     launcherRef.current?.focus();
   }, []);
 
-  const request = useCallback(async (history: ChatMessage[]) => {
+  const stopAutoScroll = () => {
+    autoScrolling.current = false;
+    if (scrollTimer.current) clearTimeout(scrollTimer.current);
+  };
+
+  const onLogScroll = () => {
+    const log = logRef.current;
+    if (!log) return;
+    if (autoScrolling.current) { setShowLatest(false); return; }
+    pinned.current = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
+    setShowLatest(!pinned.current && messages.length > 0);
+  };
+
+  const request = useCallback(async (history: ChatMessage[], interaction?: AssistantInteraction) => {
     if (busy.current) return;
     busy.current = true;
     setLoading(true);
@@ -119,7 +200,8 @@ export default function ShoppingAssistant() {
         signal: controller.signal,
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) },
         body: JSON.stringify({
-          messages: history.slice(-MAX_MESSAGES).map(({ role, content }) => ({ role, content: content.slice(0, MAX_MESSAGE_LENGTH) })),
+          messages: history.slice(-MAX_MESSAGES).map(({ role, content, productIds }) => ({ role, content: content.slice(0, MAX_MESSAGE_LENGTH), ...(productIds ? { productIds } : {}) })),
+          display: { currency, rate }, interaction,
           cart: token ? currentCart.current.slice(0, MAX_CART_LINES).map((item) => ({ id: item.id, size: item.size, color: item.color ?? null, quantity: item.quantity })) : [],
         }),
       });
@@ -130,21 +212,23 @@ export default function ShoppingAssistant() {
       setMessages((prev) => [...prev, { id: nextId.current++, role: "assistant", content: reply.reply, products: reply.products, actions: reply.actions }]);
     } catch (caught) {
       if (generation.current !== scope) return;
-      failedHistory.current = history;
+      failedHistory.current = { history, interaction };
       setError(controller.signal.aborted ? "The assistant took too long. Please try again." : caught instanceof Error && caught.message ? caught.message : "Something went wrong.");
     } finally {
       clearTimeout(timer); controllers.current.delete(controller);
       if (generation.current === scope) { busy.current = false; setLoading(false); }
     }
-  }, [resetConversation]);
+  }, [resetConversation, currency, rate]);
 
-  const send = useCallback((text: string) => {
+  const send = useCallback((text: string, interaction?: AssistantInteraction) => {
     const content = text.trim();
     if (!content || busy.current) return;
+    pinned.current = true;
+    setShowLatest(false);
     const userMessage: UiMessage = { id: nextId.current++, role: "user", content: content.slice(0, MAX_MESSAGE_LENGTH) };
     setMessages((prev) => [...prev, userMessage]);
     setDraft("");
-    void request([...messages, userMessage].map(({ role, content: body }) => ({ role, content: body })));
+    void request(historyOf([...messages, userMessage]), interaction);
   }, [messages, request]);
 
   const onSubmit = (event: FormEvent) => {
@@ -201,122 +285,132 @@ export default function ShoppingAssistant() {
   };
 
   return (
-    <>
-      <button
-        ref={launcherRef}
-        type="button"
-        onClick={() => (open ? close() : setOpen(true))}
+    <div className="zeouf-assistant">
+      <button ref={launcherRef} type="button" onClick={() => (open ? close() : openPanel())}
         aria-label={open ? "Close shopping assistant" : "Open shopping assistant"}
-        aria-expanded={open}
-        aria-controls="shopping-assistant-panel"
-        data-testid="assistant-launcher"
-        className="fixed bottom-4 right-4 z-[45] flex h-14 w-14 items-center justify-center rounded-full bg-neutral-900 text-white shadow-lg transition-transform duration-200 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 pb-[env(safe-area-inset-bottom)] sm:bottom-6 sm:right-6"
-      >
-        {open ? <X size={22} aria-hidden="true" /> : <MessageCircle size={22} aria-hidden="true" />}
+        aria-expanded={open} aria-controls="shopping-assistant-panel" data-testid="assistant-launcher"
+        className="assistant-launcher" data-open={open}>
+        <span className="assistant-launcher-icon" aria-hidden="true">{open ? <X size={20} /> : <Sparkles size={20} />}</span>
+        <span className="assistant-launcher-label">Ask Zeouf</span>
+        <span className="assistant-launcher-key" aria-hidden="true"><MessageCircle size={15} /></span>
       </button>
 
-      {open && (
-        <section
-          id="shopping-assistant-panel"
-          role="dialog"
-          aria-modal="false"
-          aria-label="Zeouf Shopping Assistant"
-          data-testid="assistant-panel"
-          onKeyDown={(event) => { if (event.key === "Escape") close(); }}
-          className="fixed inset-x-0 bottom-0 z-[55] flex h-[min(85dvh,640px)] flex-col border border-neutral-200 bg-[#fdfcf9] shadow-2xl sm:inset-x-auto sm:bottom-24 sm:right-6 sm:h-[min(640px,calc(100dvh-8rem))] sm:w-[400px]"
-        >
-          <header className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
-            <div>
-              <h2 className="font-playfair text-lg text-neutral-900">Zeouf Shopping Assistant</h2>
-              <p className="text-[11px] text-neutral-500">AI-generated answers can be wrong. Check product pages.</p>
-              <p className="text-[11px] text-neutral-500">Please don&apos;t share personal or payment details.</p>
+      {(open || closing) && (
+        <section ref={panelRef} id="shopping-assistant-panel" role="dialog" aria-modal="false"
+          aria-label="Zeouf Shopping Assistant" aria-hidden={!open} inert={!open}
+          data-testid="assistant-panel" data-state={open ? "open" : "closed"} className="assistant-panel"
+          onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); close(); } }}>
+          <header className="assistant-header">
+            <span className="assistant-avatar" aria-hidden="true">z.</span>
+            <div className="assistant-header-copy">
+              <h2>Zeouf Shopping Assistant</h2>
+              <p>A little inspiration, on demand.</p>
             </div>
-            <button type="button" onClick={resetConversation} aria-label="New conversation" className="flex h-11 w-11 items-center justify-center text-neutral-600 hover:text-neutral-900">
-              <RotateCcw size={18} aria-hidden="true" />
-            </button>
-            <button type="button" onClick={close} aria-label="Close shopping assistant" className="flex h-11 w-11 items-center justify-center text-neutral-600 hover:text-neutral-900">
-              <X size={20} aria-hidden="true" />
-            </button>
+            <div className="assistant-header-actions">
+              <button type="button" onClick={resetConversation} aria-label="New conversation" title="New conversation" className="assistant-icon-button"><RotateCcw size={17} aria-hidden="true" /></button>
+              <button type="button" onClick={close} aria-label="Close shopping assistant" title="Close" className="assistant-icon-button"><X size={19} aria-hidden="true" /></button>
+            </div>
           </header>
 
-          <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4" role="log" aria-live="polite" aria-relevant="additions" data-testid="assistant-log">
-            <p className="max-w-[85%] bg-white px-3 py-2 text-sm text-neutral-800 shadow-sm">{GREETING}</p>
-            {messages.length === 0 && (
-              <div className="flex flex-wrap gap-2">
-                {SUGGESTIONS.map((suggestion) => (
-                  <button key={suggestion} type="button" onClick={() => send(suggestion)} className="min-h-11 border border-neutral-300 px-3 text-xs text-neutral-700 hover:border-neutral-900">
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            )}
-            {messages.map((message) => (
-              <div key={message.id} className={message.role === "user" ? "flex justify-end" : "flex flex-col items-start gap-2"} data-testid={`assistant-message-${message.role}`}>
-                <p className={`max-w-[85%] whitespace-pre-wrap break-words px-3 py-2 text-sm ${message.role === "user" ? "bg-neutral-900 text-white" : "bg-white text-neutral-800 shadow-sm"}`}>
-                  {message.content}
-                </p>
-                {message.products?.map((product) => (
-                  <Link key={product.id} href={product.url} onClick={() => setOpen(false)} data-testid="assistant-product-card"
-                    className="flex w-full max-w-[85%] items-center gap-3 border border-neutral-200 bg-white p-2 hover:border-neutral-900">
-                    <Image src={product.image_url} alt="" width={48} height={64} unoptimized className="h-16 w-12 shrink-0 object-cover" />
-                    <span className="min-w-0 text-sm">
-                      <span className="block truncate text-neutral-900">{product.name}</span>
-                      <span className="block text-neutral-600">{formatPrice(product.price)}</span>
-                      {!product.inStock && <span className="block text-xs text-red-700">Out of stock</span>}
-                    </span>
-                  </Link>
-                ))}
-                {message.actions?.map((action) => {
-                  const done = confirmed.has(`${message.id}:${action.productId}`);
-                  return (
-                    <div key={action.productId} data-testid="assistant-add-confirmation" className="w-full max-w-[85%] border border-neutral-900 bg-white p-3 text-sm">
-                      <p className="text-neutral-900">Add to bag?</p>
-                      <p className="text-neutral-600">
-                        {action.quantity} × {action.name}{action.size ? `, size ${action.size}` : ""}{action.color ? `, ${action.color}` : ""} — {formatPrice(action.price * action.quantity)}
-                      </p>
-                      {done ? <p className="mt-2 text-xs text-neutral-500">Sent to your bag.</p> : (
-                        <button type="button" disabled={confirming !== null} onClick={() => void confirmAdd(message.id, action)} className="mt-2 min-h-11 bg-neutral-900 px-4 text-xs uppercase tracking-widest text-white disabled:opacity-40">
-                          {confirming === `${message.id}:${action.productId}` ? "Checking…" : "Confirm"}
+          <div className="assistant-transcript">
+            <div ref={logRef} className="assistant-log" role="log" aria-label="Shopping conversation" aria-live="polite"
+              aria-relevant="additions" tabIndex={0} data-testid="assistant-log" onScroll={onLogScroll}
+              onWheel={stopAutoScroll} onTouchStart={stopAutoScroll} onPointerDown={stopAutoScroll}
+              onKeyDown={event => { if (["PageUp", "Home", "ArrowUp"].includes(event.key)) stopAutoScroll(); }}>
+              {messages.length === 0 ? (
+                <div className="assistant-welcome assistant-reveal">
+                  <div className="assistant-welcome-symbol" aria-hidden="true"><Sparkles size={27} strokeWidth={1.2} /></div>
+                  <span className="assistant-eyebrow">The Zeouf edit</span>
+                  <h3>Good finds.<br /><span>Great conversations.</span></h3>
+                  <p className="assistant-intro">{GREETING}</p>
+                  <div className="assistant-suggestions">
+                    {suggestions.map((suggestion, index) => {
+                      const Icon = [SlidersHorizontal, Gift, ShieldCheck][index];
+                      return (
+                        <button key={suggestion} type="button" onClick={() => send(suggestion)} className="assistant-suggestion">
+                          <span className="assistant-suggestion-icon" aria-hidden="true"><Icon size={18} strokeWidth={1.5} /></span>
+                          <span>{suggestion}</span>
+                          <ArrowRight size={16} aria-hidden="true" className="assistant-suggestion-arrow" />
                         </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-            {loading && (
-              <p className="flex items-center gap-2 text-sm text-neutral-500" role="status" data-testid="assistant-typing">
-                <Loader2 size={16} className="animate-spin" aria-hidden="true" /> Thinking…
-              </p>
-            )}
-            {error && !loading && (
-              <div role="alert" className="border border-red-200 bg-red-50 p-3 text-sm text-red-800" data-testid="assistant-error">
-                <p>{error}</p>
-                {failedHistory.current && (
-                  <button type="button" onClick={() => failedHistory.current && void request(failedHistory.current)} className="mt-2 inline-flex min-h-11 items-center gap-2 underline">
-                    <RotateCcw size={14} aria-hidden="true" /> Retry
-                  </button>
-                )}
-              </div>
-            )}
-            <div ref={endRef} />
+                      );
+                    })}
+                  </div>
+                  <p className="assistant-welcome-note">A fresh perspective on your next favourite.</p>
+                </div>
+              ) : (
+                <div className="assistant-conversation-start"><span />Your shopping edit<span /></div>
+              )}
+
+              {messages.map(message => (
+                <div key={message.id} className={"assistant-message assistant-reveal assistant-message-" + message.role}
+                  data-testid={"assistant-message-" + message.role}>
+                  {message.role === "assistant" && <div className="assistant-message-author"><Sparkles size={12} aria-hidden="true" /> Zeouf</div>}
+                  <p className="assistant-message-text">{message.content}</p>
+                  {message.products?.map(product => (
+                    <AssistantProductCard key={product.id} product={product} busy={loading || confirming !== null}
+                      selected={compareIds.includes(product.id)} onNavigate={close}
+                      onCompare={() => setCompareIds(previous => previous.includes(product.id) ? previous.filter(id => id !== product.id) : previous.length < 3 ? [...previous, product.id] : previous)}
+                      onSimilar={() => send("Find products similar to " + product.name + ".", { type: "similar", productId: product.id })}
+                      onAdd={(size, color, quantity) => send("Add " + quantity + " × " + product.name + (size ? ", size " + size : "") + (color ? ", color " + color : "") + " to my bag.", { type: "prepare_add", productId: product.id, size, color, quantity })} />
+                  ))}
+                  {message.actions?.map(action => {
+                    const done = confirmed.has(message.id + ":" + action.productId);
+                    const checking = confirming === message.id + ":" + action.productId;
+                    return (
+                      <div key={action.productId} data-testid="assistant-add-confirmation" className="assistant-confirmation" data-done={done}>
+                        <div className="assistant-confirmation-heading">
+                          <span className="assistant-confirmation-icon" aria-hidden="true">{done ? <Check size={18} /> : <ShoppingBag size={18} />}</span>
+                          <span>{done ? "A good choice." : "Add to bag?"}</span>
+                        </div>
+                        <p>{action.quantity} × {action.name}{action.size ? ", size " + action.size : ""}{action.color ? ", " + action.color : ""} — {formatPrice(action.price * action.quantity)}</p>
+                        {done ? (
+                          <div><p className="assistant-success">Sent to your bag.</p><button type="button" className="assistant-primary" onClick={() => { close(); setCartOpen(true); }}>View bag <ArrowRight size={16} aria-hidden="true" /></button></div>
+                        ) : (
+                          <button type="button" disabled={confirming !== null} onClick={() => void confirmAdd(message.id, action)} className="assistant-primary">
+                            {checking ? <><Loader2 size={16} className="assistant-spinner" aria-hidden="true" />Checking…</> : <>Confirm <ArrowRight size={16} aria-hidden="true" /></>}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+              {loading && (
+                <div className="assistant-thinking assistant-reveal" role="status" aria-label="Zeouf is thinking" data-testid="assistant-typing">
+                  <span className="assistant-thinking-dots" aria-hidden="true"><i /><i /><i /></span>
+                  <span>Finding your edit</span>
+                </div>
+              )}
+              {error && !loading && (
+                <div role="alert" className="assistant-error assistant-reveal" data-testid="assistant-error">
+                  <p>{error}</p>
+                  {failedHistory.current && <button type="button" onClick={() => failedHistory.current && void request(failedHistory.current.history, failedHistory.current.interaction)} className="assistant-retry"><RotateCcw size={14} aria-hidden="true" /> Retry</button>}
+                </div>
+              )}
+            </div>
+            {showLatest && <button type="button" className="assistant-latest" onClick={() => { setShowLatest(false); scrollToLatest(); }}><ArrowDown size={14} aria-hidden="true" />Latest message</button>}
           </div>
 
-          <form onSubmit={onSubmit} className="flex items-end gap-2 border-t border-neutral-200 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-            <label htmlFor="assistant-input" className="sr-only">Message the shopping assistant</label>
-            <textarea
-              id="assistant-input" ref={inputRef} rows={1} value={draft} maxLength={MAX_MESSAGE_LENGTH}
-              onChange={(event) => setDraft(event.target.value)} onKeyDown={onKeyDown}
-              placeholder="Ask about products…"
-              className="max-h-28 min-h-11 flex-1 resize-none border border-neutral-300 bg-white px-3 py-2 text-base text-neutral-900 focus:border-neutral-900 focus:outline-none"
-            />
-            <button type="submit" disabled={loading || !draft.trim()} aria-label="Send message"
-              className="flex h-11 w-11 items-center justify-center bg-neutral-900 text-white disabled:opacity-40">
-              <Send size={18} aria-hidden="true" />
-            </button>
-          </form>
+          {compareIds.length > 0 && (
+            <div className="assistant-compare-bar" role="status">
+              <span className="assistant-compare-count">{compareIds.length}/3 selected</span>
+              <button type="button" disabled={compareIds.length < 2 || loading || confirming !== null} className="assistant-compare-go"
+                onClick={() => { send("Compare these selected products.", { type: "compare", productIds: compareIds }); setCompareIds([]); }}>Compare selected <ArrowRight size={14} aria-hidden="true" /></button>
+              <button type="button" className="assistant-icon-button" aria-label="Clear selection" title="Clear selection" onClick={() => setCompareIds([])}><X size={16} aria-hidden="true" /></button>
+            </div>
+          )}
+          <footer className="assistant-footer">
+            <form onSubmit={onSubmit} className="assistant-composer">
+              <label htmlFor="assistant-input" className="sr-only">Message the shopping assistant</label>
+              <textarea id="assistant-input" ref={inputRef} rows={1} value={draft} maxLength={MAX_MESSAGE_LENGTH}
+                onChange={event => setDraft(event.target.value)} onKeyDown={onKeyDown} placeholder="What catches your eye?" />
+              <button type="submit" disabled={loading || !draft.trim()} aria-label="Send message" className="assistant-send"><ArrowUp size={20} aria-hidden="true" /></button>
+            </form>
+            <div className="assistant-footer-note"><ShieldCheck size={12} aria-hidden="true" /><p>Please don&apos;t share personal or payment details.</p></div>
+            <p className="assistant-disclaimer">AI-generated answers can be wrong. Check product pages.</p>
+          </footer>
         </section>
       )}
-    </>
+    </div>
   );
 }

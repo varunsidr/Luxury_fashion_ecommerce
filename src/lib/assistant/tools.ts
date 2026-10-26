@@ -3,6 +3,7 @@ import { normalizeCatalogText, type Product } from "../productTypes";
 import { POLICY_TOPICS, STORE_POLICIES } from "./policies";
 import type { ProductCardData, ToolContext, ToolRunState } from "./types";
 import { availableUnits, configuredSizes, configuredColors, cartAction, validVariant } from "./inventory";
+import { assistantPrice, DEFAULT_DISPLAY } from "./presentation";
 
 export const MAX_TOOL_RESULTS = 8;
 const MAX_QUANTITY = 10;
@@ -64,10 +65,14 @@ function availabilityOf(product: Product, size?: string | null): Availability {
 
 const isInStock = (product: Product) => availabilityOf(product) !== "out_of_stock";
 
-function toCard(product: Product): ProductCardData {
+export function toCard(product: Product): ProductCardData {
+  if (!Number.isFinite(product.price) || product.price < 0) throw new Error("Catalog pricing unavailable");
   return {
     id: String(product.id), name: product.name, category: product.category, price: product.price,
     image_url: product.image_url, url: productUrl(product), inStock: isInStock(product),
+    brand: product.brand ?? null,
+    sizes: configuredSizes(product).map(size => ({ size, inStock: availableUnits(product, size) > 0 })),
+    colors: configuredColors(product).map(color => color.name),
   };
 }
 
@@ -107,9 +112,12 @@ const tokens = (value: string) => normalizeCatalogText(value).split(/[^a-z0-9]+/
 function mainCategoryMatches(product: Product, wanted: string): boolean {
   const normalizedCategory = normalizeCatalogText(product.category);
   const normalizedWanted = normalizeCatalogText(wanted);
-  if (normalizedCategory.includes(normalizedWanted)) return true;
+  const hasPrefix = (prefix: string) => normalizedCategory === prefix || normalizedCategory.startsWith(prefix + " ");
+  // Normalization turns Women's into womens. Match a complete category prefix,
+  // never a substring such as men inside womens.
+  if ((" " + normalizedCategory + " ").includes(" " + normalizedWanted + " ")) return true;
   return Object.entries(MAIN_CATEGORY_ALIASES).some(([, aliases]) =>
-    aliases.includes(normalizedWanted) && aliases.some((alias) => normalizedCategory.startsWith(alias)));
+    aliases.includes(normalizedWanted) && aliases.some(hasPrefix));
 }
 
 function score(product: Product, queryTokens: string[]): number {
@@ -132,8 +140,15 @@ async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState)
   const category = str(args.category, "category", 80);
   const color = str(args.color, "color", 40);
   const size = str(args.size, "size", 30);
-  const minPrice = num(args.minPrice, "minPrice", 0, 100_000_000);
-  const maxPrice = num(args.maxPrice, "maxPrice", 0, 100_000_000);
+  const display = ctx.display ?? DEFAULT_DISPLAY;
+  const priceCurrency = str(args.priceCurrency, "priceCurrency", 3) ?? display.currency;
+  if (priceCurrency !== "INR" && priceCurrency !== "USD") throw new ToolInputError("priceCurrency must be INR or USD");
+  if (priceCurrency === "USD" && display.currency !== "USD") return { error: "currency_unavailable", message: "A dollar exchange rate is unavailable. Please give your budget in INR." };
+  const rate = priceCurrency === "INR" ? 1 : display.rate;
+  const minimum = num(args.minPrice, "minPrice", 0, 100_000_000);
+  const maximum = num(args.maxPrice, "maxPrice", 0, 100_000_000);
+  const minPrice = minimum === undefined ? undefined : minimum / rate;
+  const maxPrice = maximum === undefined ? undefined : maximum / rate;
   const inStockOnly = bool(args.inStockOnly, "inStockOnly") ?? true;
   const sort = (str(args.sortBy, "sortBy", 20) ?? "relevance") as Sort;
   if (!SORTS.includes(sort)) throw new ToolInputError(`sortBy must be one of ${SORTS.join(", ")}`);
@@ -142,7 +157,7 @@ async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState)
 
   const queryTokens = query ? tokens(query) : [];
   let matches = (await ctx.store.listProducts())
-    .filter((product) => Number.isFinite(product.price))
+    .filter((product) => Number.isFinite(product.price) && product.price >= 0)
     .filter((product) => !category || mainCategoryMatches(product, category))
     .filter((product) => minPrice === undefined || product.price >= minPrice)
     .filter((product) => maxPrice === undefined || product.price <= maxPrice)
@@ -161,6 +176,8 @@ async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState)
 
   const page = matches.slice(0, limit).map((entry) => entry.product);
   state.lastProductIds = page.map((product) => String(product.id));
+  state.sections.set("search", page.length ? "Here are matching products. Prices and available options are shown on the cards."
+    : "No products matched those filters. Try a different category, budget, size or color.");
   return {
     total_matches: matches.length,
     note: color ? "Color filtering only covers products that list color options." : undefined,
@@ -173,14 +190,19 @@ async function getProduct(args: Args, ctx: ToolContext, state: ToolRunState) {
   const product = findProduct(await ctx.store.listProducts(), idOrSlug);
   if (!product) return { found: false, message: "No product with that id or slug exists." };
   state.lastProductIds = [String(product.id)];
+  state.sections.set("details", "Here are the catalog details. Open a product page for its description and size guide.");
   return { found: true, product: detail(product, state) };
 }
 
-async function getProductAvailability(args: Args, ctx: ToolContext) {
+async function getProductAvailability(args: Args, ctx: ToolContext, state: ToolRunState) {
   const id = str(args.productId, "productId", 100, true)!;
   const product = findProduct(await ctx.store.listProducts(), id);
   if (!product) return { found: false, message: "No product with that id exists." };
   const sizes = configuredSizes(product);
+  summarize(product, state);
+  state.lastProductIds = [String(product.id)];
+  state.sections.set(`availability:${product.id}`, `${product.name}: ${availabilityOf(product).replaceAll("_", " ")}.${sizes.length
+    ? " Sizes: " + sizes.map(size => `${size}: ${availabilityOf(product, size).replaceAll("_", " ")}`).join("; ") + "." : ""}`);
   return {
     found: true, productId: String(product.id), availability: availabilityOf(product),
     sizes: sizes.length ? sizes.map((size) => ({ size, availability: availabilityOf(product, size) })) : undefined,
@@ -209,10 +231,11 @@ async function getRelatedProducts(args: Args, ctx: ToolContext, state: ToolRunSt
     .slice(0, limit)
     .map((entry) => entry.product);
   state.lastProductIds = related.map((product) => String(product.id));
+  state.sections.set("related", related.length ? "Here are similar products from the catalog." : "No similar in-stock products were found. Try browsing the category.");
   return { found: true, products: related.map((product) => summarize(product, state)) };
 }
 
-async function getCategories(_args: Args, ctx: ToolContext) {
+async function getCategories(_args: Args, ctx: ToolContext, state: ToolRunState) {
   const groups = new Map<string, { name: string; url: string; product_count: number; subcategories: Set<string> }>();
   for (const product of await ctx.store.listProducts()) {
     const slug = getStorefrontSlugForCategory(product.category);
@@ -222,12 +245,16 @@ async function getCategories(_args: Args, ctx: ToolContext) {
     if (normalizeCatalogText(product.category) !== normalizeCatalogText(main)) group.subcategories.add(product.category);
     groups.set(slug, group);
   }
+  state.sections.set("categories", groups.size ? "Browse: " + [...groups.values()].map(group => `${group.name} (${group.product_count})`).join(", ") + "." : "No catalog categories were found.");
   return { categories: [...groups.values()].map((group) => ({ ...group, subcategories: [...group.subcategories].sort() })) };
 }
 
 async function getCart(_args: Args, ctx: ToolContext, state: ToolRunState) {
   if (!ctx.authenticated) return { error: "sign_in_required", message: "The shopper is not signed in, so the cart cannot be read." };
-  if (!ctx.cart.length) return { items: [], total_inr: 0, message: "The cart is empty." };
+  if (!ctx.cart.length) {
+    state.sections.set("cart", "Your bag is empty.");
+    return { items: [], total_inr: 0, message: "The cart is empty." };
+  }
   const products = await ctx.store.listProducts();
   let total = 0;
   const items = ctx.cart.map((line) => {
@@ -241,6 +268,9 @@ async function getCart(_args: Args, ctx: ToolContext, state: ToolRunState) {
       unit_price_inr: product.price, line_total_inr: lineTotal, availability: availabilityOf(product, line.size), url: productUrl(product),
     };
   });
+  state.sections.set("cart", items.map(item => "name" in item
+    ? `${item.quantity} × ${item.name}${item.size ? `, size ${item.size}` : ""}${item.color ? `, ${item.color}` : ""}: ${assistantPrice(item.line_total_inr!, ctx.display)}.`
+    : `${item.quantity} × an item that is no longer listed.`).join("\n") + `\nCatalog total: ${assistantPrice(total, ctx.display)}. Check your bag before checkout.`);
   return { items, total_inr: total, note: "Prices come from the current catalog and may differ from what the browser stored." };
 }
 
@@ -258,6 +288,8 @@ async function addToCart(args: Args, ctx: ToolContext, state: ToolRunState) {
   const quantity = int(args.quantity, "quantity", 1, MAX_QUANTITY) ?? 1;
   const product = findProduct(await ctx.store.listProducts(), productId);
   if (!product) return { error: "not_found", message: "No product with that id exists." };
+  summarize(product, state);
+  state.lastProductIds = [String(product.id)];
 
   const sizes = configuredSizes(product);
   let chosenSize = size;
@@ -278,6 +310,7 @@ async function addToCart(args: Args, ctx: ToolContext, state: ToolRunState) {
 
   const action = cartAction(product, chosenSize, chosenColor, quantity);
   state.actions = [action];
+  state.sections.set("proposal", "Review the selected options below, then press Confirm to add to your bag. Nothing has been added yet.");
   state.seenProducts.set(action.productId, toCard(product));
   return {
     status: "awaiting_user_confirmation",
@@ -286,12 +319,13 @@ async function addToCart(args: Args, ctx: ToolContext, state: ToolRunState) {
   };
 }
 
-function getStorePolicies(args: Args) {
+function getStorePolicies(args: Args, _ctx: ToolContext, state: ToolRunState) {
   const topic = (str(args.topic, "topic", 40) ?? "all").toLowerCase();
   if (!(POLICY_TOPICS as readonly string[]).includes(topic)) {
     return { found: false, message: `No published information for that topic. Known topics: ${POLICY_TOPICS.join(", ")}.` };
   }
   const entries = topic === "all" ? Object.values(STORE_POLICIES) : [STORE_POLICIES[topic]];
+  for (const entry of entries) state.sections.set(`policy:${entry.topic}`, entry.summary.join(" "));
   return { found: true, policies: entries };
 }
 
@@ -309,11 +343,12 @@ const obj = (properties: Record<string, unknown>, required: string[] = []) => ({
 
 export const TOOL_DEFINITIONS = [
   { type: "function" as const, name: "searchProducts", strict: false,
-    description: "Search the store catalog. Use targeted filters; returns at most 8 products. Prices are in INR.",
+    description: "Search the store catalog. Use targeted filters; returns at most 8 products. Budget filters use the shopper's display currency unless priceCurrency is specified. Returned price_inr is always INR.",
     parameters: obj({
       query: { type: "string", description: "Keywords such as 'black dress' or 'leather bag'." },
       category: { type: "string", description: "Main category: women, men, perfume, shoes, bags, accessories, makeup, or a sub-category name." },
-      minPrice: { type: "number" }, maxPrice: { type: "number", description: "Maximum price in INR." },
+      minPrice: { type: "number" }, maxPrice: { type: "number", description: "Maximum price in priceCurrency, defaulting to the shopper's display currency." },
+      priceCurrency: { type: "string", enum: ["INR", "USD"], description: "Set INR for an explicit rupee/INR budget; USD for a dollar/USD budget. Otherwise omit to use display currency. Do not convert the amount yourself." },
       color: { type: "string" }, size: { type: "string" },
       inStockOnly: { type: "boolean", description: "Defaults to true." },
       sortBy: { type: "string", enum: [...SORTS] }, limit: { type: "integer", minimum: 1, maximum: MAX_TOOL_RESULTS },
@@ -337,7 +372,7 @@ export const TOOL_DEFINITIONS = [
     parameters: obj({ topic: { type: "string", enum: [...POLICY_TOPICS] } }) },
 ];
 
-/** Validates arguments and runs one tool. Never throws: errors become safe JSON for the model. */
+/** Validates arguments; failures become safe JSON, while cancellation stops the run. */
 export async function executeTool(name: string, rawArguments: string, ctx: ToolContext, state: ToolRunState): Promise<string> {
   const handler = Object.hasOwn(handlers, name) ? handlers[name] : undefined;
   if (!handler) return JSON.stringify({ error: "unknown_tool" });
@@ -347,14 +382,33 @@ export async function executeTool(name: string, rawArguments: string, ctx: ToolC
     if (rawArguments) {
       try { parsed = JSON.parse(rawArguments); } catch { throw new ToolInputError("arguments must be valid JSON"); }
     }
-    return JSON.stringify(await handler(asArgs(parsed), ctx, state));
+    const result = await handler(asArgs(parsed), ctx, state);
+    const status = result as { error?: string; found?: boolean; message?: string };
+    if (status.error || status.found === false) {
+      const notices: Record<string, string> = {
+        sign_in_required: "Please sign in before reading or adding to your bag.",
+        intent_not_confirmed: "Choose a product and ask to add it to your bag.",
+        size_required: "Choose an available size on the product card, then review the bag addition.",
+        color_required: "Choose a color on the product card, then review the bag addition.",
+        insufficient_stock: "There is not enough stock for that variant and quantity, including items already in your bag.",
+        invalid_option: "Those options are not offered. Choose the options shown on the product card.",
+        currency_unavailable: "A dollar exchange rate is unavailable. Please give your budget in INR.",
+      };
+      state.sections.set("notice", notices[status.error ?? ""] ?? "That information could not be found. Try another product or store-policy topic.");
+    }
+    return JSON.stringify(result);
   } catch (error) {
-    if (error instanceof ToolInputError) return JSON.stringify({ error: "invalid_arguments", message: error.message });
+    if (error instanceof ToolInputError) {
+      state.sections.set("notice", "I couldn't use those search or product options. Please try a simpler request.");
+      return JSON.stringify({ error: "invalid_arguments", message: error.message });
+    }
+    if (ctx.signal?.aborted) throw error;
+    state.sections.set("notice", "This lookup is temporarily unavailable. Please try again or browse the store.");
     console.error("[assistant] tool failed", { tool: name, error: error instanceof Error ? error.name : "unknown" });
     return JSON.stringify({ error: "tool_unavailable", message: "This lookup is temporarily unavailable. Tell the shopper you could not retrieve it." });
   }
 }
 
 export function newRunState(): ToolRunState {
-  return { seenProducts: new Map(), lastProductIds: [], actions: [] };
+  return { seenProducts: new Map(), lastProductIds: [], actions: [], sections: new Map() };
 }

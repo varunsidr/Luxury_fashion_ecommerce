@@ -1,77 +1,180 @@
-# EL'S — Architecture Overview
+# zeouf — Architecture Overview
 
-This document gives a concise, developer-focused overview of the app architecture, integration points, and recommended extension points (reviews, admin moderation, storage).
+Updated 24 October 2026 against the current working copy. This document describes the checked-in design and current assistant changes. [docs/BRD.md](docs/BRD.md) owns requirement IDs and known gaps; [docs/QA_TESTING_GUIDE.md](docs/QA_TESTING_GUIDE.md) records fixtures and dated execution evidence. Source inspection does not establish live integration acceptance.
 
-## Components
+zeouf is a portfolio demonstration. Checkout can save demo orders and decrement inventory, but no money is charged, delivery arranged, or returns/support follow-up provided.
 
-- Next.js (App Router)
-  - Server-side routes: `src/app/api/*` providing server APIs, test helpers, and dev-only endpoints.
-  - Pages and layouts in `src/app` and components in `src/components`.
-- Supabase
-  - Auth: `auth.users` manages customer accounts.
-  - Database: Postgres for `products`, `profiles`, `cart_items`, `favorites`, `reviews`, `orders`, and `order_items`.
-  - Storage: object storage for product images and user-uploaded review images.
-- Client
-  - React + Tailwind UI components and Context providers (`CartContext`, `FavoritesContext`).
-- Admin
-  - Simple password-protected admin UI at `/admin`; server-only admin actions available via protected API routes.
+## System boundaries
 
-## Data flow (high level)
+The application uses Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4 and scoped assistant CSS. Supabase supplies customer authentication, Postgres/PostgREST and Storage. Groq supplies free-text assistant tool selection through the `openai` SDK; the assistant has no OpenAI credential/service fallback.
 
-- Customer browse → product data fetched from Supabase (public read) → images served from Storage CDN.
-- Signup/login → Supabase Auth (client-side anon key) → `profiles` row created by auth trigger.
-- Checkout → authenticated session → `/api/checkout` verifies the session, reloads catalog prices on the server, and creates the order and line items → confirmation. Apply `supabase_checkout_security_migration.sql` to remove direct customer insert policies for orders and line items.
-- Review submission → authenticated POST to `/api/reviews` (server route) → server validates, stores images in Storage, writes `reviews` row (default `approved=false`).
-- Admin moderation → admin UI calls `/api/admin/reviews/*` to approve or delete reviews; approved reviews are visible in storefront.
-- Admin users → the browser admin shell calls `/api/admin/users`, which verifies the admin cookie and reads profiles with the server-only Supabase service-role client.
-- Admin orders → `/api/admin/orders` provides protected order listing and status updates, including order items and product summaries.
+```mermaid
+flowchart LR
+    Browser["Storefront and admin browser"] --> App["Next.js pages and API routes"]
+    Browser -->|"Customer auth, public and account-owned reads"| Supabase["Supabase Auth / PostgREST"]
+    Supabase --> DB[("PostgreSQL and RLS")]
+    App -->|"Verified server operations and service-only RPCs"| DB
+    App -->|"Free-text assistant requests"| Groq["Groq Responses API"]
+    Browser -->|"Local assets and public product images"| Images["Public assets / Supabase Storage"]
+    App -->|"Validated uploads and moderator signed URLs"| Images
+```
 
-## Admin inventory and demo data
+| Boundary | Responsibility and authority | Main source |
+|---|---|---|
+| Shared UI | Root providers wrap storefront/admin routes. SiteShell adds navbar, one main landmark, footer and assistant only outside admin. | [layout](src/app/layout.tsx), [SiteShell](src/components/SiteShell.tsx) |
+| Public catalog | Public RLS reads use the anon client. Unconfigured Supabase permits bundled fallback browsing; it does not supply working authentication or commerce. | [Supabase adapter](src/lib/supabase.ts), [catalog deadline](src/lib/catalogRequest.ts) |
+| Customer identity | Supabase bearer tokens are verified server-side before protected customer operations. Client-supplied user IDs are not authoritative. | [checkout](src/app/api/checkout/route.ts), [assistant handler](src/lib/assistant/handler.ts) |
+| Admin identity | Named password hashes and a signed HttpOnly cookie protect server routes independently of browser UI flags. | [admin auth](src/lib/adminAuth.ts), [admin login](src/app/api/admin/login/route.ts) |
+| Privileged persistence | Service-role clients stay in server handlers. Sensitive mutations use validated APIs and protected database functions where implemented. Applied grants/RLS still require staging verification. | [admin catalog](src/lib/adminCatalog.ts), [purchase safeguards](supabase_purchase_safeguards_migration.sql) |
+| External services | Groq handles assistant model requests; the region route reads an exchange rate; optional mail supports restock batches. No payment or shipping integration exists. | [assistant](src/lib/assistant/handler.ts), [region](src/app/api/storefront/region/route.ts), [route inventory](docs/BRD.md#9-integrations-and-api-inventory) |
 
-The dashboard uses one inventory rule: products with size rows derive their quantity from `product_size_stock`; products without sizes use `products.stock`. The stock-management view edits size rows directly, while product editing controls the fallback product stock. This prevents a size-stock total from being compared against an unrelated zero product-stock field.
+Public URLs use English category names. Legacy App Router directory names are mapped by [next.config.ts](next.config.ts); the detailed route inventory remains in the BRD.
 
-The repeatable `npm run seed:admin-data` script creates demo data against the configured Supabase project: a confirmed demo customer/profile, three orders, four approved reviews, and non-zero stock for the first catalog products. It uses the service-role key and is intended only for local or demo environments.
+## Browser state and catalog reads
 
-## Checkout and profile integrity
+- [CartContext](src/context/CartContext.tsx) and [cartStorage](src/lib/cartStorage.ts) restore validated `els-cart` lines and provide recovery feedback. Adding requires a customer session. The bag remains browser-wide across account changes; the `cart_items` table is not used for storefront persistence (G-10).
+- [FavoritesContext](src/context/FavoritesContext.tsx) uses account-owned Supabase favorites. [AuthPromptContext](src/context/AuthPromptContext.tsx) opens the login prompt for gated actions.
+- [CurrencyContext](src/context/CurrencyContext.tsx) uses `/api/storefront/region` for INR/USD display context. US display uses an INR-to-USD rate; failures fall back to INR. Display amounts round to whole units; catalog, proposal and order values remain INR.
+- Checkout retains an attempt UUID and payload digest in same-tab sessionStorage for retry/reload recovery. The stored digest does not contain raw contact fields; the shopper must re-enter the same details after reload.
+- Assistant conversations, ordered product references, comparison selections, proposals and confirmation flags live only in widget memory. Reset/account changes clear them; closing and reopening the panel preserves the conversation.
+- Product detail server lookup and its known navigation limits are described in [the product-navigation investigation](docs/PRODUCT_NAVIGATION_INVESTIGATION.md). The assistant's request deadlines do not add a deadline or loading boundary to those product routes.
 
-Orders reference `profiles.id`, not `auth.users.id` directly. New accounts receive a profile through `on_auth_user_created`. Checkout also performs an idempotent profile upsert before creating an order so accounts created before the trigger was installed can still place orders. Existing databases should run [supabase_checkout_profile_fix.sql](supabase_checkout_profile_fix.sql) once to backfill those profiles and add the matching RLS insert policy.
+## Shopping assistant
 
-The client currently supports authenticated checkout only. Demo card payments are simulated in the browser and never charge or store real card details; cash on delivery is also available.
+### UI and lifecycle
 
-## Admin authentication
+[ShoppingAssistant.tsx](src/components/ShoppingAssistant.tsx), [AssistantProductCard.tsx](src/components/AssistantProductCard.tsx) and [shopping-assistant.css](src/components/shopping-assistant.css) implement the non-modal Ask Zeouf panel.
 
-The `/admin` page submits the password to `/api/admin/login`. The route compares it with the server-only `DEV_CREATE_USER_KEY`, signs a short-lived token, and returns it in an HttpOnly `admin_token` cookie. `DEV_ADMIN_USERNAME` is optional and applies to custom API clients that send a username. No admin password is stored in source control.
+The UI includes editorial welcome/suggestion cards, product comparison, similar-product discovery, size/color/quantity choices, explicit bag confirmation and View bag. Scoped CSS animates panel/message/loading/selection/confirmation feedback. Reduced-motion preference disables animations/transitions and smooth scrolling. Closing immediately makes the panel inert and hidden to assistive technology, then removes it after 180 ms; rapid reopening cancels removal.
 
-## Security and best practices
+The composer grows to 128px before scrolling. VisualViewport events fit the panel around mobile keyboard space. Readers can scroll older replies without being pulled to the bottom; Latest message or sending resumes following. These behaviors have scoped Chromium fixtures; native phone keyboards, screen readers and rendering performance remain separate checks.
 
-- Never expose `SUPABASE_SERVICE_ROLE_KEY` to the client. Use server-only routes for operations that require elevated privileges (uploads that need signed URLs, test endpoints, dev auto-create users).
-- Row-Level Security (RLS): keep strict RLS for `profiles`, `cart_items`, `favorites`, and `reviews` to ensure users only access their own data.
-- Environment files: commit example env files (e.g. `.env.example`) but **never** commit `.env.local` or files containing real service role keys.
+### Request and tool flow
 
-## Reviews & Admin (extension plan)
+```mermaid
+sequenceDiagram
+    participant UI as Assistant widget
+    participant API as POST /api/assistant
+    participant Model as Groq (free text only)
+    participant Tools as Validated server tools
+    participant Catalog as Catalog / checked-in policies
+    UI->>API: Bounded messages, references, display context, optional interaction
+    API->>API: Shared limiter, payload checks, optional bearer verification
+    alt Free-text chat
+        API->>Catalog: Freshly rehydrate latest ordered product references
+        API->>Model: History, reference facts, instructions and tool definitions
+        Model-->>API: Tool calls / card ID markers
+        API->>Tools: Validate and execute tool arguments
+        Tools->>Catalog: Read relevant facts
+        Catalog-->>Tools: Catalog facts or policy summaries
+        Tools-->>API: Tool output and factual reply sections
+        Note over API,Model: Tool exchange may repeat within one overall deadline
+    else Compare / similar / prepare_add
+        API->>Tools: Validated interaction; no model/key needed
+        Tools->>Catalog: Read catalog facts
+        Tools-->>API: Cards, factual sections and optional proposal
+    end
+    API-->>UI: Tool-composed reply, up to 3 catalog cards, optional proposal
+```
 
-- Reviews table: `id, product_id, user_id, rating (1-5), title, body, images text[], approved boolean, created_at`.
-- Image handling: accept up to 3 images per review, 2 MB per image, generate thumbnails, store both original and thumb.
-- API endpoints:
-  - `POST /api/reviews` (auth required)
-  - `GET /api/products/:id/reviews` (public)
-  - `GET /api/admin/reviews?status=pending` (admin only)
-  - `PUT /api/admin/reviews/:id/approve` (admin only)
+| Module | Responsibility |
+|---|---|
+| [handler.ts](src/lib/assistant/handler.ts) | Validates bounded history, ordered reference IDs, display context and interaction payloads; verifies bearer tokens; applies the shared chat limiter. |
+| [chat.ts](src/lib/assistant/chat.ts) | Free-text Responses loop and deterministic card interactions. Uses server-rendered factual copy; raw model prose is never displayed. Unknown card IDs are dropped and no-tool replies use a safe fallback. |
+| [tools.ts](src/lib/assistant/tools.ts) | Validated search, details, availability, related products, categories, cart reads, bag proposals and checked-in policies. Search matches category boundaries/aliases and converts numeric budgets once. |
+| [catalogStore.ts](src/lib/assistant/catalogStore.ts) | Public read-only catalog/size-stock adapter; ordinary recommendations use a 30-second process cache. Reference follow-ups freshly reload facts and keep subsequent tools on that request snapshot. |
+| [inventory.ts](src/lib/assistant/inventory.ts) | Configured variant membership, valid unique size-stock rows and shared stock across colors. Missing/duplicate/retired size rows never manufacture availability. Demo contact-sheet products suppress selectable colors. |
+| [presentation.ts](src/lib/assistant/presentation.ts) | Validates INR/1 or finite positive USD display rates up to 1000, formats factual cart copy and keeps purchase values in INR. USD budget filters require an available USD rate. |
+| [requestLifetime.ts](src/lib/assistant/requestLifetime.ts) | Overall request deadlines, cancellation-aware waits and propagation to supported provider/auth/catalog/limiter requests. |
+| [confirm.ts](src/lib/assistant/confirm.ts) | Fresh, authenticated read-only validation before the client adds a proposal to its bag. |
+| [prompt.ts](src/lib/assistant/prompt.ts), [policies.ts](src/lib/assistant/policies.ts) | Tool-routing rules and portfolio-demo policy facts. Catalog-authored text is untrusted data. |
 
-## Operational notes
+Free-text requests use server-only `GROQ_API_KEY`, with default model `openai/gpt-oss-20b` or nonblank `GROQ_MODEL`. The loop is non-streaming, has no automatic SDK retries, and permits four tool rounds plus a final model request with 700 output tokens per call. Requests omit unsupported `store`. Recent messages and tool/reference context go to Groq; in-memory application state does not establish provider retention behavior.
 
-- Local dev convenience: `/api/dev/create-user` aids testing by creating confirmed users (guarded by `DEV_CREATE_USER_KEY`). Limit to small number of dev accounts.
-- Environment changes require a full Next.js dev-server restart because server routes read `.env.local` at process startup.
-- CI / deployments: set environment variables in the hosting platform (Vercel, Netlify) rather than committing them.
+History accepts 1–50 raw entries and validates/processes only the last 12, with at most 1,000 characters per entry and a final user message. Assistant entries can carry up to three unique ordered product IDs. Fresh reference data preserves original positions when a product is removed, so ordinal follow-ups do not silently shift items. Tool calls return at most eight products; UI replies contain at most three cards.
 
-## Useful files
+### Bag confirmation and deadlines
 
-- `supabase_schema.sql` — canonical DB schema and policies
-- `supabase_checkout_profile_fix.sql` — idempotent repair for existing Supabase projects
-- `scripts/seed_admin_data.js` — repeatable demo orders, reviews, customer, and stock seed
-- `src/lib/supabase.ts` — Supabase client initialization and fallbacks
-- `src/app/api` — server API routes (test helpers, dev helpers, production APIs)
+1. `addToCart` or the card's Review bag addition action proposes a product/variant/quantity without mutating the bag. Bag tools require a verified customer; browser-supplied cart snapshots are not a server-owned cart.
+2. Confirm posts the bearer token, INR proposal price/options/quantity and current bag lines to `POST /api/assistant/confirm`.
+3. The server bypasses the catalog cache, checks listed options, price and available stock including quantities already in the bag, then returns an authoritative action. It saves nothing and reserves no inventory.
+4. The widget rechecks the account, conversation generation and unchanged bag, prevents duplicate confirms, and shows success only after CartContext accepts the addition for that account.
+5. Checkout remains the authoritative transaction and revalidates inventory. Separate fresh product/stock reads are not an atomic snapshot (G-26).
 
----
+| Scope | Deadline / limit |
+|---|---|
+| Complete server chat or card interaction | 35 seconds, including body/limiter/auth/tools/model rounds |
+| Complete server confirmation | 10 seconds |
+| Individual provider call | 25 seconds; no automatic retry |
+| Browser chat / confirmation fallback waits | 45 / 15 seconds |
+| Chat / confirmation address limits | Separate keys, each 10 requests per minute |
+| Confirmation bag input / proposed quantity | Up to 30 valid lines / integer quantity 1–10 |
 
-If you want, I can extend this file with an ER diagram or a Mermaid sequence diagram for the review upload flow next.
+Deadline/cancellation returns a safe 504 when the connection remains available and prevents later model rounds. Actual deployment disconnect propagation remains a staging check.
+
+## Inventory and demo checkout
+
+Sized products use only configured `product_size_stock` rows; unsized products use `products.stock`. Colors share product/size inventory. Protected stock updates and catalog size edits use parent-product-first locking compatible with checkout.
+
+[POST /api/checkout](src/app/api/checkout/route.ts) verifies the bearer session and normalizes a UUID attempt key, product/options/quantity lines, fictional address and demo payment method. It invokes service-only five-argument `create_checkout_order`, installed by [purchase safeguards](supabase_purchase_safeguards_migration.sql). One transaction handles profile upsert, configured-option validation, trusted prices, stock decrement, order/line creation and an account-scoped attempt record.
+
+Identical account/key/normalized-payload retries return the original order before checking depleted stock. Reusing the key with changed details conflicts. Different keys or lost tab state can represent new attempts. Order values/options are snapshots; product names/images are relational reads and may disappear after catalog deletion.
+
+The application exposes successful simulated card payment and simulated cash on delivery. It does not collect card numbers, charge money, arrange shipping or send an order confirmation email.
+
+## Administration and reviews
+
+| Operation | Current server path and boundary |
+|---|---|
+| Admin login | `POST /api/admin/login` verifies named `ADMIN_CREDENTIALS` scrypt hashes and issues a one-hour signed `admin_token` cookie: HttpOnly, SameSite=Lax, Secure in production. Production requires a distinct `ADMIN_SESSION_SECRET` of at least 32 characters; legacy dev-key login is nonproduction-only. |
+| Catalog reads/mutations | `GET/POST /api/admin/products`, `PATCH/DELETE /api/admin/products/[id]` and `POST /api/admin/products/upload` require a verified admin cookie; mutations also check origin and shared per-admin limits. |
+| Catalog transaction | Service-only `save_admin_product` validates/synchronizes configured size rows and totals, preserves current existing unsized stock, and prevents stale metadata edits from replacing inventory. Existing quantities are edited through Stock Management. |
+| Stock / orders / users | Signed-cookie stock/order/user APIs use server-side service-role access; stock uses `set_product_stock`. The admin cookie is separate from a Supabase customer session. |
+| Public reviews | `GET /api/reviews?productId=...` and detail reads show approved rows. Applied RLS permits approved reviews or the author's own pending reviews and revokes direct customer review writes. |
+| Review creation/upload | Bearer-protected `POST /api/reviews/upload` accepts 1–3 JPEG/PNG/WebP files up to 2 MiB each with matching file signatures and returns private object paths. `POST /api/reviews` validates owned paths and creates a pending review; displayed reviewer name is still not saved. |
+| Moderation | `GET /api/admin/reviews`, `PUT/DELETE /api/admin/reviews/[id]` and form POST approve/delete routes are cookie-protected. The pending page uses ten-minute signed review-image URLs. The sidebar list/reply workflow remains incomplete. |
+
+Product images use a public `product-images` bucket and server-admin uploads with size/type/signature checks. New review files use private `review-images`; historical public review files and orphan cleanup remain unresolved. No implemented thumbnail pipeline is established by this overview.
+
+See [admin catalog handlers](src/lib/adminCatalog.ts), [catalog migration](supabase_admin_catalog_migration.sql), [review creation](src/app/api/reviews/route.ts) and [review upload](src/app/api/reviews/upload/route.ts). The complete method/path inventory is maintained in the BRD.
+
+## Runtime configuration and deployment
+
+| Mode | Expected setup |
+|---|---|
+| Local development | `npm run dev` loads `.env.local`. Missing shared limiter settings permit a process-local counter in nonproduction. If complete shared settings point to a failing RPC, the request still fails closed. |
+| Production build preview / hosting | `npm run build` then `npm run start` runs production mode even on localhost. The shared limiter requires Supabase URL, server service-role key, `RATE_LIMIT_SECRET` of at least 32 characters, the installed limiter RPC and a trusted ingress proxy. No process-local production fallback exists. |
+| Free-text model availability | Valid free-text chat additionally requires `GROQ_API_KEY`; card interactions use no model/key. Both still obey their shared limiter and auth/stock rules. |
+| Public-only fallback | Missing public Supabase configuration supports local catalog browsing, not real auth, uploads, protected writes or checkout. |
+
+A 503 saying the assistant is temporarily unavailable can be a missing/unavailable shared limiter before any model request. A not-configured message identifies a missing model key for valid free text. Address/provider usage limits return safe 429 messages. Use development mode for ordinary local work; provision production dependencies before testing `npm run start`. `GET /api/health` reports process liveness, not model/database/limiter readiness.
+
+Restart the server after environment changes. Keep real values out of Git and logs; see [.env.example](.env.example) and [SECURITY.md](SECURITY.md). Browser code receives only intended public settings; service role, model key, admin credentials/signing secret, limiter secret, mail and helper secrets remain server-side.
+
+For a new isolated database, apply migrations in the order in [README.md](README.md#database-schema): base schema, reviews, checkout security/older transaction, demo catalog, security hardening, purchase safeguards, then admin catalog. Existing projects may need the profile repair. Deploy matching app/schema versions and do not reapply older checkout functions afterward. Seeding/manual option fixtures mutate data and are not part of build or runtime startup.
+
+Run `npm run security:check-db` with an explicitly configured staging `DATABASE_URL` to inspect grants/RLS/current RPCs, buckets and legacy invalid data without writes. The full live inspector and multi-session verification remain pending (G-25/G-26).
+
+## Verification and change management
+
+| Command / workflow | Scope and limits |
+|---|---|
+| `npm run docs:sync`, `docs:review`, `docs:check` | Synchronize requirements while preserving manual fields; record explicit reviewer assertions and reject stale source snapshots. A review never marks tests Passed. |
+| `npm run docs:test` | Regression checks for the documentation tools using temporary fixtures. |
+| `npm run test:assistant` | 42 current tool/API/intercepted SDK/browser cases, including UI lifecycle, cancellation and presentation. Fake auth/model/catalog/confirmation fixtures do not prove live acceptance. |
+| `npm run test:ui`, `npm run test:catalog` | 32 storefront/admin and nine catalog browser/helper cases. Run sequentially with assistant tests because isolated servers share a compilation cache. |
+| `npm run test:purchase` | 19 isolated PGlite SQL/permission/transaction cases; one connection does not prove real Supabase or concurrent-session behavior. |
+| `npm run test:live` | Optional read-only deployed browsing with fresh unauthenticated contexts and blocked mutations; separate from push CI. |
+| GitHub Actions | Requirements CI runs docs tests/checks. Storefront CI runs purchase, UI and catalog suites; it currently does not invoke the assistant suite. Local-Postgres CI covers its separate seed/build/health path. |
+
+Follow [AGENTS.md](AGENTS.md) when changing source or docs: inspect and update BRD/QA, sync the matrix, record the affected requirement IDs, then check the result. Commit the generated sheet, historical evidence, review log and source snapshot with their related source/docs. Build and lint both enforce `docs:check`. Test screenshots, build output and real environment files remain ignored.
+
+## Remaining verification and decisions
+
+The [BRD gaps](docs/BRD.md#12-known-gaps-and-business-decisions) remain authoritative. In particular:
+
+- Production credential/limiter/migration provisioning, applied RLS/Storage guards and full read-only inspector execution still need environment evidence.
+- Real authenticated bag confirmation/checkout, concurrent stock/replay/catalog edits and deployed cancellation behavior need staging tests.
+- Account ownership of the browser bag, review identity/replies/image cleanup, notification eligibility, order transition/cancellation stock semantics and password recovery remain open.
+- Native phone keyboards, full browser/screen-reader/contrast coverage and agreed performance targets remain separate from scoped Chromium presentation tests.
+- Recommendation caching, model intent/ordinal/currency tool choice and provider retention require their own checks. Successful public-chat browsing smoke does not establish private mutation acceptance.

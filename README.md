@@ -6,7 +6,7 @@
 
 **zeouf** is a portfolio e-commerce demo for fashion and lifestyle: women's and men's clothing, shoes, bags, accessories, perfume, and makeup, presented with an editorial design.
 
-The project includes a **customer-facing storefront** for browsing, search, accounts, carts, favorites, reviews, and simulated checkout, plus a **password-protected admin workspace** for catalog, inventory, orders, users, and analytics. Some admin write and moderation flows remain incomplete; see the [requirements and known gaps](docs/BRD.md).
+The project includes a **customer-facing storefront** for browsing, search, accounts, carts, favorites, reviews, a shopping assistant and simulated checkout, plus a **password-protected admin workspace** for catalog, inventory, orders, users and analytics. Catalog CRUD/uploads use protected server routes; applied permissions, review replies and other remaining limits are tracked in the [requirements and known gaps](docs/BRD.md).
 
 Orders and payments are simulated: no payment is charged and no order is shipped. Use fictional customer details when testing.
 
@@ -16,7 +16,7 @@ Orders and payments are simulated: no payment is charged and no order is shipped
 
 ## Screenshots
 
-Captured from the current UI on 4 October 2026 at 1440px desktop width, using the local fallback catalog and INR prices. The hero uses its reduced-motion poster. The admin dashboard uses local catalog data and an empty order fixture; these previews do not demonstrate live database operations.
+Historical storefront/admin captures from 4 October 2026 at 1440px desktop width, using the local fallback catalog and INR prices. They predate the current assistant refresh. The hero uses its reduced-motion poster; the dashboard uses local catalog data and an empty order fixture. These previews do not demonstrate live database operations.
 
 ### Storefront — Home Page
 ![Home Page](screenshots/home.png)
@@ -103,62 +103,53 @@ zeouf is split into **two distinct sections**:
 - Star ratings and customer reviews
 - Editorial homepage with manual hero navigation, pause controls, and reduced-motion support
 - Privacy and Terms of Service pages
+- Ask Zeouf shopping assistant with catalog/policy answers, ordered follow-ups, INR/USD budgets, comparison, similar products and explicit bag confirmation
+- Responsive assistant cards, reduced-motion support, animated feedback and reading-position controls
 
 ### Admin Panel
 - Password-protected login page
-- Catalog listing and add/edit/delete forms; browser writes still require a completed admin authorization path
-- Product image URL/upload controls; working uploads require storage permissions
+- Catalog listing and add/edit/delete through signed-cookie server APIs, with validated fields and atomic size-row synchronization
+- Product image uploads through a protected server route; applied bucket permissions still require staging verification
 - Stock management per size
 - Category assignment from a predefined list
 - Review listing and a separate pending-review moderation page; unified moderation and visible reply controls remain pending
 - Analytics dashboard
 - Product search and filtering
 
-Implementation limits and acceptance criteria are tracked in [docs/BRD.md](docs/BRD.md), rather than inferred from screenshots.
+Use [architecture.md](architecture.md) for component boundaries and data flows, [SECURITY.md](SECURITY.md) for deployment requirements, and [docs/BRD.md](docs/BRD.md) for requirements and known gaps. Screenshots are scoped visual evidence.
 
 ---
 
 ## Project Structure
 
 ```
-Luxury_fashion_ecommerce/
+.
 ├── src/
-│   ├── app/
-│   │   ├── page.tsx                  # Home page
-│   │   ├── layout.tsx                # Root layout
-│   │   ├── admin/
-│   │   │   ├── page.tsx              # Admin login
-│   │   │   └── dashboard/page.tsx    # Admin dashboard
-│   │   ├── kadin/[slug]/             # Women's categories
-│   │   ├── erkek/[slug]/             # Men's categories
-│   │   ├── ayakkabi/[slug]/          # Shoes
-│   │   ├── canta/[slug]/             # Bags
-│   │   ├── aksesuar/[slug]/          # Accessories
-│   │   ├── parfum/[slug]/            # Perfume
-│   │   ├── makyaj/[slug]/            # Makeup
-│   │   ├── arama/                    # Search
-│   │   └── favorilerim/              # Favorites
+│   ├── app/                          # App Router pages, layout and global styles
+│   │   └── api/                      # Assistant/confirm, checkout, admin, reviews, region and helpers
 │   ├── components/
-│   │   ├── Navbar.tsx
-│   │   ├── Footer.tsx
-│   │   ├── ProductCard.tsx
-│   │   ├── ProductListing.tsx
-│   │   ├── ProductDetailView.tsx
-│   │   └── SaleBanner.tsx
-│   ├── context/
-│   │   ├── CartContext.tsx
-│   │   └── FavoritesContext.tsx
-│   ├── hooks/
-│   │   ├── useFavorites.ts
-│   │   └── useProductSort.ts
+│   │   ├── SiteShell.tsx             # Shared storefront shell outside admin
+│   │   ├── ShoppingAssistant.tsx     # Chat, references, comparison and lifecycle
+│   │   ├── AssistantProductCard.tsx  # Product facts, variant choices and card actions
+│   │   ├── shopping-assistant.css    # Scoped presentation and reduced-motion rules
+│   │   └── ProductDetailView.tsx     # Product options, reviews and related products
+│   ├── context/                      # Auth prompt, currency, cart and favorites providers
 │   └── lib/
-│       ├── supabase.ts
-│       └── categories.ts
-├── public/                           # Static product images
-├── supabase_schema.sql               # Database schema
-├── migrate-products.js               # Product seed script
-├── upload-images.js                  # Image upload utility
-└── update-prices.sql                 # Bulk price update SQL
+│       ├── assistant/                # Model loop, tools, catalog, confirmation and deadlines
+│       ├── adminAuth.ts              # Named credentials and signed cookies
+│       ├── adminCatalog.ts           # Guarded catalog and image handlers
+│       ├── rateLimit.ts              # Shared limiter; nonproduction local fallback
+│       ├── cartStorage.ts            # Validated browser bag persistence
+│       └── supabase.ts               # Public client, lookup and catalog fallback
+├── public/                           # Product assets and demo photographs
+├── scripts/                          # Requirements, SQL tests, seeds and inspector
+├── tests/                            # Isolated browser/helper and optional live tests
+├── docs/                             # BRD, QA, matrix, history and review snapshots
+├── .github/workflows/                # Requirements, browser and local-Postgres/build CI
+├── supabase_schema.sql               # Base schema; ordered migrations extend it
+├── architecture.md                   # Runtime boundaries, flows and deployment modes
+├── SECURITY.md                       # Security/reporting and provisioning requirements
+└── package.json
 ```
 
 The App Router retains legacy Turkish directory names. Public URLs use the [English routes](#routing) below; `next.config.ts` provides compatibility mappings. The storefront cart uses `src/lib/cartStorage.ts` and localStorage, not the `cart_items` table. Browser regressions live in `tests/` with configuration in `playwright.config.ts`; business and QA documentation lives in `docs/`.
@@ -167,7 +158,7 @@ The App Router retains legacy Turkish directory names. Public URLs use the [Engl
 
 ## Database Schema
 
-The database runs on **Supabase (PostgreSQL)** with Row Level Security (RLS) enabled on all tables.
+The application uses **Supabase (PostgreSQL)**. The base schema and ordered migrations define RLS, grants and service-only RPCs; verify the applied target database before treating those protections as live acceptance.
 
 ```sql
 -- Core tables
@@ -182,10 +173,10 @@ order_items    -- Products and quantities belonging to an order
 
 **RLS Policies:**
 - `profiles` — signed-in users can view, create, and update only their own profile
-- `products` — public read access; write access via the Supabase dashboard or admin scripts
-- `cart_items` — users can only access their own cart
-- `favorites` — users can only access their own favorites
-- `reviews` — everyone can read; only signed-in users can write; users can only edit/delete their own reviews
+- `products` / `product_size_stock` — public reads; catalog/stock writes use protected server APIs and service-only RPCs. The catalog migration restricts browser writes.
+- `cart_items` — account-owned schema, unused by the storefront's browser-wide bag
+- `favorites` — users access their own favorites
+- `reviews` — public API/detail reads show approved rows; RLS permits approved rows or the author's own pending rows. Direct customer review writes are revoked; the bearer-protected server route creates pending reviews.
 
 **Auth Trigger:**
 A `profiles` row is automatically created when a new user signs up via Supabase Auth:
@@ -273,7 +264,7 @@ Put the resulting `scrypt:...` string under that person's username in the `ADMIN
 
 ### 4. Set up the database
 
-Go to your Supabase project → **SQL Editor** and apply the files listed under [Database Schema](#database-schema) in order. Checkout needs the service-role key and checkout transaction migration as well as the base tables.
+Go to your Supabase project → **SQL Editor** and apply the files listed under [Database Schema](#database-schema) in order. Current checkout requires the service-role key and five-argument purchase-safeguards RPC; current catalog writes also require the admin catalog migration. Older checkout definitions alone cannot serve this app.
 
 ### 5. Start the dev server
 
@@ -281,7 +272,9 @@ Go to your Supabase project → **SQL Editor** and apply the files listed under 
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the storefront.
+Open [http://localhost:3000](http://localhost:3000) to view the storefront. Use **npm run dev** for ordinary local work. **npm run start runs production mode even on localhost**, so it requires the production limiter configuration below. Restart the server after changing `.env.local`.
+
+If assistant chat or card actions return **503 — temporarily unavailable**, first check the shared limiter settings: Supabase URL, server service-role key, `RATE_LIMIT_SECRET` of at least 32 characters and the `consume_api_rate_limit` RPC. Nonproduction uses a process-local counter only when shared settings are incomplete; a configured but failing shared RPC still fails closed. Free-text chat separately needs `GROQ_API_KEY`; card controls need no model key but still obey the limiter and authentication rules.
 
 ### Admin access
 
@@ -299,7 +292,7 @@ The admin-data seed creates or reuses a demo customer, three sample orders, four
 
 To deliver restock alerts, configure `RESEND_API_KEY` and a verified `RESTOCK_FROM_EMAIL`. Requests can be saved without mail delivery. A positive admin stock save may trigger a notification batch; zero-to-positive transition checks, recipient eligibility, and retry/deduplication remain incomplete (G-12).
 
-The dashboard calculates stock from `product_size_stock` for sized products and from `products.stock` otherwise. Protected stock saves and checkout use atomic transactions and totals from configured sizes. Catalog size-list edits still have consistency limits (G-18); multi-session checkout/stock behavior remains unverified on the live database.
+The dashboard calculates stock from configured `product_size_stock` rows for sized products and from `products.stock` otherwise. Protected stock saves, checkout and catalog size edits share the product-first locking order; catalog saves synchronize configured rows/totals and preserve current unsized quantities. Separate seed writes/repair and live multi-session verification remain G-18.
 
 ### Local PostgreSQL with Docker
 
@@ -317,6 +310,8 @@ Use `npm run local:down` when finished. The local database credentials are defin
 
 ### Production build
 
+Provision the intended environment before serving production: valid public Supabase settings, server service role, installed shared limiter RPC, a distinct `RATE_LIMIT_SECRET` of at least 32 characters and a trusted proxy. Free-text assistant calls also need `GROQ_API_KEY`; admin login needs named hashes and its separate signing secret. Missing/unavailable production limiter settings return 503 before model or protected mutation work. `GET /api/health` checks process liveness only.
+
 ```bash
 npm run lint
 npm run build
@@ -329,14 +324,15 @@ GitHub Actions checks requirements documentation, local PostgreSQL seed/build/he
 
 ```bash
 npx playwright install chromium
-npm run test:ui
-npm run test:catalog
-npm run test:purchase
 npm run docs:test
 npm run docs:check
+npm run test:purchase
+npm run test:ui
+npm run test:catalog
+npm run test:assistant
 ```
 
-Each browser suite launches its own localhost:3100 server with live Supabase/mail disabled and a separate `.next-browser-tests` cache. Run them sequentially. The catalog suite intercepts a reserved `.invalid` fixture domain to exercise configured-client loading, timeout, fallback, and retry states without a live database. See [docs/QA_TESTING_GUIDE.md](docs/QA_TESTING_GUIDE.md) for fixtures, coverage, and remaining manual checks.
+Each browser suite launches its own localhost:3100 server with live Supabase/mail disabled and a separate `.next-browser-tests` cache. Run them sequentially. The catalog suite intercepts a reserved `.invalid` fixture domain to exercise configured-client loading, timeout, fallback, and retry states without a live database. See [docs/QA_TESTING_GUIDE.md](docs/QA_TESTING_GUIDE.md) for fixtures, coverage, and remaining manual checks. The current storefront CI runs purchase, UI and catalog suites; run the assistant suite explicitly before pushing assistant changes because it is not yet invoked by that workflow.
 
 `test:purchase` runs 19 isolated PostgreSQL (PGlite) regressions covering checkout replay/options/rollback, atomic admin catalog saves and size rows, metadata edits after depletion, browser write/legacy storage-policy denial, preserved order history, migration reapply and inspector permission regressions. Minimal auth/storage fixtures do not establish real Supabase storage/auth or live multi-session safety. CI runs it before UI/catalog suites.
 
@@ -447,7 +443,7 @@ npm run build
 
 You can deploy directly using the Vercel CLI, or by connecting your GitHub repo at [vercel.com](https://vercel.com).
 
-Configure the public Supabase settings and the server-only values required by the enabled features under **Settings → Environment Variables**. Checkout/private admin APIs and the shared limiter need `SUPABASE_SERVICE_ROLE_KEY`; production admin login needs `ADMIN_CREDENTIALS` and `ADMIN_SESSION_SECRET`. The limiter needs `RATE_LIMIT_SECRET` and the hardening migration. Missing production limiter settings return 503 for admin login, checkout, review creation/upload and restock subscription. Keep test helpers disabled in production and mail settings optional.
+Configure the public Supabase settings and the server-only values required by the enabled features under **Settings → Environment Variables**. Checkout/private admin APIs and the shared limiter need `SUPABASE_SERVICE_ROLE_KEY`; production admin login needs `ADMIN_CREDENTIALS` and `ADMIN_SESSION_SECRET`. The limiter needs a distinct `RATE_LIMIT_SECRET` of at least 32 characters, the hardening migration's RPC and trusted proxy headers. Missing production limiter settings return 503 for admin login, checkout, review creation/upload, restock subscription, assistant chat and assistant confirmation. Keep test helpers disabled in production and mail settings optional.
 
 ---
 
@@ -467,12 +463,15 @@ A floating chat widget named **Zeouf Shopping Assistant** (bottom-right, all non
 
 **Architecture**
 
-- `src/components/ShoppingAssistant.tsx` — client widget mounted in `SiteShell`. Keeps identity-scoped chat in memory, sends only the last 12 messages (1,000 characters each), and renders catalog cards/proposed additions. Logout/account switches and New conversation clear chat/proposals and cancel pending browser requests; token refresh for the same account preserves chat. Browser waits end after 45 seconds for chat or 15 seconds for confirmation; server/provider work can continue after browser cancellation.
-- `src/app/api/assistant/route.ts` → `src/lib/assistant/handler.ts` — validates the request, applies the shared `isRateLimited` limiter (10 requests/minute/address), verifies the optional Supabase bearer token server-side, then calls `runAssistant`.
-- `src/lib/assistant/chat.ts` — Groq Responses API loop through the `openai` SDK, default model `openai/gpt-oss-20b`, low reasoning effort, 700 output tokens/call, max 4 tool rounds then a text-only final round, non-streaming. Every request carries its history; unsupported `store` is omitted. Product cards are built from tool results using `[[product:ID]]` markers; unknown ids are dropped.
+- `src/components/ShoppingAssistant.tsx` and `AssistantProductCard.tsx` — identity-scoped chat and ordered product references in memory, at most 12 outgoing messages (1,000 characters each). Cards offer size/color/quantity choices, comparison of two or three products and Find similar. Review bag addition proposes only; Confirm validates before adding, then View bag opens the existing drawer. Identity changes/New conversation clear references, comparisons, proposals and retries; same-account token refresh preserves them.
+- `src/components/shopping-assistant.css` — scoped ivory/wine editorial styling, pill launcher, rounded cards, animated panel/message/confirmation feedback and loading dots. Reduced motion disables animation and smooth scrolling. Closing is immediately inert and finishes after 180 ms; rapid reopening cancels removal. The composer grows up to 128px; VisualViewport events fit mobile keyboard space. Reading older replies pauses automatic following and offers Latest message. Native mobile keyboard and assistive-technology acceptance remain device checks.
+- `src/app/api/assistant/route.ts` → `src/lib/assistant/handler.ts` — validates messages/references, display currency/rate and optional `similar`, `compare` or `prepare_add` interaction. Shared limiter is 10 requests/minute/address. Card interactions use validated tools without a model/key; free text uses `runAssistant`. Both require verified bearer identity for bag tools.
+- `src/lib/assistant/chat.ts` — Groq Responses loop using the `openai` SDK, default `openai/gpt-oss-20b`, low reasoning, 700 output tokens/call, max four tool rounds then a final round, non-streaming, no `store`. The most recent ordered references are freshly rehydrated, including removed-item positions. Raw model prose is suppressed: tools compose factual copy; cards use catalog fields and validated marker IDs. Unknown IDs are dropped; no-tool answers use a safe fallback.
 - `src/lib/assistant/tools.ts` — deterministic, validated tools: `searchProducts`, `getProduct`, `getProductAvailability`, `getRelatedProducts`, `getCategories`, `getCart`, `addToCart`, `getStorePolicies`. They read the same `products` / `product_size_stock` tables as the storefront through `catalogStore.ts` (cached 30 s) and reuse `categories.ts` URL helpers. At most 8 products are returned per call; the catalog is never sent to the model.
 - `getCart` needs a verified customer and uses their browser-supplied cart snapshot; prices come from the cached catalog. `addToCart` only proposes. Confirm calls bearer-protected `POST /api/assistant/confirm` (10 requests/address/minute), which bypasses the catalog cache and rechecks price, configured options and stock including bag quantities across shared colors. Changed/removed/unavailable data returns safe errors. It uses no model and reserves no stock. The widget rechecks session/bag and shows success only when the cart accepts the addition for the expected account. Search uses requested-size availability, ignores retired rows and treats missing size rows as unavailable. Recommendations still use a 30-second cache; real concurrent/Supabase acceptance remains G-26.
-- `src/lib/assistant/policies.ts` — demo policy facts aligned with the storefront: no charge, shipment, exchanges, returns or customer support follow-up. The prompt instructs the model to use these facts; generated prose still needs review.
+- `src/lib/assistant/policies.ts` — checked-in demo summaries are rendered directly: no charge, shipment, exchanges, returns or support follow-up. Malicious model prose cannot replace these facts. Intent/tool selection still needs staging evaluation.
+- `presentation.ts` uses the storefront's INR/USD display context for cards, cart copy, suggestions and budget filters. Explicit INR/USD budgets override the default currency; conversion happens once server-side. Missing USD rates ask for an INR budget. Display rates are validated presentation input; catalog/proposal/confirmation money stays INR. Numeric budget filtering precedes display rounding.
+- `requestLifetime.ts` imposes one 35-second server chat deadline and 10-second confirmation deadline, including limiter/auth/tools and all model rounds. Abort signals reach SDK/auth/catalog/limiter fetches and settle ignored waits; no later round runs after cancellation. Browser waits remain 45/15 seconds. Safe deadline/cancellation responses are 504; actual deployment disconnect propagation remains a staging check.
 
 **Local setup**
 
@@ -499,14 +498,14 @@ Use Groq's Free plan to start with capped usage. One shopper message can make up
 | `SUPABASE_SERVICE_ROLE_KEY` | For server-backed features | Server-only key for checkout, private admin APIs, restock requests/delivery, seeds and dev/test helpers — never expose to the client |
 | `ADMIN_CREDENTIALS` | Production admin | JSON object mapping each username to a `scrypt:salt:hash` generated by `npm run security:hash-admin` |
 | `ADMIN_SESSION_SECRET` | Production admin | Separate random signing secret of at least 32 characters; rotation invalidates admin cookies |
-| `RATE_LIMIT_SECRET` | Production writes | Separate random secret of at least 32 characters for hashed shared limiter keys |
+| `RATE_LIMIT_SECRET` | Production rate-limited APIs | Separate random secret of at least 32 characters for hashed shared limiter keys; required for chat/confirmation as well as protected writes |
 | `DEV_CREATE_USER_KEY` | Nonproduction helper only | Local fallback admin password and dev user creation key; never use as the production admin credential |
 | `DEV_ADMIN_USERNAME` | Nonproduction legacy only | Optional username restriction when using the local fallback login |
 | `RESEND_API_KEY` | Optional | Resend API key used to deliver restock alerts |
 | `RESTOCK_FROM_EMAIL` | Optional | Verified sender address for Resend restock alerts |
 | `NEXT_PUBLIC_SITE_URL` | For configured site links | Storefront origin used in configured email links; set the deployed URL for hosted environments |
 | `TEST_API_SECRET` | Local test helpers only | Separate secret for `x-test-api-secret`; test helpers are disabled in production |
-| `GROQ_API_KEY` | For the shopping assistant | Server-only Groq key. Without a nonblank key `/api/assistant` returns 503 and the widget shows an error; never expose or commit it |
+| `GROQ_API_KEY` | For free-text shopping assistant requests | Server-only Groq key. Valid free-text requests return 503 without a nonblank key; validated card actions need no model key. Never expose or commit it |
 | `GROQ_MODEL` | Optional | Groq model used by the assistant (default `openai/gpt-oss-20b`); must support Responses API, function calling and low-effort reasoning |
 | `DATABASE_URL` | DB check or local seeds | Direct Postgres URL used by read-only `security:check-db` or local seed scripts; not used by the storefront |
 

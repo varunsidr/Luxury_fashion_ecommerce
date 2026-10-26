@@ -900,5 +900,124 @@
     "changed_sources": [],
     "source_digest": "9cae6fe6c6e3bd514f1edb277504d47f560f25a4c8db07194b4659aedc6fb7de",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-22T18:49:33.365Z",
+    "summary": "Implement six assistant improvements: whole-category matching, freshly rehydrated ordered references, INR/USD budget and display context, complete-request cancellation deadlines, tool-rendered factual replies, and validated comparison/similar/option card controls with View bag. Update BRD/routes/business rules, QA fixtures and scoped local execution evidence; preserve live-provider/auth/concurrency gaps.",
+    "requirement_ids": [
+      "AST-01",
+      "AST-02",
+      "AST-03",
+      "AST-04",
+      "AST-05",
+      "AST-06",
+      "AST-07",
+      "AST-08",
+      "AST-09",
+      "AST-10",
+      "NFR-08"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md",
+      "src/components/AssistantProductCard.tsx",
+      "src/components/ShoppingAssistant.tsx",
+      "src/lib/assistant/catalogStore.ts",
+      "src/lib/assistant/chat.ts",
+      "src/lib/assistant/confirm.ts",
+      "src/lib/assistant/handler.ts",
+      "src/lib/assistant/presentation.ts",
+      "src/lib/assistant/prompt.ts",
+      "src/lib/assistant/requestLifetime.ts",
+      "src/lib/assistant/tools.ts",
+      "src/lib/assistant/types.ts",
+      "src/lib/rateLimit.ts",
+      "tests/assistant.spec.ts"
+    ],
+    "source_digest": "130047bceda217ebdd4efaa28f0e53325adcd4e87717a62c3a5d65c460bcbde9",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-22T19:14:55.362Z",
+    "summary": "Refresh assistant presentation with editorial ivory/wine styling, polished product and confirmation cards, animated opening/closing/loading/feedback, immediate inert close and reduced-motion behavior, a growing composer, mobile VisualViewport fitting, and reader-controlled following with Latest message. Update BRD/source references and QA presentation fixtures, scoped execution and device/accessibility limits.",
+    "requirement_ids": [
+      "AST-01",
+      "AST-05",
+      "AST-07",
+      "AST-10",
+      "AST-11",
+      "NFR-04",
+      "NFR-05"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md",
+      "src/components/AssistantProductCard.tsx",
+      "src/components/ShoppingAssistant.tsx",
+      "src/components/shopping-assistant.css",
+      "tests/assistant.spec.ts"
+    ],
+    "source_digest": "2a0ec2c530c01e084e7db7bd8c1fbd160d6b6dabc0faa9cf2be6694ebde73e71",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-22T19:17:32.929Z",
+    "summary": "Finalize assistant presentation evidence: record successful production build and scoped lint results; exclude only the framework development portal during preview capture, leaving runtime behavior unchanged. Both presentation cases reran successfully; retain native-keyboard, accessibility and performance acceptance limits.",
+    "requirement_ids": [
+      "AST-11",
+      "NFR-05"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "tests/assistant.spec.ts"
+    ],
+    "source_digest": "9ce0070e61251cac661499077fc0c832c6b6f621b02e2cacf67af26467fd8000",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-24T13:19:33.652Z",
+    "summary": "Documentation-only alignment of architecture, README, security guidance, BRD and QA/index with current assistant and commerce source. Document trust boundaries, model/tool/card/confirmation flows, currency/deadlines/presentation, private review paths, named admin cookies, atomic catalog/stock/checkout, ordered migrations, dev versus production limiter readiness and actual CI coverage. Retain scoped historical evidence and unresolved deployment/auth/concurrency/device gaps; no application behavior changed.",
+    "requirement_ids": [
+      "AST-01",
+      "AST-02",
+      "AST-03",
+      "AST-04",
+      "AST-05",
+      "AST-06",
+      "AST-07",
+      "AST-08",
+      "AST-09",
+      "AST-10",
+      "AST-11",
+      "ADM-01",
+      "ADM-02",
+      "PRD-02",
+      "PRD-04",
+      "PRD-05",
+      "STK-04",
+      "CHK-06",
+      "CHK-09",
+      "CHK-10",
+      "CART-04",
+      "REV-01",
+      "REV-02",
+      "REV-04",
+      "REV-05",
+      "NFR-01",
+      "NFR-02",
+      "NFR-08",
+      "OPS-01",
+      "OPS-06",
+      "OPS-07",
+      "OPS-09"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md",
+      "SECURITY.md",
+      "architecture.md"
+    ],
+    "source_digest": "00c37e0c25a4e7e6a6c1630a7b397f12fe82453798e97d58ea2ce2fa4681059f",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

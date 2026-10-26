@@ -2,17 +2,38 @@
 
 ## Reporting a vulnerability
 
-Please do not report security vulnerabilities in a public GitHub issue. Use GitHub's private security advisory feature or contact the repository owner through their GitHub profile with a clear description, reproduction steps, and potential impact.
+Please do not report security vulnerabilities in a public GitHub issue. Use GitHub's private security advisory feature or contact the repository owner through their GitHub profile with a clear description, reproduction steps and potential impact. Do not include real credentials or customer data in a public report.
+
+## Server and browser boundaries
+
+- Public Supabase URL/anon settings are intended for browser use under applied RLS. Service role, admin password hashes/signing secret, shared-limiter secret, Groq key, mail and helper secrets stay server-side.
+- Customer APIs verify Supabase bearer tokens. Admin APIs verify the separate signed `admin_token` cookie; browser `admin_auth` state is not authorization.
+- Production admin login uses named `ADMIN_CREDENTIALS` scrypt hashes and an independent `ADMIN_SESSION_SECRET` of at least 32 characters. Cookies are HttpOnly/SameSite=Lax and Secure in production. Legacy `DEV_CREATE_USER_KEY` login is nonproduction-only.
+- Catalog mutation/upload handlers check admin identity, request origin, shared limits and payloads before service-role writes. The catalog migration restricts direct browser product/size/product-image writes. Applied grants still need environment verification.
+- Checkout's service-only transaction owns authoritative INR prices, configured option checks, inventory changes and account-scoped replay records. Browser and assistant bag additions do not reserve inventory.
 
 ## Deployment requirements
 
-- Apply `supabase_security_hardening_migration.sql` after the review and checkout migrations, then run `npm run security:check-db` against the intended database. This read-only check needs `DATABASE_URL`.
-- Configure a separate `ADMIN_CREDENTIALS` password hash for each administrator and an independent `ADMIN_SESSION_SECRET` of at least 32 characters. Production admin login does not use `DEV_CREATE_USER_KEY`.
-- Configure a separate `RATE_LIMIT_SECRET` of at least 32 characters and a proxy that overwrites or appends `x-forwarded-for`; admin login, checkout, review creation/upload and restock subscription fail closed if their shared limiter is unavailable.
-- Apply the migration that creates a private `review-images` Storage bucket. New review uploads stay private and moderators receive short-lived signed URLs. Existing files in the old public bucket require separate cleanup; orphan uploads still need a retention process.
-- Set `SUPABASE_SERVICE_ROLE_KEY` only in server-side environment variables. Never use it in client components or expose it as a `NEXT_PUBLIC_*` variable.
-- Keep `.env.local` and all production environment files out of version control.
-- Disable or restrict `/api/dev/*` and `/api/test/*` routes for public production deployments unless they are required by an authenticated test environment.
-- Review Supabase Row Level Security policies before deploying a new schema.
+1. Apply the current [ordered migrations](README.md#database-schema), including security hardening, purchase safeguards and admin catalog last. Deploy matching application/schema versions; older checkout definitions must not replace the five-argument RPC.
+2. Configure distinct admin credentials/signing secret and `RATE_LIMIT_SECRET` of at least 32 characters. The shared limiter also needs Supabase URL, server service role, `consume_api_rate_limit` and a proxy that overwrites/appends `x-forwarded-for`. Limiter keys are HMAC-hashed.
+3. Production fails closed with 503 if the limiter is unavailable. This covers admin login, checkout, reviews/uploads, restock subscription, assistant chat/confirmation and protected catalog mutations/uploads. `npm run start` is production mode even on localhost; process liveness does not prove these integrations work.
+4. Set `GROQ_API_KEY` only for server model requests; `GROQ_MODEL` is optional. No OpenAI credential fallback exists. Valid card interactions use no model key, but still require working rate limits and applicable customer authentication.
+5. Keep real environment values out of Git, client bundles, logs and screenshots. [.env.example](.env.example) contains placeholders; `.env.local`, build output and test artifacts remain ignored.
+6. Dev/test helpers are blocked in production by their guards. Keep helper secrets nonproduction-only and verify the deployed guards; do not change them to troubleshoot a local preview.
+7. Run the read-only `npm run security:check-db` with an explicitly supplied staging `DATABASE_URL` after migrations. It checks current RPCs, RLS/grants, private attempts, catalog/storage guards and legacy invalid rows. Local SQL fixtures and the health route do not establish full applied-database security.
 
-The repository includes `.env.example` with placeholder values for local setup.
+Local `npm run dev` permits a process-local limiter only when shared settings are incomplete. If complete shared settings point to a failing database/RPC, it still fails closed. Do not change production guards to obtain a development preview.
+
+## Assistant data and safety controls
+
+Free-text history and tool/reference facts are sent to Groq. The app stores conversations only in identity-scoped widget memory; that does not establish provider retention. The panel asks users not to share personal/payment details.
+
+Catalog-authored descriptions are untrusted input. Tools validate arguments and reload catalog facts; the UI renders tool-composed copy and catalog-derived cards instead of raw model prose. Model intent/tool selection still needs evaluation. There are no order/account/checkout/payment tools.
+
+Chat/card interactions have one 35-second server deadline; confirmation has 10 seconds. Supported provider/auth/catalog/limiter requests receive cancellation signals. Confirm performs fresh read-only identity/price/options/stock validation, and the client rechecks identity/bag before adding. These controls are not inventory reservation, a database-owned cart or proof of deployed disconnect handling.
+
+## Storage and unresolved boundaries
+
+Product images are public; validated uploads use a server-admin route. New review uploads use private `review-images` paths, with short-lived moderator URLs. Historical public review files and orphan retention/cleanup remain unresolved.
+
+The browser bag remains shared across account changes (G-10). Review identity/replies, real cross-role/RLS verification, native-device/accessibility checks, live concurrent stock/replay behavior and provider retention remain open. See [architecture.md](architecture.md) and the [BRD gaps](docs/BRD.md#12-known-gaps-and-business-decisions); source controls and scoped tests are not full production acceptance.

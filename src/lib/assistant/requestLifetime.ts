@@ -11,3 +11,17 @@ export function withAbort<T>(operation: () => PromiseLike<T>, signal: AbortSigna
       error => { signal.removeEventListener("abort", abort); reject(error); });
   });
 }
+
+export const CHAT_DEADLINE_MS = 35_000;
+export const CONFIRM_DEADLINE_MS = 10_000;
+
+/** One deadline for the complete operation, including auth, tools and all model rounds. */
+export async function withRequestDeadline<T>(parent: AbortSignal, timeoutMs: number, operation: (signal: AbortSignal) => Promise<T>): Promise<T> {
+  const controller = new AbortController();
+  const cancel = () => controller.abort();
+  parent.addEventListener("abort", cancel, { once: true });
+  if (parent.aborted) cancel();
+  const timer = setTimeout(cancel, timeoutMs);
+  try { return await withAbort(() => operation(controller.signal), controller.signal); }
+  finally { clearTimeout(timer); parent.removeEventListener("abort", cancel); }
+}

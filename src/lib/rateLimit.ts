@@ -20,7 +20,7 @@ function localRateLimit(key: string, limit: number, windowMs: number): boolean {
 }
 
 /** Returns null when the shared production limiter is unavailable. */
-export async function isRateLimited(key: string, limit: number, windowMs: number): Promise<boolean | null> {
+export async function isRateLimited(key: string, limit: number, windowMs: number, signal?: AbortSignal): Promise<boolean | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const salt = process.env.RATE_LIMIT_SECRET;
@@ -30,11 +30,12 @@ export async function isRateLimited(key: string, limit: number, windowMs: number
   try {
     const client = createClient(url, serviceKey, { auth: { persistSession: false } });
     const keyHash = createHmac("sha256", salt).update(key).digest("hex");
-    const { data, error } = await client.rpc("consume_api_rate_limit", {
+    const query = client.rpc("consume_api_rate_limit", {
       p_key_hash: keyHash,
       p_limit: limit,
       p_window_seconds: Math.ceil(windowMs / 1000),
     });
+    const { data, error } = await (signal ? query.abortSignal(signal) : query);
     return error || typeof data !== "boolean" ? null : data;
   } catch {
     return null;

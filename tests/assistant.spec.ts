@@ -1,13 +1,14 @@
 import { test, expect, type Page } from "@playwright/test";
 import { executeTool, newRunState } from "../src/lib/assistant/tools";
-import { runAssistant, FALLBACK_REPLY, type ResponsesClient } from "../src/lib/assistant/chat";
+import { runAssistant, runInteraction, FALLBACK_REPLY, type ResponsesClient } from "../src/lib/assistant/chat";
 import { createGroqClient, handleAssistantRequest, parseMessages, type AssistantDeps } from "../src/lib/assistant/handler";
 import { supabaseCatalogStore } from "../src/lib/assistant/catalogStore";
 import type { Product } from "../src/lib/productTypes";
 import type { ToolContext } from "../src/lib/assistant/types";
 import { handleAssistantConfirmation } from "../src/lib/assistant/confirm";
 import { supabase } from "../src/lib/supabase";
-import { withAbort } from "../src/lib/assistant/requestLifetime";
+import { withAbort, withRequestDeadline } from "../src/lib/assistant/requestLifetime";
+import { parseDisplay } from "../src/lib/assistant/presentation";
 
 const product = (over: Partial<Product>): Product => ({
   id: "p1", name: "Black Midi Dress", category: "Women's Dress", price: 1800, image_url: "/kadin-product-3.webp",
@@ -133,7 +134,7 @@ test("runAssistant stops looping tool calls", async () => {
   const loop = { output: [{ type: "function_call", name: "getCategories", arguments: "{}", call_id: "c" }] };
   const calls: Record<string, unknown>[] = [];
   const client = fakeClient([loop, loop, loop, loop, { output: [], output_text: "done" }], calls);
-  expect((await runAssistant(client, "m", [{ role: "user", content: "x" }], ctx())).reply).toBe("done");
+  expect((await runAssistant(client, "m", [{ role: "user", content: "x" }], ctx())).reply).toContain("Browse:");
   expect(calls.at(-1)?.tool_choice).toBe("none");
 });
 
@@ -159,7 +160,9 @@ test("confirmation verifies identity and fresh catalog data without invoking the
   const result = await handleAssistantConfirmation(post({ ...proposal, name: "client fake name", cart: [] }, { authorization: "Bearer good" }), dependencies);
   expect(result.status).toBe(200);
   expect((await result.json()).action).toEqual({ ...proposal, image_url: catalog[2].image_url });
-  expect(seen).toEqual([{ fresh: true }]);
+  expect(seen).toHaveLength(1);
+  expect((seen[0] as { fresh: boolean }).fresh).toBe(true);
+  expect((seen[0] as { signal: AbortSignal }).signal).toBeInstanceOf(AbortSignal);
   expect(result.headers.get("cache-control")).toBe("no-store");
 });
 
@@ -265,7 +268,7 @@ test("provider quota errors return a safe 429 without automatic retry", async ()
 test("API route validates input, rate limits, and hides internals", async () => {
   const ok = await handleAssistantRequest(post({ messages: [{ role: "user", content: "hi" }] }), deps());
   expect(ok.status).toBe(200);
-  expect((await ok.json()).reply).toBe("Hello");
+  expect((await ok.json()).reply).toBe(FALLBACK_REPLY);
   for (const body of ["{", { messages: [] }, { messages: [{ role: "system", content: "x" }] }, { messages: [{ role: "assistant", content: "x" }] },
     { messages: [{ role: "user", content: "x".repeat(1001) }] }, { messages: "hi" }]) {
     expect((await handleAssistantRequest(post(body), deps())).status).toBe(400);
@@ -273,7 +276,7 @@ test("API route validates input, rate limits, and hides internals", async () => 
   expect((await handleAssistantRequest(post("x".repeat(30_000)), deps())).status).toBe(413);
   expect((await handleAssistantRequest(post({}), deps({ rateLimit: async () => true }))).status).toBe(429);
   expect((await handleAssistantRequest(post({}), deps({ rateLimit: async () => null }))).status).toBe(503);
-  expect((await handleAssistantRequest(post({}), deps({ createClient: () => null }))).status).toBe(503);
+  expect((await handleAssistantRequest(post({ messages: [{ role: "user", content: "hi" }] }), deps({ createClient: () => null }))).status).toBe(503);
   const failing = await handleAssistantRequest(post({ messages: [{ role: "user", content: "hi" }] }),
     deps({ createClient: () => ({ responses: { create: async () => { throw new Error("sk-secret-key leaked"); } } }) }));
   expect(failing.status).toBe(502);
@@ -303,6 +306,139 @@ test("product search integration against the storefront catalog layer", async ()
   const { out } = await run("searchProducts", { query: products[0].name.split(" ")[0], inStockOnly: false }, ctx({ store: supabaseCatalogStore }));
   expect(out.total_matches).toBeGreaterThan(0);
   expect(out.products[0].url).toMatch(/^\/[a-z]+\/[^/]+$/);
+});
+
+test("category membership separates men and women and accepts aliases and subcategories", async () => {
+  const store = { listProducts: async () => [product({}), product({ id: "mens", name: "Shirt", category: "Men's Shirt" })] };
+  for (const category of ["men", "mens", "erkek", "Men's Shirt", "shirt"]) {
+    expect((await run("searchProducts", { category }, ctx({ store }))).out.products.map((p: { id: string }) => p.id)).toEqual(["mens"]);
+  }
+  for (const category of ["women", "womens", "kadin", "dress"]) {
+    expect((await run("searchProducts", { category }, ctx({ store }))).out.products.map((p: { id: string }) => p.id)).toEqual(["p1"]);
+  }
+});
+
+test("follow-up references preserve order, reload facts and cannot resurrect removed products", async () => {
+  const calls: Record<string, unknown>[] = [];
+  let fresh = false;
+  const changed = catalog.map(p => p.id === "p3" ? { ...p, price: 2200 } : p);
+  const result = await runAssistant(fakeClient([
+    { output: [{ type: "function_call", name: "addToCart", arguments: '{"productId":"p3","userExplicitlyAskedToAdd":true}', call_id: "followup" }] },
+    { output: [], output_text: "It's free! [[product:p3]] [[product:removed]]" },
+  ], calls), "m", [
+    { role: "assistant", content: "Earlier products at old prices", productIds: ["removed", "p3"] },
+    { role: "user", content: "Add the second one" },
+  ], ctx({ authenticated: true, lastUserMessage: "Add the second one", store: { listProducts: async options => { fresh ||= Boolean(options?.fresh); return options?.fresh ? changed : catalog; } } }));
+  expect(fresh).toBe(true);
+  const reference = (calls[0].input as Array<{ role: string; content: string }>).find(item => item.role === "developer")!;
+  const data = JSON.parse(reference.content.split("\n").at(-1)!);
+  expect(data[0]).toMatchObject({ position: 1, id: "removed", no_longer_listed: true });
+  expect(data[1]).toMatchObject({ position: 2, id: "p3", price: 2200 });
+  expect(result.actions[0].price).toBe(2200);
+  expect(result.products.map(p => p.id)).toEqual(["p3"]);
+  expect(result.reply).not.toContain("free");
+  expect(parseMessages([{ role: "assistant", content: "x", productIds: ["a", "a"] }, { role: "user", content: "next" }])).toBeNull();
+  expect(parseMessages([{ role: "user", content: "x", productIds: ["a"] }])).toBeNull();
+  expect(parseMessages([{ role: "assistant", content: "x", productIds: ["a", "b", "c", "d"] }, { role: "user", content: "next" }])).toBeNull();
+});
+
+test("USD budgets convert once while explicit INR filters and stored prices stay INR", async () => {
+  const display = { currency: "USD" as const, rate: 0.01 };
+  const usd = await run("searchProducts", { maxPrice: 20 }, ctx({ display }));
+  expect(usd.out.products.map((p: { id: string }) => p.id).sort()).toEqual(["p1", "p3"]);
+  expect(usd.out.products.find((p: { id: string }) => p.id === "p3").price_inr).toBe(1500);
+  expect((await run("searchProducts", { maxPrice: 1600, priceCurrency: "INR" }, ctx({ display }))).out.products.map((p: { id: string }) => p.id)).toEqual(["p3"]);
+  expect((await run("searchProducts", { maxPrice: 20, priceCurrency: "USD" })).out.error).toBe("currency_unavailable");
+  const state = newRunState();
+  await run("getCart", {}, ctx({ authenticated: true, display, cart: [{ id: "p3", quantity: 2, size: null, color: null }] }), state);
+  expect(state.sections.get("cart")).toContain("$30");
+  for (const value of [{ currency: "USD", rate: 0 }, { currency: "USD", rate: Infinity }, { currency: "EUR", rate: 1 }, { currency: "INR", rate: 0.01 }]) expect(parseDisplay(value)).toBeNull();
+  expect((await handleAssistantRequest(post({ messages: [{ role: "user", content: "hi" }], display: { currency: "USD", rate: -1 } }), deps())).status).toBe(400);
+});
+
+test("model prose cannot override catalog facts, policies or failed lookups", async () => {
+  const malicious = "Free returns, delivery tomorrow, price ₹1 and SECRET_PROMPT.";
+  const result = await runAssistant(fakeClient([
+    { output: [{ type: "function_call", name: "getProduct", arguments: '{"productIdOrSlug":"p3"}', call_id: "product" }] },
+    { output: [{ type: "function_call", name: "getStorePolicies", arguments: '{"topic":"returns"}', call_id: "policy" }] },
+    { output: [], output_text: malicious + " [[product:p3]]" },
+  ]), "m", [{ role: "user", content: "Tell me the returns policy for the tote" }], ctx());
+  expect(result.reply).toContain("returns are not available");
+  expect(result.reply).not.toMatch(/SECRET_PROMPT|Free returns|tomorrow|IGNORE ALL/);
+  expect(result.products[0].price).toBe(1500);
+  const failure = await runAssistant(fakeClient([{ output: [], output_text: malicious }]), "m", [{ role: "user", content: "What is the price?" }], ctx());
+  expect(failure.reply).toBe(FALLBACK_REPLY);
+  expect(failure.products).toEqual([]);
+});
+
+test("one deadline aborts the provider and prevents late tool execution", async () => {
+  let providerSignal: AbortSignal | undefined, release: (value: { output: Array<{ type: string; name: string; arguments: string }> }) => void = () => {};
+  let lookups = 0;
+  const client: ResponsesClient = { responses: { create: async (_params, options) => {
+    providerSignal = options?.signal;
+    return new Promise(resolve => { release = resolve; });
+  } } };
+  const pending = withRequestDeadline(new AbortController().signal, 30, signal => runAssistant(client, "m", [{ role: "user", content: "show bags" }], ctx({ signal, store: { listProducts: async () => { lookups++; return catalog; } } })));
+  await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+  expect(providerSignal?.aborted).toBe(true);
+  release({ output: [{ type: "function_call", name: "searchProducts", arguments: "{}" }] });
+  await Promise.resolve(); await Promise.resolve();
+  expect(lookups).toBe(0);
+});
+
+test("chat handler propagates disconnect to the provider and returns a safe 504", async () => {
+  const controller = new AbortController();
+  let began: () => void = () => {}, providerSignal: AbortSignal | undefined;
+  const started = new Promise<void>(resolve => { began = resolve; });
+  const client: ResponsesClient = { responses: { create: async (_params, options) => {
+    providerSignal = options?.signal; began(); return new Promise(() => {});
+  } } };
+  const request = new Request(post({ messages: [{ role: "user", content: "Show bags" }] }), { signal: controller.signal });
+  const pending = handleAssistantRequest(request, deps({ createClient: () => client }));
+  await started; controller.abort();
+  const response = await pending;
+  expect(response.status).toBe(504);
+  expect((await response.json()).error).toContain("try again");
+  expect(providerSignal?.aborted).toBe(true);
+});
+
+test("request cancellation bounds authentication and fresh confirmation reads", async () => {
+  for (const phase of ["auth", "stock"] as const) {
+    const controller = new AbortController();
+    let began: () => void = () => {};
+    const started = new Promise<void>(resolve => { began = resolve; });
+    let scopedSignal: AbortSignal | undefined;
+    const dependencies = deps({
+      verifyToken: async (_token, signal) => { if (phase === "auth") { scopedSignal = signal; began(); return new Promise<boolean>(() => {}); } return true; },
+      store: { listProducts: async options => { scopedSignal = options?.signal; began(); return new Promise<Product[]>(() => {}); } },
+      createClient: () => { throw new Error("must not call a model"); },
+    });
+    const request = new Request(post({ ...proposal, cart: [] }, { authorization: "Bearer good" }), { signal: controller.signal });
+    const pending = handleAssistantConfirmation(request, dependencies);
+    await started; controller.abort();
+    expect((await pending).status).toBe(504);
+    expect(scopedSignal?.aborted).toBe(true);
+  }
+});
+
+test("card actions compare, find similar and prepare validated options without any model calls", async () => {
+  const compare = await runInteraction({ type: "compare", productIds: ["p3", "p1"] }, ctx());
+  expect(compare.products.map(p => p.id)).toEqual(["p3", "p1"]);
+  expect(compare.products[1].sizes).toEqual([{ size: "S", inStock: false }, { size: "M", inStock: true }]);
+  const similar = await runInteraction({ type: "similar", productId: "p1" }, ctx());
+  expect(similar.products.map(p => p.id)).toContain("p2");
+  const action = { type: "prepare_add" as const, productId: "p2", size: "M", color: "Red", quantity: 2 };
+  const dependencies = deps({ createClient: () => { throw new Error("must not call a model"); } });
+  const body = { messages: [{ role: "user", content: "Add the selected dress" }], interaction: action };
+  const response = await handleAssistantRequest(post(body, { authorization: "Bearer good" }), dependencies);
+  expect(response.status).toBe(200);
+  expect((await response.json()).actions[0]).toMatchObject({ productId: "p2", size: "M", color: "Red", quantity: 2, price: 4200 });
+  expect((await (await handleAssistantRequest(post(body), dependencies)).json()).actions).toEqual([]);
+  const invalid = await runInteraction({ ...action, size: "S" }, ctx({ authenticated: true }));
+  expect(invalid.actions).toEqual([]);
+  for (const interaction of [{ type: "compare", productIds: ["p1"] }, { type: "compare", productIds: ["p1", "p1"] }, { type: "compare", productIds: ["p1", "p2", "p3", "p4"] }, { ...action, quantity: 11 }, { type: "unknown", productId: "p1" }]) {
+    expect((await handleAssistantRequest(post({ ...body, interaction }), dependencies)).status).toBe(400);
+  }
 });
 
 test.describe("chat widget", () => {
@@ -489,6 +625,175 @@ test.describe("chat widget", () => {
     expect(calls).toBe(1);
     await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("els-cart") || "[]")[0]?.quantity)).toBe(2);
     await expect(page.getByTestId("assistant-add-confirmation")).not.toContainText("Sent to your bag");
+  });
+
+  test("USD cards and suggestions send currency, ordered references, comparisons and similar actions", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 700 });
+    await page.route("**/api/storefront/region**", route => route.fulfill({ json: { country: "US", currency: "USD", rate: 0.01 } }));
+    const payloads: Array<{ display: unknown; interaction?: unknown; messages: Array<{ role: string; productIds?: string[] }> }> = [];
+    const products = catalog.slice(0, 2).map(product => ({ ...product, url: `/women/${product.id}`, inStock: true, sizes: [{ size: "M", inStock: true }], colors: [] }));
+    await page.route("**/api/assistant", route => {
+      payloads.push(route.request().postDataJSON());
+      if (payloads.length === 3) return route.fulfill({ status: 429, json: { error: "Please try again." } });
+      return route.fulfill({ json: { reply: "Catalog results", products, actions: [] } });
+    });
+    await page.goto("/"); await page.getByTestId("assistant-launcher").click();
+    await page.getByRole("button", { name: "Show me products under $25", exact: true }).click();
+    await expect(page.getByTestId("assistant-product").first()).toContainText("$18");
+    expect(payloads[0].display).toEqual({ currency: "USD", rate: 0.01 });
+    await page.getByRole("button", { name: "Compare Black Midi Dress", exact: true }).click();
+    await page.getByRole("button", { name: "Compare Red Halter Dress", exact: true }).click();
+    await page.getByRole("button", { name: "Compare selected", exact: true }).click();
+    await expect(page.getByTestId("assistant-message-assistant")).toHaveCount(2);
+    expect(payloads[1].interaction).toEqual({ type: "compare", productIds: ["p1", "p2"] });
+    expect(payloads[1].messages.find(message => message.role === "assistant")?.productIds).toEqual(["p1", "p2"]);
+    await page.getByRole("button", { name: "Find similar", exact: true }).last().click();
+    await expect(page.getByTestId("assistant-error")).toBeVisible();
+    await page.getByRole("button", { name: "Retry", exact: true }).click();
+    await expect(page.getByTestId("assistant-message-assistant")).toHaveCount(3);
+    expect(payloads[2].interaction).toEqual({ type: "similar", productId: "p2" });
+    expect(payloads[3].interaction).toEqual(payloads[2].interaction);
+    await page.getByRole("button", { name: "Compare Black Midi Dress", exact: true }).last().click();
+    await expect(page.getByText("1/3 selected", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "New conversation", exact: true }).click();
+    await expect(page.getByText("1/3 selected", { exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("assistant-product")).toHaveCount(0);
+  });
+
+  test("card selectors prepare a proposal and View bag opens the accepted addition", async ({ page }) => {
+    await page.goto("/"); await setCustomer(page, "customer-a");
+    await page.setViewportSize({ width: 390, height: 700 });
+    const selected = { ...proposal, productId: "p1", name: "Black Midi Dress", category: "Women's Dress", price: 1800, size: "M", color: "Red", quantity: 2 };
+    const card = { id: "p1", name: selected.name, category: selected.category, price: 1800, image_url: selected.image_url, url: "/women/p1", inStock: true,
+      sizes: [{ size: "S", inStock: false }, { size: "M", inStock: true }], colors: ["Red", "Blue"] };
+    await page.route("**/api/assistant", route => {
+      const body = route.request().postDataJSON();
+      if (body.interaction) {
+        expect(body.interaction).toEqual({ type: "prepare_add", productId: "p1", size: "M", color: "Red", quantity: 2 });
+        return route.fulfill({ json: { reply: "Review before confirming.", products: [], actions: [selected] } });
+      }
+      return route.fulfill({ json: { reply: "Catalog result", products: [card], actions: [] } });
+    });
+    await page.route("**/api/assistant/confirm", route => {
+      expect(route.request().postDataJSON()).toMatchObject({ productId: "p1", size: "M", color: "Red", quantity: 2, price: 1800 });
+      return route.fulfill({ json: { action: selected } });
+    });
+    await page.getByTestId("assistant-launcher").click();
+    await page.getByLabel("Message the shopping assistant").fill("Show me a dress");
+    await page.getByLabel("Message the shopping assistant").press("Enter");
+    const productCard = page.getByTestId("assistant-product");
+    await productCard.getByText("Choose options", { exact: true }).click();
+    const review = productCard.getByRole("button", { name: "Review bag addition", exact: true });
+    await expect(review).toBeDisabled();
+    await expect(productCard.getByLabel("Size for Black Midi Dress").locator('option[value="S"]')).toHaveJSProperty("disabled", true);
+    await productCard.getByLabel("Size for Black Midi Dress").selectOption("M");
+    await expect(review).toBeDisabled();
+    await productCard.getByLabel("Color for Black Midi Dress").selectOption("Red");
+    await productCard.getByLabel("Quantity for Black Midi Dress").fill("2");
+    await review.click();
+    await expect(page.getByTestId("assistant-add-confirmation")).toContainText("size M, Red");
+    expect(await page.evaluate(() => localStorage.getItem("els-cart"))).not.toContain("p1");
+    await page.getByRole("button", { name: "Confirm", exact: true }).click();
+    await expect(page.getByTestId("assistant-add-confirmation")).toContainText("Sent to your bag");
+    // CartContext opens the drawer on add; close it to exercise the explicit View bag control.
+    const bag = page.getByRole("dialog", { name: "Shopping bag" });
+    await bag.getByRole("button", { name: "Close", exact: true }).click();
+    await page.getByRole("button", { name: "View bag", exact: true }).click();
+    await expect(bag).toBeVisible();
+    await expect(bag).toContainText("Black Midi Dress");
+    await expect(page.getByTestId("assistant-panel")).toHaveCount(0);
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem("els-cart") || "[]")[0])).toMatchObject({ id: "p1", size: "M", color: "Red", quantity: 2 });
+  });
+
+  test("modern panel supports reduced motion, growing input, mobile viewport and quick reopening", async ({ page }, testInfo) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    const launcher = page.getByTestId("assistant-launcher"), panel = page.getByTestId("assistant-panel");
+    await launcher.click();
+    await expect(panel.getByRole("heading", { name: "Good finds. Great conversations." })).toBeVisible();
+    await expect.poll(() => panel.evaluate(element => getComputedStyle(element).animationName)).toBe("none");
+    expect(await page.getByTestId("assistant-log").evaluate(element => element.scrollTop)).toBe(0);
+    await panel.screenshot({ path: testInfo.outputPath("desktop-welcome.png"), style: "nextjs-portal { display: none !important; }" });
+    const input = page.getByLabel("Message the shopping assistant");
+    const short = (await input.boundingBox())!.height;
+    await input.fill("First line\nSecond line\nThird line\nFourth line");
+    await expect.poll(async () => (await input.boundingBox())!.height).toBeGreaterThan(short);
+    await input.fill(Array.from({ length: 20 }, () => "Another line").join("\n"));
+    expect((await input.boundingBox())!.height).toBeLessThanOrEqual(128);
+    expect(await input.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
+    await input.press("Shift+Enter");
+    await expect(page.getByTestId("assistant-message-user")).toHaveCount(0);
+    await input.fill("");
+    await page.setViewportSize({ width: 390, height: 700 });
+    await expect.poll(async () => (await panel.boundingBox())!.width).toBeLessThanOrEqual(390);
+    await panel.screenshot({ path: testInfo.outputPath("mobile-welcome.png"), style: "nextjs-portal { display: none !important; }" });
+    // Exercise the VisualViewport listener with a fictional keyboard-sized viewport.
+    await page.evaluate(() => {
+      const viewport = window.visualViewport!;
+      Object.defineProperty(viewport, "height", { configurable: true, value: 360 });
+      Object.defineProperty(viewport, "offsetTop", { configurable: true, value: 0 });
+      viewport.dispatchEvent(new Event("resize"));
+    });
+    await expect.poll(async () => { const box = (await panel.boundingBox())!; return box.y + box.height; }).toBeLessThanOrEqual(360);
+    await expect(input).toBeInViewport();
+    await page.evaluate(() => {
+      const viewport = window.visualViewport!;
+      Reflect.deleteProperty(viewport, "height"); Reflect.deleteProperty(viewport, "offsetTop");
+      viewport.dispatchEvent(new Event("resize"));
+    });
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await panel.getByRole("button", { name: "Close shopping assistant", exact: true }).click();
+    await expect(launcher).toHaveAttribute("aria-expanded", "false");
+    await expect(launcher).toBeFocused();
+    const inaccessible = await page.evaluate(() => {
+      const element = document.querySelector<HTMLElement>('[data-testid="assistant-panel"]');
+      return !element || element.inert && element.getAttribute("aria-hidden") === "true";
+    });
+    expect(inaccessible).toBe(true);
+    await launcher.click();
+    await panel.evaluate(async element => { await Promise.all(element.getAnimations().map(animation => animation.finished.catch(() => {}))); });
+    await expect(panel).toHaveAttribute("data-state", "open");
+    await expect(input).toBeFocused();
+    await page.setViewportSize({ width: 320, height: 568 });
+    const compact = (await panel.boundingBox())!;
+    expect(compact.x).toBeGreaterThanOrEqual(0);
+    expect(compact.x + compact.width).toBeLessThanOrEqual(320);
+    expect(compact.y + compact.height).toBeLessThanOrEqual(568);
+    await expect(input).toBeInViewport();
+    await page.getByTestId("assistant-log").evaluate(element => { element.scrollTop = element.scrollHeight; });
+    await expect(page.getByRole("button", { name: "Latest message", exact: true })).toHaveCount(0);
+    await panel.getByRole("button", { name: "New conversation", exact: true }).click();
+    await expect.poll(() => page.getByTestId("assistant-log").evaluate(element => element.scrollTop)).toBe(0);
+  });
+
+  test("reading earlier replies keeps scroll position and Latest message restores following", async ({ page }, testInfo) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    let count = 0, release: () => void = () => {};
+    const card = { id: "p3", name: "Leather Tote Bag", category: "Bags", brand: "Zeouf", price: 1500, image_url: "/canta-5.jpg", url: "/bags/p3", inStock: true, sizes: [], colors: [] };
+    await page.route("**/api/assistant", async route => {
+      count++;
+      if (count === 1) return route.fulfill({ json: { reply: Array.from({ length: 60 }, (_, index) => "Catalog detail " + index).join("\n"), products: [], actions: [] } });
+      await new Promise<void>(resolve => { release = resolve; });
+      return route.fulfill({ json: { reply: "A closer look at your next favourite.", products: [card], actions: [] } });
+    });
+    await page.goto("/"); await page.getByTestId("assistant-launcher").click();
+    const input = page.getByLabel("Message the shopping assistant"), log = page.getByTestId("assistant-log");
+    await input.fill("Show the catalog details"); await input.press("Enter");
+    await expect(page.getByTestId("assistant-message-assistant")).toHaveCount(1);
+    await input.fill("Show a bag"); await input.press("Enter");
+    await expect(page.getByTestId("assistant-typing")).toBeVisible();
+    await expect.poll(() => page.getByTestId("assistant-typing").locator("i").first().evaluate(element => getComputedStyle(element).animationName)).toBe("none");
+    await expect.poll(() => log.evaluate(element => element.scrollHeight - element.scrollTop - element.clientHeight)).toBeLessThan(2);
+    await log.hover(); await page.mouse.wheel(0, -1000);
+    await expect(page.getByRole("button", { name: "Latest message", exact: true })).toBeVisible();
+    const readingPosition = await log.evaluate(element => element.scrollTop);
+    release();
+    await expect(page.getByTestId("assistant-message-assistant")).toHaveCount(2);
+    expect(Math.abs(await log.evaluate(element => element.scrollTop) - readingPosition)).toBeLessThan(2);
+    await page.getByRole("button", { name: "Latest message", exact: true }).click();
+    await expect.poll(() => log.evaluate(element => element.scrollHeight - element.scrollTop - element.clientHeight)).toBeLessThan(2);
+    await expect(page.getByRole("button", { name: "Latest message", exact: true })).toHaveCount(0);
+    await page.getByTestId("assistant-panel").screenshot({ path: testInfo.outputPath("desktop-conversation.png"), style: "nextjs-portal { display: none !important; }" });
   });
 
   test("long conversations send bounded history and New conversation discards a pending reply", async ({ page }) => {
