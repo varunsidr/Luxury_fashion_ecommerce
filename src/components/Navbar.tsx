@@ -221,31 +221,6 @@ export default function Navbar() {
       return;
     }
     setLoading(true);
-    // Try dev auto-create endpoint first (dev convenience). If it fails or is unavailable, fall back to normal signup.
-    try {
-      const devHeaders: Record<string, string> = { 'content-type': 'application/json' };
-      const devResp = await fetch('/api/dev/create-user', {
-        method: 'POST',
-        headers: devHeaders,
-        body: JSON.stringify({ email, password, fullName }),
-      });
-      if (devResp.ok) {
-        const jr = await devResp.json();
-        if (jr.status === 'ok') {
-            setRegisterSuccess('Registration successful — you can sign in now.');
-            setAuthTab('login');
-            setEmail('');
-            setPassword('');
-            setConfirmPassword('');
-            setFullName('');
-            setLoading(false);
-            return;
-          }
-      }
-    } catch {
-      // ignore and fall back to normal signup
-    }
-
     const { error } = await supabase.auth.signUp({
       email,
       password,

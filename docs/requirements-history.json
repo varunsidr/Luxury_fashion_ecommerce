@@ -9089,5 +9089,245 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-26T17:20:27.903Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CAT-07",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall initially reveal at most 24 matches and load 24 more per click; count shall say Showing {visible} of {matching} products, following filters and the final batch. Pending requests show Loading collection, distinct from genuine empty collections and no-filter-match results.",
+      "source_codes": "LIST",
+      "qa_focus": "Pending request, 0/1/24/25/48/49 products, count text, final batch, filter reset, clear all",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:20:29.790Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-07",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall initially reveal at most 24 matches and load 24 more per click; count shall say Showing {visible} of {matching} products, following filters and the final batch. Changing brand, size, stock-only or either price bound, including clearing filters, shall reset the reveal limit to 24. After revealing all 49 products, applying a brand matching 30 shall show 24 cards, Showing 24 of 30 products and Load More; the next click reveals the remaining six and hides Load More. Pending requests show Loading collection, distinct from genuine empty collections and no-filter-match results.",
+      "source_codes": "LIST, UITEST",
+      "qa_focus": "Pending request, 0/1/24/25/48/49 products, count text, final batch, each filter reset, removing filters, clear all, 49-to-30 brand regression",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:32:49.118Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "AUTH-02",
+      "module": "Customer account",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Controlled password confirmation shall match the exact password before either development helper or Supabase signup. Blank confirmation is required; mismatch shows an alert and makes no create request. Confirmation clears on successful registration or account-tab change and is not sent to the provider.",
+      "source_codes": "NAV",
+      "qa_focus": "Equal/unequal/blank confirmation, reveal toggle, request absence/payload, tab change",
+      "known_gap_ids": "G-01",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:32:49.118Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "AUTH-07",
+      "module": "Customer account",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Development registration may first try confirmed-user creation; on failure/unavailability it shall fall back to normal signup. Production helper shall be disabled.",
+      "source_codes": "NAV, DEVUSER",
+      "qa_focus": "Protected helper failure, normal signup, production",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:32:49.118Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ADM-01",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Production admin login requires a named account with its scrypt password hash and a distinct session-signing secret; it issues a one-hour HttpOnly/SameSite=Lax cookie, Secure in production. The browser collects username/password; nonproduction may use the legacy dev key. MFA and live credential provisioning remain open.",
+      "source_codes": "ADMINLOGIN, ADMINAUTH, RATELIMIT",
+      "qa_focus": "Wrong username/password, missing production config, cookie claims/attributes, legacy key denied in production, MFA gap",
+      "known_gap_ids": "G-16",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:32:49.118Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "OPS-04",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Dev create-user shall be disabled in production, require x-dev-key when configured, and cap counted dev_auto users at ten; it shall not overwrite non-dev accounts.",
+      "source_codes": "DEVUSER",
+      "qa_focus": "Limit boundary, existing dev/non-dev, helper fallback",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:32:51.496Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-02",
+      "module": "Customer account",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Controlled password confirmation shall match the exact password before Supabase signup. Blank confirmation is required; mismatch shows an alert and makes no create request. Confirmation clears on successful registration or account-tab change and is not sent to the provider.",
+      "source_codes": "NAV",
+      "qa_focus": "Equal/unequal/blank confirmation, reveal toggle, request absence/payload, tab change",
+      "known_gap_ids": "G-01",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:32:51.496Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-07",
+      "module": "Customer account",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Browser registration shall use normal Supabase signup in every environment and shall never call the privileged dev create-user helper or receive its key. Confirmed development accounts may be created only through explicitly keyed nonproduction tooling; the helper remains disabled in production.",
+      "source_codes": "NAV, DEVUSER, UITEST",
+      "qa_focus": "No helper browser requests, signup payload without confirmation, provider verification feedback, unconfigured signup, keyed local tooling",
+      "known_gap_ids": "G-16",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:32:51.496Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-01",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Admin login in every environment requires a named account with its scrypt password hash and a distinct session-signing secret of at least 32 characters; it issues a one-hour HttpOnly/SameSite=Lax cookie, Secure in production. The browser collects username/password. DEV_CREATE_USER_KEY shall never substitute for admin credentials or cookie signing; missing admin configuration returns 503 and missing/short signing secrets cannot sign or verify cookies. MFA and live credential provisioning remain open.",
+      "source_codes": "ADMINLOGIN, ADMINAUTH, RATELIMIT, UITEST",
+      "qa_focus": "Wrong username/password, missing development/production config, helper-key denial, short/missing signing secret, cookie claims/attributes, MFA gap",
+      "known_gap_ids": "G-16",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:32:51.496Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-04",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Dev create-user shall always return 403 in production. Nonproduction requires a configured nonblank DEV_CREATE_USER_KEY (otherwise 503) and matching x-dev-key (otherwise 401) before processing input or accessing Supabase. The helper caps counted dev_auto users at ten and shall not overwrite non-dev accounts. Its key is server-only and separate from admin credentials/signing.",
+      "source_codes": "DEVUSER, UITEST",
+      "qa_focus": "Production with/without key, missing/blank configured key, missing/wrong request key, authorized input validation, limit boundary, existing dev/non-dev",
+      "known_gap_ids": "G-16",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-26T17:32:51.496Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "UI/admin, catalog and assistant Chromium suites run sequentially on dedicated servers with disabled live Supabase service-role/mail/model credentials, no server reuse, separate artifacts and isolated compilation cache. Catalog and assistant browser fixtures intercept reserved .invalid Supabase domains; assistant tool tests use injected stores or local fallback data. Fictional local sessions exercise auth notifications without real accounts. Mocks/local cookies are not live integration acceptance.",
+      "source_codes": "UITEST, REQTOOLS, ADMINCAT, ASSIST",
+      "qa_focus": "Disabled live services, intercepted fictional auth/catalog, sequential suites/cache isolation, CI artifacts/review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

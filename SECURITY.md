@@ -8,7 +8,8 @@ Please do not report security vulnerabilities in a public GitHub issue. Use GitH
 
 - Public Supabase URL/anon settings are intended for browser use under applied RLS. Service role, admin password hashes/signing secret, shared-limiter secret, Groq key, mail and helper secrets stay server-side.
 - Customer APIs verify Supabase bearer tokens. Admin APIs verify the separate signed `admin_token` cookie; browser `admin_auth` state is not authorization.
-- Production admin login uses named `ADMIN_CREDENTIALS` scrypt hashes and an independent `ADMIN_SESSION_SECRET` of at least 32 characters. Cookies are HttpOnly/SameSite=Lax and Secure in production. Legacy `DEV_CREATE_USER_KEY` login is nonproduction-only.
+- Admin login in every environment uses named `ADMIN_CREDENTIALS` scrypt hashes and an independent `ADMIN_SESSION_SECRET` of at least 32 characters. Cookies are HttpOnly/SameSite=Lax and Secure in production. The dev-helper key cannot authenticate admins or sign cookies.
+- `/api/dev/create-user` always rejects production requests. In nonproduction it requires a configured, nonblank `DEV_CREATE_USER_KEY` and matching `x-dev-key` before processing account input or accessing Supabase. Missing configuration returns 503; missing/wrong request keys return 401. Never expose this key to the browser.
 - Catalog mutation/upload handlers check admin identity, request origin, shared limits and payloads before service-role writes. The catalog migration restricts direct browser product/size/product-image writes. Applied grants still need environment verification.
 - Checkout's service-only transaction owns authoritative INR prices, configured option checks, inventory changes and account-scoped replay records. Browser and assistant bag additions do not reserve inventory.
 

@@ -6,7 +6,7 @@ if (!server || Array.isArray(server)) throw new Error("Expected one isolated sto
 
 export default defineConfig({
   ...storefront,
-  testMatch: "catalog.spec.ts",
+  testMatch: ["catalog.spec.ts", "**/catalog-boundaries-fixture.spec.ts"],
   outputDir: "test-results/catalog",
   webServer: {
     ...server,

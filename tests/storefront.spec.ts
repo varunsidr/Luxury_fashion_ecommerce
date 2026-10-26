@@ -112,7 +112,7 @@ for (const group of ["women", "men"] as const) {
   });
 }
 
-test("registration mismatch makes no account creation request; matching values continue", async ({ page }) => {
+test("registration validates confirmation and never calls the privileged dev helper", async ({ page }) => {
   const calls: object[] = [];
   await page.route("**/api/dev/create-user", (route) => {
     calls.push(route.request().postDataJSON());
@@ -134,10 +134,8 @@ test("registration mismatch makes no account creation request; matching values c
   expect(await page.getByTestId("navbar-register-confirm-password").evaluate((element: HTMLInputElement) => element.validity.valueMissing)).toBe(true);
   await page.getByTestId("navbar-register-confirm-password").fill("SamplePass123!");
   await page.getByTestId("navbar-register-submit").click();
-  await expect(page.getByTestId("navbar-login-form")).toBeVisible();
-  expect(calls).toHaveLength(1);
-  expect(calls[0]).not.toHaveProperty("confirmPassword");
-  await expect(page.getByRole("status")).toContainText("Registration successful");
+  await expect(page.getByTestId("navbar-register-error")).toContainText("Supabase is not configured");
+  expect(calls).toHaveLength(0);
 });
 
 test("account drawer traps focus and restores it when dismissed", async ({ page }) => {
@@ -219,6 +217,12 @@ test("sidebar logout clears the real cookie and denies subsequent admin API acce
 });
 
 test("admin login requires the named account and its password", async ({ request }) => {
+  const helperPassword = await request.post("/api/admin/login", {
+    data: { username: "test-admin", password: "fixture-dev-helper-key-separate-from-admin" },
+    headers: { "x-forwarded-for": "fixture-helper-key-denial" },
+  });
+  expect(helperPassword.status()).toBe(401);
+  expect(helperPassword.headers()["set-cookie"]).toBeUndefined();
   const wrongUser = await request.post("/api/admin/login", { data: { username: "other-admin", password: "ui-test-admin-key" } });
   expect(wrongUser.status()).toBe(401);
   const wrongPassword = await request.post("/api/admin/login", { data: { username: "test-admin", password: "wrong-password" } });

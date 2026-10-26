@@ -4,8 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 // Dev-only endpoint to create confirmed users using the service_role key.
 // Behavior:
 // - Only enabled when NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set.
-// - If DEV_CREATE_USER_KEY is set in env, caller must provide header `x-dev-key` with that value.
-// - When DEV_CREATE_USER_KEY is not set, the endpoint only works in non-production (NODE_ENV !== 'production').
+// - Disabled in production; requires a configured DEV_CREATE_USER_KEY and matching x-dev-key.
 // - Tracks dev-created accounts using user_metadata.dev_auto and allows up to 10 such users.
 
 export async function POST(req: Request) {
@@ -16,18 +15,17 @@ export async function POST(req: Request) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const devKey = process.env.DEV_CREATE_USER_KEY;
+    const devKey = process.env.DEV_CREATE_USER_KEY?.trim();
+
+    if (!devKey) {
+      return NextResponse.json({ error: 'dev create-user endpoint is not configured' }, { status: 503 });
+    }
+    if (req.headers.get('x-dev-key') !== devKey) {
+      return NextResponse.json({ error: 'missing or invalid dev key' }, { status: 401 });
+    }
 
     if (!supabaseUrl || !svc) {
       return NextResponse.json({ error: 'missing Supabase URL or service role key' }, { status: 500 });
-    }
-
-    // If a dev key is configured, require it. Otherwise only allow in non-production.
-    const provided = req.headers.get('x-dev-key');
-    if (devKey) {
-      if (!provided || provided !== devKey) {
-        return NextResponse.json({ error: 'missing or invalid dev key' }, { status: 401 });
-      }
     }
 
     const body = await req.json().catch(() => ({}));

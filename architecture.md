@@ -126,7 +126,7 @@ The application exposes successful simulated card payment and simulated cash on 
 
 | Operation | Current server path and boundary |
 |---|---|
-| Admin login | `POST /api/admin/login` verifies named `ADMIN_CREDENTIALS` scrypt hashes and issues a one-hour signed `admin_token` cookie: HttpOnly, SameSite=Lax, Secure in production. Production requires a distinct `ADMIN_SESSION_SECRET` of at least 32 characters; legacy dev-key login is nonproduction-only. |
+| Admin login | `POST /api/admin/login` verifies named `ADMIN_CREDENTIALS` scrypt hashes and issues a one-hour signed `admin_token` cookie: HttpOnly, SameSite=Lax, Secure in production. Every environment requires a distinct `ADMIN_SESSION_SECRET` of at least 32 characters; the dev-helper key is never an admin password or signing fallback. |
 | Catalog reads/mutations | `GET/POST /api/admin/products`, `PATCH/DELETE /api/admin/products/[id]` and `POST /api/admin/products/upload` require a verified admin cookie; mutations also check origin and shared per-admin limits. |
 | Catalog transaction | Service-only `save_admin_product` validates/synchronizes configured size rows and totals, preserves current existing unsized stock, and prevents stale metadata edits from replacing inventory. Existing quantities are edited through Stock Management. |
 | Stock / orders / users | Signed-cookie stock/order/user APIs use server-side service-role access; stock uses `set_product_stock`. The admin cookie is separate from a Supabase customer session. |
@@ -162,7 +162,7 @@ Run `npm run security:check-db` with an explicitly configured staging `DATABASE_
 | `npm run docs:sync`, `docs:review`, `docs:check` | Synchronize requirements while preserving manual fields; record explicit reviewer assertions and reject stale source snapshots. A review never marks tests Passed. |
 | `npm run docs:test` | Regression checks for the documentation tools using temporary fixtures. |
 | `npm run test:assistant` | 42 current tool/API/intercepted SDK/browser cases, including UI lifecycle, cancellation and presentation. Fake auth/model/catalog/confirmation fixtures do not prove live acceptance. |
-| `npm run test:ui`, `npm run test:catalog` | 32 storefront/admin and nine catalog browser/helper cases. Run sequentially with assistant tests because isolated servers share a compilation cache. |
+| `npm run test:ui`, `npm run test:catalog` | 37 storefront/admin and 15 catalog browser/helper cases, including admin/helper separation, standard signup and pagination resets. Run sequentially with assistant tests because isolated servers share a compilation cache. |
 | `npm run test:purchase` | 19 isolated PGlite SQL/permission/transaction cases; one connection does not prove real Supabase or concurrent-session behavior. |
 | `npm run test:live` | Optional read-only deployed browsing with fresh unauthenticated contexts and blocked mutations; separate from push CI. |
 | GitHub Actions | Requirements CI runs docs tests/checks. Storefront CI runs purchase, UI and catalog suites; it currently does not invoke the assistant suite. Local-Postgres CI covers its separate seed/build/health path. |

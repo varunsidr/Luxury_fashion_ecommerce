@@ -4,8 +4,7 @@ const ALG = 'HS256';
 
 function sessionSecret() {
   const secret = process.env.ADMIN_SESSION_SECRET || '';
-  if (secret.length >= 32) return secret;
-  return process.env.NODE_ENV === 'production' ? '' : process.env.DEV_CREATE_USER_KEY || '';
+  return secret.length >= 32 ? secret : '';
 }
 
 export function adminCredentialsConfigured() {

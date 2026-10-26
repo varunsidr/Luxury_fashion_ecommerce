@@ -22,6 +22,31 @@ async function mockCatalog(page: Page, options: { products?: typeof liveProducts
   });
 }
 
+test("registration uses normal signup without calling the dev helper or sending confirmation", async ({ page }) => {
+  await mockCatalog(page);
+  const signups: Record<string, unknown>[] = [];
+  let helperCalls = 0;
+  await page.route("**/api/dev/create-user", (route) => { helperCalls++; return route.abort(); });
+  await page.route("**/auth/v1/signup**", (route) => {
+    signups.push(route.request().postDataJSON());
+    return route.fulfill({ json: { user: { id: "fictional-signup-user", email: "fixture@example.invalid", identities: [] }, session: null } });
+  });
+  await page.goto("/");
+  await page.getByTestId("navbar-account-toggle").click();
+  await page.getByTestId("navbar-auth-tab-register").click();
+  await page.getByTestId("navbar-register-fullname").fill("Fictional Customer");
+  await page.getByTestId("navbar-register-email").fill("fixture@example.invalid");
+  await page.getByTestId("navbar-register-password").fill("SamplePass123!");
+  await page.getByTestId("navbar-register-confirm-password").fill("SamplePass123!");
+  await page.getByTestId("navbar-register-submit").click();
+  await expect(page.getByTestId("navbar-login-form")).toBeVisible();
+  await expect(page.getByRole("status")).toContainText("Registration successful! Please verify your email.");
+  expect(helperCalls).toBe(0);
+  expect(signups).toHaveLength(1);
+  expect(signups[0]).not.toHaveProperty("confirmPassword");
+  expect(signups[0]).toMatchObject({ email: "fixture@example.invalid", data: { full_name: "Fictional Customer" } });
+});
+
 test('visible count follows 24, 48 and the final batch', async ({ page }) => {
   const products = Array.from({ length: 49 }, (_, index) => ({ ...liveProducts[5], id: `bag-${index}`, name: `Bag ${index}` }));
   await mockCatalog(page, { products });

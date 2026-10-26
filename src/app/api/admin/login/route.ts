@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { adminCredentialsConfigured, signToken, verifyAdminCredentials } from '@/lib/adminAuth';
 import { getClientAddress, isRateLimited } from '@/lib/rateLimit';
 
@@ -30,20 +30,13 @@ export async function POST(req: Request) {
     if (accountLimited === null) return NextResponse.json({ error: 'Admin sign in is temporarily unavailable.' }, { status: 503 });
     if (accountLimited) return NextResponse.json({ error: 'Too many login attempts. Try again shortly.' }, { status: 429 });
 
-    let valid = false;
-    if (adminCredentialsConfigured()) {
-      valid = await verifyAdminCredentials(String(username), String(password));
-    } else if (process.env.NODE_ENV !== 'production' && process.env.DEV_CREATE_USER_KEY) {
-      const expected = Buffer.from(process.env.DEV_CREATE_USER_KEY);
-      const actual = Buffer.from(String(password));
-      valid = actual.length === expected.length && timingSafeEqual(actual, expected) &&
-        (!process.env.DEV_ADMIN_USERNAME || process.env.DEV_ADMIN_USERNAME === username);
-    } else {
+    if (!adminCredentialsConfigured()) {
       return NextResponse.json({ error: 'Admin sign in is not configured.' }, { status: 503 });
     }
+    const valid = await verifyAdminCredentials(String(username), String(password));
     if (!valid) return NextResponse.json({ error: 'invalid' }, { status: 401 });
 
-    const adminName = String(username || process.env.DEV_ADMIN_USERNAME || 'local-admin');
+    const adminName = String(username);
     const digest = createHash('sha256').update(`zeouf-admin:${adminName}`).digest('hex');
     const adminId = `${digest.slice(0, 8)}-${digest.slice(8, 12)}-${digest.slice(12, 16)}-${digest.slice(16, 20)}-${digest.slice(20, 32)}`;
     const token = signToken({ adminId, username: adminName, sessionId: randomUUID() });

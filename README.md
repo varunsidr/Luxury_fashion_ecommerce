@@ -2,6 +2,8 @@
 
 # zeouf — Luxury Fashion & Lifestyle E-Commerce
 
+[Live demo](https://zeouf-luxury-fashion-ecommerce.vercel.app) · [Requirements and known gaps](docs/BRD.md)
+
 **Designed and developed by [varunsidr](https://github.com/varunsidr)**
 
 **zeouf** is a portfolio e-commerce demo for fashion and lifestyle: women's and men's clothing, shoes, bags, accessories, perfume, and makeup, presented with an editorial design.
@@ -258,7 +260,7 @@ $adminPlaintext | npm run security:hash-admin
 Remove-Variable adminPlaintext, adminPassword
 ```
 
-Put the resulting `scrypt:...` string under that person's username in the `ADMIN_CREDENTIALS` JSON object. Give each administrator a separate password. Generate `ADMIN_SESSION_SECRET` and `RATE_LIMIT_SECRET` as separate random values of at least 32 characters. Rotate the session secret to invalidate previously issued admin cookies. In local development only, the old `DEV_CREATE_USER_KEY` login remains available when `ADMIN_CREDENTIALS` is absent.
+Put the resulting `scrypt:...` string under that person's username in the `ADMIN_CREDENTIALS` JSON object. Give each administrator a separate password. Generate `ADMIN_SESSION_SECRET` and `RATE_LIMIT_SECRET` as separate random values of at least 32 characters. Rotate the session secret to invalidate previously issued admin cookies. Named credentials and the signing secret are required in development too; `DEV_CREATE_USER_KEY` cannot authenticate an administrator or sign admin cookies.
 
 > **Note:** the storefront can render local product fallback data without Supabase, but customer authentication, reviews, uploads, admin actions, and seeded data require valid environment variables.
 
@@ -278,7 +280,7 @@ If assistant chat or card actions return **503 — temporarily unavailable**, fi
 
 ### Admin access
 
-Open `/admin` and enter a username and password from `ADMIN_CREDENTIALS`. In nonproduction only, the form may use `DEV_CREATE_USER_KEY` when no named credentials are configured; `DEV_ADMIN_USERNAME` may restrict that local fallback. The admin session is stored in an HttpOnly cookie; there is no default password in the repository.
+Open `/admin` and enter a username and password from `ADMIN_CREDENTIALS`. Configure a separate `ADMIN_SESSION_SECRET` of at least 32 characters in every environment. The admin session is stored in an HttpOnly cookie; there is no default password or dev-helper login fallback.
 
 ### Populate admin demo data
 
@@ -398,17 +400,10 @@ For local development you can auto-create confirmed users (no verification email
 
 - `POST /api/dev/create-user` — creates a confirmed user with `user_metadata.dev_auto = true`.
 - The endpoint uses the `SUPABASE_SERVICE_ROLE_KEY` (server-side only) and will only auto-create up to 10 dev users.
-- To protect the endpoint, set `DEV_CREATE_USER_KEY` in your `.env.local` and include header `x-dev-key: <DEV_CREATE_USER_KEY>` in requests.
+- Set a dedicated `DEV_CREATE_USER_KEY` in your `.env.local` and include header `x-dev-key: <DEV_CREATE_USER_KEY>` in requests. Keep this key server-side and separate from admin credentials/signing secrets.
+- Production always rejects this endpoint with 403. In development, an absent/blank configured key disables it with 503; a missing/wrong request key returns 401 before account input or Supabase access.
 
-Example (no dev key configured, local dev only):
-
-```bash
-curl -X POST http://localhost:3000/api/dev/create-user \
-  -H "Content-Type: application/json" \
-  -d '{"email":"dev1@example.com","password":"Dev12345!","fullName":"Dev User"}'
-```
-
-Example (with `DEV_CREATE_USER_KEY` set):
+Example (local development; export the same dedicated key in your shell):
 
 ```bash
 curl -X POST http://localhost:3000/api/dev/create-user \
@@ -417,11 +412,11 @@ curl -X POST http://localhost:3000/api/dev/create-user \
   -d '{"email":"dev1@example.com","password":"Dev12345!","fullName":"Dev User"}'
 ```
 
-The client-side registration form will try this endpoint first during development and fall back to the normal Supabase signup if the endpoint is unavailable.
+The registration form uses normal Supabase signup and never calls this privileged helper. Confirmed dev-user creation is available only to explicitly keyed local tooling. Never put the helper key in a `NEXT_PUBLIC_` variable or browser request code.
 
 ---
 
-## Admin Panel
+## Administrator access
 
 The admin panel is available at `/admin`.
 
@@ -496,11 +491,10 @@ Use Groq's Free plan to start with capped usage. One shopper message can make up
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Your Supabase project URL (e.g. `https://xxxx.supabase.co`) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Your Supabase anonymous/public API key |
 | `SUPABASE_SERVICE_ROLE_KEY` | For server-backed features | Server-only key for checkout, private admin APIs, restock requests/delivery, seeds and dev/test helpers — never expose to the client |
-| `ADMIN_CREDENTIALS` | Production admin | JSON object mapping each username to a `scrypt:salt:hash` generated by `npm run security:hash-admin` |
-| `ADMIN_SESSION_SECRET` | Production admin | Separate random signing secret of at least 32 characters; rotation invalidates admin cookies |
+| `ADMIN_CREDENTIALS` | Admin in every environment | JSON object mapping each username to a `scrypt:salt:hash` generated by `npm run security:hash-admin` |
+| `ADMIN_SESSION_SECRET` | Admin in every environment | Separate random signing secret of at least 32 characters; rotation invalidates admin cookies |
 | `RATE_LIMIT_SECRET` | Production rate-limited APIs | Separate random secret of at least 32 characters for hashed shared limiter keys; required for chat/confirmation as well as protected writes |
-| `DEV_CREATE_USER_KEY` | Nonproduction helper only | Local fallback admin password and dev user creation key; never use as the production admin credential |
-| `DEV_ADMIN_USERNAME` | Nonproduction legacy only | Optional username restriction when using the local fallback login |
+| `DEV_CREATE_USER_KEY` | To enable the nonproduction helper | Dedicated key for explicitly authorized local dev-user creation; cannot authenticate admins or sign cookies. Missing/blank disables the helper |
 | `RESEND_API_KEY` | Optional | Resend API key used to deliver restock alerts |
 | `RESTOCK_FROM_EMAIL` | Optional | Verified sender address for Resend restock alerts |
 | `NEXT_PUBLIC_SITE_URL` | For configured site links | Storefront origin used in configured email links; set the deployed URL for hosted environments |

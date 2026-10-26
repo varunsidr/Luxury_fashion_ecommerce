@@ -1,5 +1,74 @@
 import { test, expect, type Page } from "@playwright/test";
 import { handleCatalog, handleProductUpload, validateProduct, type AdminCatalogDeps } from "../src/lib/adminCatalog";
+import { POST as adminLogin } from "../src/app/api/admin/login/route";
+import { POST as createDevUser } from "../src/app/api/dev/create-user/route";
+import { signToken, verifyToken } from "../src/lib/adminAuth";
+
+async function withAuthEnvironment(overrides: Record<string, string>, run: () => Promise<void>) {
+  const values = {
+    NODE_ENV: "development", NEXT_PUBLIC_SUPABASE_URL: "https://supabase.co.auth-fixture.invalid",
+    SUPABASE_SERVICE_ROLE_KEY: "fixture-service-key", RATE_LIMIT_SECRET: "",
+    DEV_CREATE_USER_KEY: "fixture-helper-key", ADMIN_CREDENTIALS: "",
+    ADMIN_SESSION_SECRET: "fixture-independent-admin-signing-secret", ...overrides,
+  };
+  const previous = Object.fromEntries(Object.keys(values).map((key) => [key, process.env[key]]));
+  Object.assign(process.env, values);
+  try { await run(); }
+  finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+}
+
+test("dev helper is disabled when its key is missing or blank", async () => {
+  for (const key of ["", "   "]) await withAuthEnvironment({ DEV_CREATE_USER_KEY: key }, async () => {
+    expect((await createDevUser(new Request("http://localhost/api/dev/create-user", { method: "POST" }))).status).toBe(503);
+  });
+});
+
+test("dev helper requires its own key before processing account input", async () => {
+  await withAuthEnvironment({}, async () => {
+    for (const key of ["", "wrong-key"]) {
+      const response = await createDevUser(new Request("http://localhost/api/dev/create-user", { method: "POST", headers: { "x-dev-key": key } }));
+      expect(response.status).toBe(401);
+    }
+    const response = await createDevUser(new Request("http://localhost/api/dev/create-user", { method: "POST", headers: { "x-dev-key": "fixture-helper-key" } }));
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "email and password required" });
+  });
+});
+
+test("production rejects dev creation even with the correct helper key", async () => {
+  await withAuthEnvironment({ NODE_ENV: "production" }, async () => {
+    const response = await createDevUser(new Request("http://localhost/api/dev/create-user", { method: "POST", headers: { "x-dev-key": "fixture-helper-key" } }));
+    expect(response.status).toBe(403);
+  });
+});
+
+test("dev helper key cannot replace named admin credentials", async () => {
+  await withAuthEnvironment({}, async () => {
+    const response = await adminLogin(new Request("http://localhost/api/admin/login", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username: "helper-key-admin-test", password: "fixture-helper-key" }),
+    }));
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+});
+
+test("admin cookies require an independent signing secret in development too", async () => {
+  const formerSharedSecret = "fixture-former-shared-secret-at-least-32-characters";
+  await withAuthEnvironment({ ADMIN_SESSION_SECRET: formerSharedSecret, DEV_CREATE_USER_KEY: formerSharedSecret }, async () => {
+    const oldToken = signToken({ adminId: "fixture-admin" });
+    for (const secret of ["", "too-short"]) {
+      process.env.ADMIN_SESSION_SECRET = secret;
+      expect(() => signToken({ adminId: "fixture-admin" })).toThrow("Missing ADMIN_SESSION_SECRET");
+      expect(verifyToken(oldToken)).toBeNull();
+    }
+  });
+});
 
 const id = "11111111-1111-4111-8111-111111111111";
 const input = { name: "Fixture Bag", category: "Bags", price: 1500.25, stock: 3, description: "Fictional fixture", sizes: [], image_url: "/canta-5.jpg", images: ["/canta-5.jpg"] };

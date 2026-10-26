@@ -1019,5 +1019,48 @@
     ],
     "source_digest": "00c37e0c25a4e7e6a6c1630a7b397f12fe82453798e97d58ea2ce2fa4681059f",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-26T17:20:29.790Z",
+    "summary": "Reviewed CAT-07 filter pagination reset: brand, size, stock-only and price bounds reset visibleCount to 24; documented 49-to-30 acceptance, isolated regression fixtures, clearing behavior and scoped execution limits.",
+    "requirement_ids": [
+      "CAT-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "playwright.catalog.config.ts",
+      "src/components/ProductListing.tsx",
+      "tests/ecommerce/catalog-boundaries-fixture.spec.ts"
+    ],
+    "source_digest": "ad599297fd6cb9526a9c2aae61433edcb826d3dd9d148459c01cc15adf2b5d0b",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-10-26T17:32:51.496Z",
+    "summary": "Reviewed admin/helper separation in every environment, mandatory dev-helper key and standard browser signup; updated README demo visibility, setup/security guidance, API contracts, fixtures and scoped test evidence while retaining deployment and live-integration limits.",
+    "requirement_ids": [
+      "AUTH-02",
+      "AUTH-07",
+      "ADM-01",
+      "OPS-04",
+      "OPS-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      ".env.example",
+      "README.md",
+      "SECURITY.md",
+      "architecture.md",
+      "playwright.config.ts",
+      "src/app/api/admin/login/route.ts",
+      "src/app/api/dev/create-user/route.ts",
+      "src/components/Navbar.tsx",
+      "src/lib/adminAuth.ts",
+      "tests/admin.spec.ts",
+      "tests/catalog.spec.ts",
+      "tests/storefront.spec.ts"
+    ],
+    "source_digest": "9e6c91b13ba3b32d6543790ffea82f4e3f8e294a7d27bef5618e59eb938dbabf",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

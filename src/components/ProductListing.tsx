@@ -182,6 +182,10 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
     setMaxPrice("");
   }, [currency]);
 
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [brand, size, inStockOnly, minPrice, maxPrice]);
+
   const brandOptions = useMemo(() => [...new Set(products.map((p) => p.brand).filter((v): v is string => Boolean(v)))].sort(), [products]);
   const sizeOptions = useMemo(() => [...new Set(products.flatMap((p) => p.sizes ?? []))].sort(), [products]);
   const priceSuggestions = useMemo(
