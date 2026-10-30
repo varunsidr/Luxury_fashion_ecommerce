@@ -125,7 +125,7 @@ export default function OrdersPage() {
                           <div key={item.id} className="flex items-center justify-between gap-4 text-neutral-600">
                             <div className="flex items-center gap-3">
                               {item.products?.image_url ? <Image src={item.products.image_url} alt={item.products.name} width={40} height={52} className="h-[52px] w-10 object-cover object-top" /> : <div className="h-[52px] w-10 bg-neutral-100" />}
-                              <span>{item.products?.name ?? "Product"} × {item.quantity}</span>
+                              <span>{item.products?.name ?? "Product"} × {item.quantity}{item.size ? ` · Size: ${item.size}` : ""}{item.color ? ` · Color: ${item.color}` : ""}</span>
                             </div>
                             <span>{formatPrice(item.unit_price * item.quantity)}</span>
                           </div>

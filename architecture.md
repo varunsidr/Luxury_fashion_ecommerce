@@ -129,10 +129,10 @@ The application exposes successful simulated card payment and simulated cash on 
 | Admin login | `POST /api/admin/login` verifies named `ADMIN_CREDENTIALS` scrypt hashes and issues a one-hour signed `admin_token` cookie: HttpOnly, SameSite=Lax, Secure in production. Every environment requires a distinct `ADMIN_SESSION_SECRET` of at least 32 characters; the dev-helper key is never an admin password or signing fallback. |
 | Catalog reads/mutations | `GET/POST /api/admin/products`, `PATCH/DELETE /api/admin/products/[id]` and `POST /api/admin/products/upload` require a verified admin cookie; mutations also check origin and shared per-admin limits. |
 | Catalog transaction | Service-only `save_admin_product` validates/synchronizes configured size rows and totals, preserves current existing unsized stock, and prevents stale metadata edits from replacing inventory. Existing quantities are edited through Stock Management. |
-| Stock / orders / users | Signed-cookie stock/order/user APIs use server-side service-role access; stock uses `set_product_stock`. The admin cookie is separate from a Supabase customer session. |
-| Public reviews | `GET /api/reviews?productId=...` and detail reads show approved rows. Applied RLS permits approved reviews or the author's own pending reviews and revokes direct customer review writes. |
-| Review creation/upload | Bearer-protected `POST /api/reviews/upload` accepts 1–3 JPEG/PNG/WebP files up to 2 MiB each with matching file signatures and returns private object paths. `POST /api/reviews` validates owned paths and creates a pending review; displayed reviewer name is still not saved. |
-| Moderation | `GET /api/admin/reviews`, `PUT/DELETE /api/admin/reviews/[id]` and form POST approve/delete routes are cookie-protected. The pending page uses ten-minute signed review-image URLs. The sidebar list/reply workflow remains incomplete. |
+| Stock / orders / users | Signed-cookie APIs use service-role access; stock uses `set_product_stock`. Order mutations use service-only `set_admin_order_status` for forward transitions and atomic one-time pre-shipment cancellation restoration. Native read-only dialogs expose saved variants/address/method and profile-to-order search. The admin cookie is separate from customer auth. |
+| Public reviews | `GET /api/reviews?productId=...` serves up to 100 newest approved reviews with saved names/replies and ten-minute signed owned photos; public payloads omit user IDs/raw paths. Detail offers timeout/retry feedback. Applied RLS also permits authors' own pending reads and denies customer review writes. |
+| Review creation/upload | Bearer-protected uploads accept 1–3 signature-checked JPEG/PNG/WebP files up to 2 MiB each and return private object paths. Server creation validates ownership and stores the trimmed supplied display name in a pending review. Workflow migration supplies missing name/reply columns. |
+| Moderation | Both admin entry paths share `AdminReviewQueue` and cookie-protected list/PATCH/PUT/DELETE routes. Same-origin and rate-limited mutations approve/unpublish/delete or save/remove replies, retaining failed drafts. Legacy form success redirects with 303. Signed images expire in ten minutes; files remain after review deletion. |
 
 Product images use a public `product-images` bucket and server-admin uploads with size/type/signature checks. New review files use private `review-images`; historical public review files and orphan cleanup remain unresolved. No implemented thumbnail pipeline is established by this overview.
 
@@ -161,9 +161,9 @@ Run `npm run security:check-db` with an explicitly configured staging `DATABASE_
 |---|---|
 | `npm run docs:sync`, `docs:review`, `docs:check` | Synchronize requirements while preserving manual fields; record explicit reviewer assertions and reject stale source snapshots. A review never marks tests Passed. |
 | `npm run docs:test` | Regression checks for the documentation tools using temporary fixtures. |
-| `npm run test:assistant` | 42 current tool/API/intercepted SDK/browser cases, including UI lifecycle, cancellation and presentation. Fake auth/model/catalog/confirmation fixtures do not prove live acceptance. |
-| `npm run test:ui`, `npm run test:catalog` | 37 storefront/admin and 15 catalog browser/helper cases, including admin/helper separation, standard signup and pagination resets. Run sequentially with assistant tests because isolated servers share a compilation cache. |
-| `npm run test:purchase` | 19 isolated PGlite SQL/permission/transaction cases; one connection does not prove real Supabase or concurrent-session behavior. |
+| `npm run test:assistant` | 46 tool/API/intercepted SDK/browser cases, including exact-versus-alternative matching, UI lifecycle, cancellation and presentation. Fake auth/model/catalog/confirmation fixtures do not prove live acceptance. |
+| `npm run test:ui`, `npm run test:catalog` | 43 storefront/admin and 18 catalog/recovery browser/helper cases, including workflow moderation/dialogs, recovery, helper separation, signup and pagination. Run sequentially with assistant tests because isolated servers share compilation output; persistent development caching is disabled for fixtures. |
+| `npm run test:purchase` | 26 isolated PGlite SQL/permission/transaction cases, including lifecycle/cancellation; one connection does not prove real Supabase or concurrent sessions. |
 | `npm run test:live` | Optional read-only deployed browsing with fresh unauthenticated contexts and blocked mutations; separate from push CI. |
 | GitHub Actions | Requirements CI runs docs tests/checks. Storefront CI runs purchase, UI and catalog suites; it currently does not invoke the assistant suite. Local-Postgres CI covers its separate seed/build/health path. |
 
@@ -175,6 +175,6 @@ The [BRD gaps](docs/BRD.md#12-known-gaps-and-business-decisions) remain authorit
 
 - Production credential/limiter/migration provisioning, applied RLS/Storage guards and full read-only inspector execution still need environment evidence.
 - Real authenticated bag confirmation/checkout, concurrent stock/replay/catalog edits and deployed cancellation behavior need staging tests.
-- Account ownership of the browser bag, review identity/replies/image cleanup, notification eligibility, order transition/cancellation stock semantics and password recovery remain open.
+- Account ownership of the browser bag, historical review names/public files/orphan cleanup, notification eligibility, changed-inventory cancellation reconciliation and real recovery email/redirect completion remain open. Source now provides stored replies, forward lifecycle/one-time cancellation restoration and a verified-session recovery screen.
 - Native phone keyboards, full browser/screen-reader/contrast coverage and agreed performance targets remain separate from scoped Chromium presentation tests.
 - Recommendation caching, model intent/ordinal/currency tool choice and provider retention require their own checks. Successful public-chat browsing smoke does not establish private mutation acceptance.

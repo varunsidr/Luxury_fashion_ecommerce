@@ -3,12 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import AdminReviewQueue from "@/components/AdminReviewQueue";
+import AdminDialog from "@/components/AdminDialog";
+import { orderTransitions } from "@/lib/orderLifecycle";
 import {
   LayoutDashboard, Package, Layers, LogOut,
   Plus, Edit2, Trash2, X, ChevronDown, Upload,
-  TrendingUp, AlertTriangle, CheckCircle, Search,
-  MessageSquare, Star, Send, User, BarChart, Settings, ShoppingCart, ArrowUpRight, Clock3,
+  TrendingUp, AlertTriangle, Search,
+  MessageSquare, Star, User, BarChart, Settings, ShoppingCart, ArrowUpRight, Clock3,
 } from "lucide-react";
 
 const ALL_CATEGORIES = [
@@ -64,6 +66,8 @@ interface OrderItem {
   product_id: string | null;
   quantity: number;
   unit_price: number;
+  size?: string | null;
+  color?: string | null;
   products: { name: string; image_url: string | null } | null;
 }
 
@@ -75,6 +79,8 @@ interface Order {
   placed_at: string | null;
   created_at?: string | null;
   order_items?: OrderItem[];
+  payment_method?: string | null;
+  shipping_address?: Record<string, string> | null;
 }
 
 const emptyForm = {
@@ -106,23 +112,22 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   // Stock
   const [sizeStocks, setSizeStocks] = useState<SizeStock[]>([]);
   const [stockLoading, setStockLoading] = useState(false);
-  const [selectedStockProduct, setSelectedStockProduct] = useState<Product | null>(null);
 
   // Reviews
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState("");
-  const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
-  const [replyingId, setReplyingId] = useState<string | null>(null);
 
   // Users (profiles)
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(false);
   const [profilesError, setProfilesError] = useState("");
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   // Orders
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState("");
+  const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderSearch, setOrderSearch] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("all");
@@ -182,11 +187,13 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   async function fetchProfiles() {
     setProfilesLoading(true);
     setProfilesError("");
-    const response = await fetch("/api/admin/users");
-    const result = await response.json().catch(() => ({}));
-    setProfiles(response.ok ? result.users ?? [] : []);
-    if (!response.ok) setProfilesError(result.error ?? "Could not load users.");
-    setProfilesLoading(false);
+    try {
+      const response = await fetch("/api/admin/users", { cache: "no-store" });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? "Could not load users.");
+      setProfiles(result.users ?? []);
+    } catch (error) { setProfilesError(error instanceof Error ? error.message : "Could not load users."); }
+    finally { setProfilesLoading(false); }
   }
 
   async function fetchOrders() {
@@ -202,18 +209,21 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   }
 
   async function updateOrderStatus(orderId: string, status: string) {
+    setUpdatingOrder(orderId); setOrdersError("");
     try {
       const response = await fetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: orderId, status }),
       });
-      if (!response.ok) throw new Error("Failed to update order status");
-      setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status } : o));
-      if (selectedOrder && selectedOrder.id === orderId) setSelectedOrder((s) => s ? { ...s, status } : s);
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? "Failed to update order status");
+      setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, ...result.order } : o));
+      if (selectedOrder && selectedOrder.id === orderId) setSelectedOrder((s) => s ? { ...s, ...result.order } : s);
+      if (status === "cancelled") void fetchProducts();
     } catch (err) {
       setOrdersError(err instanceof Error ? err.message : "Could not update order status.");
-    }
+    } finally { setUpdatingOrder(null); }
   }
 
   async function logout() {
@@ -358,27 +368,6 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
     return sizeStocks.find((s) => s.product_id === productId && s.size === size)?.stock ?? 0;
   }
 
-  async function submitReply(reviewId: string) {
-    const reply = replyTexts[reviewId]?.trim();
-    if (!reply) return;
-    setReplyingId(reviewId);
-    await supabase.from("reviews").update({
-      admin_reply: reply,
-      replied_at: new Date().toISOString(),
-    }).eq("id", reviewId);
-    setReviews((prev) => prev.map((r) => r.id === reviewId
-      ? { ...r, admin_reply: reply, replied_at: new Date().toISOString() }
-      : r
-    ));
-    setReplyTexts((prev) => ({ ...prev, [reviewId]: "" }));
-    setReplyingId(null);
-  }
-
-  async function deleteReply(reviewId: string) {
-    await supabase.from("reviews").update({ admin_reply: null, replied_at: null }).eq("id", reviewId);
-    setReviews((prev) => prev.map((r) => r.id === reviewId ? { ...r, admin_reply: null, replied_at: null } : r));
-  }
-
   const filtered = products.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchCat = filterCat === "All" || p.category === filterCat;
@@ -450,7 +439,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => { setPage(item.id); setShowForm(false); setSelectedStockProduct(null); }}
+              onClick={() => { setPage(item.id); setShowForm(false); }}
               className={`w-full flex items-center gap-3 px-6 py-3 text-[11px] tracking-[0.15em] uppercase transition-colors ${
                 page === item.id ? "bg-neutral-800 text-white" : "text-neutral-400 hover:text-white hover:bg-neutral-800/50"
               }`}
@@ -793,45 +782,20 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                 </table>
               </div>
             )}
-            {profilesError && <p className="mt-4 border border-red-200 bg-red-50 p-4 text-[12px] text-red-600">{profilesError}</p>}
 
-            {/* Order detail drawer/modal */}
-            {selectedOrder && (
-              <div className="fixed inset-0 bg-black/30 flex items-end md:items-center justify-center p-6">
-                <div className="w-full max-w-3xl bg-white border border-neutral-100 p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-[14px] font-medium text-neutral-800">Order {String(selectedOrder.id).slice(0,8)}</p>
-                      <p className="text-[11px] text-neutral-400">{selectedOrder.user_id ?? '-'}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <select value={selectedOrder.status} onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value)} className="border border-neutral-200 px-2 py-1.5 text-[11px] outline-none">
-                        {['pending', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => <option key={status} value={status}>{status}</option>)}
-                      </select>
-                      <button onClick={() => setSelectedOrder(null)} className="text-[11px] text-neutral-500">Close</button>
-                    </div>
-                  </div>
-                  <div className="mb-4">
-                    <p className="text-[12px] font-medium text-neutral-700 mb-2">Items</p>
-                    <div className="divide-y divide-neutral-100">
-                      {(selectedOrder.order_items ?? []).map((it) => (
-                        <div key={it.id} className="flex items-center justify-between py-3">
-                          <div>
-                            <p className="text-[12px] font-medium text-neutral-800">{it.products?.name ?? 'Product'}</p>
-                            <p className="text-[11px] text-neutral-400">Qty: {it.quantity}</p>
-                          </div>
-                          <div className="text-right text-[12px] text-neutral-700">{fmt(Number(it.unit_price) * Number(it.quantity) || 0)}<p className="text-[10px] text-neutral-400">{it.products?.image_url ? "Product image available" : "No product image"}</p></div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-[12px] text-neutral-600">Total</p>
-                    <p className="text-[14px] font-medium">{fmt(Number(selectedOrder.total) || 0)}</p>
-                  </div>
-                </div>
-              </div>
-            )}
+
+            {selectedOrder && <AdminDialog title={"Order " + String(selectedOrder.id).slice(0,8)} onClose={() => setSelectedOrder(null)}>
+              <p className="mb-4 break-all text-xs text-neutral-600">Customer: {selectedOrder.user_id ?? "Not available"}</p>
+              <label className="text-sm">Order status<select aria-label="Order status" disabled={updatingOrder !== null || !(orderTransitions[selectedOrder.status]?.length)} value={selectedOrder.status} onChange={event => updateOrderStatus(selectedOrder.id, event.target.value)} className="ml-3 min-h-11 border border-neutral-300 px-3">{[selectedOrder.status, ...(orderTransitions[selectedOrder.status] ?? [])].map(status => <option key={status}>{status}</option>)}</select></label>
+              {(selectedOrder.status === "pending" || selectedOrder.status === "processing") && <p className="mt-3 text-xs leading-5 text-neutral-600">Cancelling restores available product inventory once. Shipped or completed orders cannot be cancelled.</p>}
+              {ordersError && <p role="alert" className="mt-4 text-sm text-red-800">{ordersError}</p>}
+              <h3 className="mt-6 text-sm font-medium">Items</h3>
+              <div className="divide-y divide-neutral-200">{(selectedOrder.order_items ?? []).map(item => <div key={item.id} className="flex justify-between gap-4 py-4 text-sm"><div><p>{item.products?.name ?? "Removed product"}</p><p className="mt-1 text-neutral-600">Quantity: {item.quantity}{item.size ? " · Size: " + item.size : ""}{item.color ? " · Color: " + item.color : ""}</p></div><p>{fmt(Number(item.unit_price) * item.quantity)}</p></div>)}</div>
+              <h3 className="mt-6 text-sm font-medium">Demo shipping address</h3>
+              <address className="mt-2 whitespace-pre-line text-sm not-italic leading-6 text-neutral-700">{selectedOrder.shipping_address ? ["fullName", "address", "city", "postalCode", "phone"].map(key => selectedOrder.shipping_address?.[key]).filter(Boolean).join("\n") : "Not available for this order."}</address>
+              <p className="mt-5 text-sm">Payment: {selectedOrder.payment_method === "card_demo" ? "Demo card" : selectedOrder.payment_method === "cash_on_delivery" ? "Simulated cash on delivery" : "Not available"}</p>
+              <div className="mt-5 flex justify-between border-t border-neutral-200 pt-4 text-sm"><span>Total</span><strong>{fmt(Number(selectedOrder.total) || 0)}</strong></div>
+            </AdminDialog>}
           </div>
         )}
 
@@ -842,6 +806,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
               <h1 className="text-[20px] font-light text-neutral-800">Users</h1>
               <p className="text-[11px] text-neutral-400 mt-0.5">Manage user profiles</p>
             </div>
+            {profilesError && <div className="mb-5 border border-red-200 p-4"><p role="alert" className="text-sm text-red-800">{profilesError}</p><button onClick={fetchProfiles} className="mt-2 min-h-11 border-b border-neutral-500 text-sm">Retry users</button></div>}
             {profilesLoading ? (
               <div className="flex flex-col gap-2">{[1,2,3].map((i) => <div key={i} className="h-14 bg-neutral-100 animate-pulse" />)}</div>
             ) : (
@@ -860,7 +825,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                         <td className="px-4 py-3"><p className="text-[12px] font-medium text-neutral-800">{p.id}</p></td>
                         <td className="px-4 py-3"><span className="text-[11px] text-neutral-400">{p.full_name ?? '-'}</span></td>
                         <td className="px-4 py-3"><span className="text-[12px] text-neutral-700">{p.updated_at ? new Date(p.updated_at).toLocaleString() : '-'}</span></td>
-                        <td className="px-4 py-3 text-right"><button className="text-[10px] text-neutral-500 hover:text-neutral-800">View</button></td>
+                        <td className="px-4 py-3 text-right"><button onClick={() => setSelectedProfile(p)} className="min-h-11 px-3 text-xs text-neutral-700">View</button></td>
                       </tr>
                     ))}
                   </tbody>
@@ -900,26 +865,23 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
         )}
 
         {/* Reviews */}
-        {page === "reviews" && (
-          <div className="p-8">{/* reuse reviews UI area */}
-            <div className="mb-6">
-              <h1 className="text-[20px] font-light text-neutral-800">Reviews</h1>
-              <p className="text-[11px] text-neutral-400 mt-0.5">{reviews.length} reviews</p>
-            </div>
-            {reviewsError && <p className="mb-4 border border-red-200 bg-red-50 p-4 text-[12px] text-red-600">{reviewsError}</p>}
-            {reviewsLoading ? <div className="h-32 bg-neutral-100 animate-pulse" /> : reviews.length === 0 ? <div className="bg-white border border-neutral-100 p-6 text-[12px] text-neutral-400">No reviews found.</div> : <div className="space-y-3">{reviews.map((review) => <div key={review.id} className="bg-white border border-neutral-100 p-5"><div className="flex items-center justify-between"><p className="text-[12px] text-neutral-800">{review.name ?? "Customer review"}</p><span className="flex items-center gap-1 text-[11px] text-amber-500"><Star size={13} /> {review.rating}/5</span></div><p className="mt-3 text-[13px] leading-6 text-neutral-600">{review.comment}</p><p className="mt-3 text-[10px] text-neutral-400">{formatDate(review.created_at)}{review.admin_reply ? " · Replied" : " · Awaiting reply"}</p></div>)}</div>}
-          </div>
-        )}
+        {page === "reviews" && <AdminReviewQueue />}
 
         {/* Settings */}
         {page === "settings" && (
           <div className="p-8">
             <h1 className="text-[20px] font-light text-neutral-800 mb-2">Settings</h1>
-            <p className="text-[11px] text-neutral-400 mb-6">Site configuration and feature toggles.</p>
-            <div className="bg-white border border-neutral-100 divide-y divide-neutral-100"><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Storefront</p><p className="mt-2 text-[13px] text-neutral-800">zeouf Luxury Fashion &amp; Lifestyle</p></div><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Catalog</p><p className="mt-2 text-[13px] text-neutral-800">{products.length} products across {new Set(products.map((product) => product.category)).size} categories</p></div><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Database</p><p className="mt-2 text-[13px] text-emerald-700">Supabase connection configured</p></div></div>
+            <p className="text-[11px] text-neutral-400 mb-6">Read-only store summary. Connection status reflects the latest protected catalog request.</p>
+            <div className="bg-white border border-neutral-100 divide-y divide-neutral-100"><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Storefront</p><p className="mt-2 text-[13px] text-neutral-800">zeouf Luxury Fashion &amp; Lifestyle</p></div><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Catalog</p><p className="mt-2 text-[13px] text-neutral-800">{products.length} products across {new Set(products.map((product) => product.category)).size} categories</p></div><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Database</p><p className="mt-2 text-[13px] text-emerald-700">{loading ? "Checking catalog connection..." : productsError ? "Catalog connection unavailable. Refresh the dashboard to retry." : "Protected catalog request succeeded."}</p></div></div>
           </div>
         )}
 
+
+        {selectedProfile && <AdminDialog title="Customer profile" onClose={() => setSelectedProfile(null)}>
+          <dl className="space-y-4 text-sm"><div><dt className="text-neutral-500">Full name</dt><dd className="mt-1">{selectedProfile.full_name || "Not provided"}</dd></div><div><dt className="text-neutral-500">User ID</dt><dd className="mt-1 break-all">{selectedProfile.id}</dd></div><div><dt className="text-neutral-500">Profile updated</dt><dd className="mt-1">{selectedProfile.updated_at ? new Date(selectedProfile.updated_at).toLocaleString() : "Not available"}</dd></div></dl>
+          <p className="mt-6 text-sm text-neutral-600">Profile information is read-only. Email and account changes are not exposed here.</p>
+          <button onClick={() => { setOrderSearch(selectedProfile.id); setPage("orders"); setSelectedProfile(null); }} className="mt-5 min-h-11 border border-neutral-300 px-4 text-sm">View customer orders</button>
+        </AdminDialog>}
       </main>
     </div>
   );

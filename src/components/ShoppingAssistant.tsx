@@ -47,7 +47,7 @@ export default function ShoppingAssistant() {
   const currentCart = useRef(items);
   const nextId = useRef(1);
   const busy = useRef(false);
-  const failedHistory = useRef<{ history: ChatMessage[]; interaction?: AssistantInteraction } | null>(null);
+  const [failedHistory, setFailedHistory] = useState<{ history: ChatMessage[]; interaction?: AssistantInteraction } | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
@@ -65,7 +65,7 @@ export default function ShoppingAssistant() {
     controllers.current.clear();
     busy.current = false;
     confirmBusy.current = false;
-    failedHistory.current = null;
+    setFailedHistory(null);
     confirmedRef.current = new Set();
     setMessages([]); setDraft(""); setError(null); setLoading(false);
     setConfirmed(new Set()); setConfirming(null);
@@ -181,7 +181,7 @@ export default function ShoppingAssistant() {
     busy.current = true;
     setLoading(true);
     setError(null);
-    failedHistory.current = null;
+    setFailedHistory(null);
     const scope = generation.current;
     const controller = new AbortController();
     controllers.current.add(controller);
@@ -212,7 +212,7 @@ export default function ShoppingAssistant() {
       setMessages((prev) => [...prev, { id: nextId.current++, role: "assistant", content: reply.reply, products: reply.products, actions: reply.actions }]);
     } catch (caught) {
       if (generation.current !== scope) return;
-      failedHistory.current = { history, interaction };
+      setFailedHistory({ history, interaction });
       setError(controller.signal.aborted ? "The assistant took too long. Please try again." : caught instanceof Error && caught.message ? caught.message : "Something went wrong.");
     } finally {
       clearTimeout(timer); controllers.current.delete(controller);
@@ -246,7 +246,7 @@ export default function ShoppingAssistant() {
   const confirmAdd = async (messageId: number, action: AddToCartAction) => {
     const key = `${messageId}:${action.productId}`;
     if (confirmBusy.current || confirmedRef.current.has(key)) return;
-    confirmBusy.current = true; setConfirming(key); setError(null); failedHistory.current = null;
+    confirmBusy.current = true; setConfirming(key); setError(null); setFailedHistory(null);
     const scope = generation.current, owner = identity.current;
     const controller = new AbortController();
     controllers.current.add(controller);
@@ -384,7 +384,7 @@ export default function ShoppingAssistant() {
               {error && !loading && (
                 <div role="alert" className="assistant-error assistant-reveal" data-testid="assistant-error">
                   <p>{error}</p>
-                  {failedHistory.current && <button type="button" onClick={() => failedHistory.current && void request(failedHistory.current.history, failedHistory.current.interaction)} className="assistant-retry"><RotateCcw size={14} aria-hidden="true" /> Retry</button>}
+                  {failedHistory && <button type="button" onClick={() => void request(failedHistory.history, failedHistory.interaction)} className="assistant-retry"><RotateCcw size={14} aria-hidden="true" /> Retry</button>}
                 </div>
               )}
             </div>

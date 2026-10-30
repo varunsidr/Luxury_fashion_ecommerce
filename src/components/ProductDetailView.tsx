@@ -22,6 +22,7 @@ interface Review {
   admin_reply: string | null;
   replied_at: string | null;
   images?: string[];
+  displayImages?: string[];
 }
 
 interface SizeStock {
@@ -67,6 +68,8 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsLoadError, setReviewsLoadError] = useState("");
+  const [reviewsRetry, setReviewsRetry] = useState(0);
   const [reviewForm, setReviewForm] = useState({ name: "", rating: 0, comment: "" });
   const [reviewImages, setReviewImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -84,17 +87,6 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
         .eq("product_id", product.id);
       setSizeStocks(stockData ?? []);
 
-      // Reviews
-      setReviewsLoading(true);
-      const { data } = await supabase
-        .from("reviews")
-        .select("*")
-        .eq("product_id", product.id)
-        .eq("approved", true)
-        .order("created_at", { ascending: false });
-      setReviews(data ?? []);
-      setReviewsLoading(false);
-
       // Related products from the same category, for "Complete Your Look"
       const { data: related } = await supabase
         .from("products")
@@ -106,6 +98,24 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
     }
     fetchData();
   }, [product.id, mainCategory]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    let active = true;
+    async function loadReviews() {
+      setReviewsLoading(true); setReviewsLoadError("");
+      try {
+        const response = await fetch(`/api/reviews?productId=${encodeURIComponent(product.id)}`, { signal: controller.signal, cache: "no-store" });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? "Reviews could not be loaded.");
+        if (active) setReviews(result.reviews ?? []);
+      } catch { if (active) setReviewsLoadError("Reviews could not be loaded. Please retry."); }
+      finally { clearTimeout(timer); if (active) setReviewsLoading(false); }
+    }
+    void loadReviews();
+    return () => { active = false; clearTimeout(timer); controller.abort(); };
+  }, [product.id, reviewsRetry]);
 
   function getSizeStock(size: string) {
     return sizeStocks.find((s) => s.size === size)?.stock ?? 0;
@@ -145,11 +155,10 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
     }
   }
 
-  useEffect(() => {
-    if (availableStock !== null && availableStock > 0) {
-      setQuantity((current) => Math.min(current, availableStock));
-    }
-  }, [availableStock]);
+  // Keep the selected quantity valid before rendering a newly loaded stock limit.
+  if (availableStock !== null && availableStock > 0 && quantity > availableStock) {
+    setQuantity(availableStock);
+  }
 
   async function submitReview() {
     if (!reviewForm.name.trim() || !reviewForm.rating || !reviewForm.comment.trim()) return;
@@ -178,6 +187,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
         headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: product.id,
+          name: reviewForm.name.trim(),
           rating: reviewForm.rating,
           comment: reviewForm.comment.trim(),
           images: uploadedPaths ?? null,
@@ -577,6 +587,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
               <input
                 type="text"
                 value={reviewForm.name}
+                maxLength={120}
                 onChange={(e) => setReviewForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="Enter your name"
                 className="w-full border-b border-neutral-200 py-2 text-[13px] font-light placeholder:text-neutral-300 focus:outline-none focus:border-neutral-800 transition-colors bg-transparent"
@@ -672,7 +683,8 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
             </div>
           )}
 
-          {!reviewsLoading && reviews.length === 0 && (
+          {reviewsLoadError && <div className="mb-5 text-sm text-neutral-700"><p role="alert">{reviewsLoadError}</p><button onClick={() => setReviewsRetry(count => count + 1)} className="mt-2 min-h-11 border-b border-neutral-500 px-2">Retry reviews</button></div>}
+          {!reviewsLoading && !reviewsLoadError && reviews.length === 0 && (
             <p className="text-[13px] text-neutral-300 font-light">No reviews yet. Be the first to leave one.</p>
           )}
 
@@ -687,6 +699,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                   ))}
                 </div>
                 <p className="text-[13px] text-neutral-600 font-light leading-relaxed mb-3">&ldquo;{review.comment}&rdquo;</p>
+                {!!review.displayImages?.length && <div className="mb-4 flex flex-wrap gap-2">{review.displayImages.map((source, index) => <a key={source} href={source} target="_blank" rel="noreferrer" aria-label={`Open customer photo ${index + 1}`}><img src={source} alt={`Customer review photo ${index + 1}`} width={96} height={96} loading="lazy" className="h-24 w-24 object-cover" /></a>)}</div>}
                 {review.admin_reply && (
                   <div className="border-l-2 border-neutral-200 pl-3 mb-3">
                     <p className="text-[9px] tracking-[0.2em] text-neutral-400 uppercase mb-1">Store Reply</p>

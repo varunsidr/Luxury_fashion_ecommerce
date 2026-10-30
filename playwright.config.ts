@@ -4,7 +4,7 @@ import { defineConfig } from "@playwright/test";
 // Never reuse a server that might be connected to the user's actual database.
 export default defineConfig({
   testDir: "./tests",
-  testMatch: ["storefront.spec.ts", "admin.spec.ts"],
+  testMatch: ["storefront.spec.ts", "admin.spec.ts", "workflows.spec.ts"],
   timeout: 30_000,
   workers: 1,
   retries: 0,

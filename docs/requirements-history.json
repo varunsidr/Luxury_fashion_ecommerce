@@ -9329,5 +9329,1504 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AUTH-05",
+      "module": "Customer account",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Forgot Password shall require entered email and request a reset email; a complete new-password recovery screen/session handler is absent (G-02).",
+      "source_codes": "NAV",
+      "qa_focus": "No email, provider error, reset link and recovery completion",
+      "known_gap_ids": "G-02",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ORD-03",
+      "module": "Customer orders",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Selected size/color shall remain stored and should be visible in history/admin detail; the current views retrieve them but omit presentation (G-07).",
+      "source_codes": "HISTORY, ADMIN, DEMOMIG",
+      "qa_focus": "Variant persistence versus rendered detail",
+      "known_gap_ids": "G-07",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-01",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Review form requires nonblank displayed name/comment and stars; it sends a customer bearer token to the server review route, which stores a pending product/user/rating/comment and optional owned private image paths. Displayed name is still omitted from storage (G-03).",
+      "source_codes": "DETAIL, REVIEWSAPI, SECURITYMIG",
+      "qa_focus": "Missing fields, guest, rating 1/5, private path ownership, returned anonymous name, direct DB write denial",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-02",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Review upload accepts 1–3 JPEG/PNG/WebP files of 1 byte–2 MiB each for an authenticated user and existing product, checks file signatures, and limits each account to 10 upload requests per day. New files use the private review-images bucket created by the hardening migration; moderators use ten-minute signed URLs. Historical public files and orphan cleanup remain open.",
+      "source_codes": "DETAIL, REVIEWUPLOAD, MODPAGE, SECURITYMIG, RATELIMIT",
+      "qa_focus": "File count/size/signature, forged MIME, invalid token/product, account limit, private bucket, signed URL expiry",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-04",
+      "module": "Reviews and moderation",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Public review API and detail query show approved rows only; database SELECT allows approved reviews or the author's own pending rows, and customer review writes are revoked. Server creation forces pending. Applied-policy/live visibility remains to be verified (G-04).",
+      "source_codes": "DETAIL, REVIEWSAPI, SCHEMA, REVIEWMIG, SECURITYMIG",
+      "qa_focus": "Visitor/customer pending visibility, direct INSERT/UPDATE/DELETE denial, approval tampering, rating consistency",
+      "known_gap_ids": "G-04",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "REV-05",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Direct /admin/reviews shall list pending reviews and let a cookie-authenticated admin approve/delete; approval records moderation time and updates database approved aggregates.",
+      "source_codes": "MODPAGE, MODAPI, SCHEMA",
+      "qa_focus": "Valid/expired admin, approval/deletion, pending empty state",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-06",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin sidebar retrieves all reviews through the cookie-protected API and remains read-only; the separate pending page has moderation actions, and form results return JSON (G-05). Navigation/return flow remains incomplete.",
+      "source_codes": "ADMIN, MODPAGE, MODAPI",
+      "qa_focus": "Both entry paths, signed-cookie all-review list, form submission and return flow",
+      "known_gap_ids": "G-05",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "REV-07",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin shall be able to save/remove a reply and customers shall read persisted reply text; helper functions exist without visible reply controls and reply columns are missing from supplied schema/migrations (G-03, G-05).",
+      "source_codes": "ADMIN, DETAIL, SCHEMA, REVIEWMIG",
+      "qa_focus": "No false success, reply persistence, public display",
+      "known_gap_ids": "G-03; G-05; G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "ADM-02",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin catalog reads/saves/deletes/uploads shall require a signed admin cookie independent of the local UI flag; server service-role writes use validated routes and same-origin mutation guards. Migration restricts browser catalog/image writes. Unwired review-reply helpers still lack an admin server workflow (G-06); applied live permissions remain unverified.",
+      "source_codes": "ADMIN, ADMINAUTH, ADMINAPIS, ADMINCAT, SCHEMA",
+      "qa_focus": "Forged/expired/customer cookies, cross-site writes, storage/RPC privileges, remaining reply workflow",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AOR-03",
+      "module": "Admin orders and users",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "View shall open order detail with product/quantity/line totals/order total and status selector; valid status updates persist and appear in customer history on reload.",
+      "source_codes": "ADMIN, ADMINAPIS, HISTORY",
+      "qa_focus": "Open/close, update/reload, failed status change",
+      "known_gap_ids": "G-07",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AOR-04",
+      "module": "Admin orders and users",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Allowed status values are pending/processing/shipped/delivered/cancelled; server currently permits any transition among them and cancellation restores no stock. Lifecycle/stock semantics require decision (G-19).",
+      "source_codes": "ADMINAPIS, ADMIN",
+      "qa_focus": "Unsupported status, backward transition, cancellation",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "USR-02",
+      "module": "Admin orders and users",
+      "priority": "P2",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User View shall open profile detail only when implemented; current button has no handler. Editing, disabling, deleting or viewing user email are not supported flows.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Inert View control G-20",
+      "known_gap_ids": "G-20",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "SET-01",
+      "module": "Analytics and settings",
+      "priority": "P2",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Settings shall display store identity and catalog/category counts; database label is hardcoded. No configuration save, working feature toggles or live connectivity probe exists.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Read-only presentation, misleading connectivity G-21",
+      "known_gap_ids": "G-21",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Home/checkout/privacy/terms/footer/history/detail shall explain demo limits and stored demo data. Detail shipping and confirmation copy shall promise no actual charge, shipment, returns or support follow-up; confirmation also states no email. Fictional contact details are requested. Attribution/license inconsistency remains G-22.",
+      "source_codes": "HOME, INFO, FOOTER, HISTORY, DETAIL, CHECKOUTUI",
+      "qa_focus": "Content consistency, no fulfillment/support promises, fictional data guidance, remaining attribution gap",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "OPS-10",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run test:purchase shall apply base, checkout security, demo catalog, purchase safeguards and admin catalog migrations to isolated in-memory PGlite with minimal auth/storage fixtures. Nineteen cases cover replay/options/rollback/totals, catalog row synchronization, metadata-after-depletion, browser grant/policy denial, history after deletion, migration reapply and read-only inspector permission regressions. CI runs it before browser suites. One connection and mocked storage schema do not prove live Supabase/Auth/Storage or multi-session safety.",
+      "source_codes": "PURCHASETEST, UITEST, ADMINCAT",
+      "qa_focus": "19 scoped cases, no live cleanup/mutation, storage fixture limits, concurrency remains separate",
+      "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:27:21.516Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Tools shall read catalog facts, validate arguments and label authored text untrusted. Category filters match whole names or category prefixes/aliases, never men inside womens; subcategory phrases remain supported. Search/related returns at most eight products and replies at most three catalog-derived cards; invented IDs are dropped. Availability uses only configured sizes and their unique valid stock rows; missing/duplicate/retired rows never infer stock from the product total. Requested-size searches check that size. Demo contact-sheet products do not offer selectable colors, matching checkout. Server-rendered replies use tool-composed copy and catalog fields; raw model prose and descriptive instructions are never shown as factual answers. No-tool replies use a safe fallback. Recommendations remain cached for 30 seconds and model intent/tool selection still requires live evaluation (G-26).",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Men/women/legacy aliases/subcategory boundaries, size-stock rules, factual renderer, malicious model/product text, invented IDs, failed lookups, cache age",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:41.265Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "USR-02",
+      "module": "Admin orders and users",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "User View shall open a read-only native modal with full name, ID and profile update time. Escape/Close restores focus; View customer orders closes the dialog and selects Orders with that exact customer ID in search. Profile failures show Retry users. Email/edit/disable/delete are unsupported.",
+      "source_codes": "ADMIN, ORDERFLOW",
+      "qa_focus": "Dialog focus/keyboard/fallbacks, customer search, failed reads/retry, read-only boundary",
+      "known_gap_ids": "G-20",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-02",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Verified color options shall expose named swatches and applicable images; selected color accompanies cart line. Products under /demo-products/ shall hide colors and use one demo photograph.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Color/image correspondence, no-color/demo fixtures",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-05",
+      "module": "Customer account",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Forgot Password requires an entered email and requests a link to /reset-password with non-enumerating success copy. The recovery page verifies a Supabase user/session before offering new password and exact confirmation (8–128 characters in browser); mismatch makes no update. Provider errors preserve input; successful update clears passwords and signs out locally, with feedback if logout fails. Invalid/expired/missing sessions offer a fresh-link form; unconfigured fallback reports unavailable. Any verified current session can use this screen; it does not require a recovery-only token. Live email/redirect/provider policy remains G-02.",
+      "source_codes": "NAV, RECOVERY",
+      "qa_focus": "Missing email/config/session, expired/error links, mismatch, failed update/retry, success/signout, configured redirect/email",
+      "known_gap_ids": "G-02",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ORD-03",
+      "module": "Customer orders",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Saved size/color snapshots shall render on expanded customer order lines and admin order details when present, with deleted-product fallback. Admin detail also shows saved address/contact fields and demo payment method; historical absent fields use fallback copy.",
+      "source_codes": "HISTORY, ADMIN, DEMOMIG, ORDERFLOW",
+      "qa_focus": "Present/missing variants/address/method, reload, deleted product",
+      "known_gap_ids": "G-07",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-01",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Review form requires a nonblank display name of at most 120 trimmed characters, comment and integer stars 1–5. Verified bearer server creation stores the trimmed supplied name with pending product/user/rating/comment and optional owned private image paths. Workflow migration adds missing name/reply columns; historical names cannot be reconstructed. Direct customer writes remain denied.",
+      "source_codes": "DETAIL, REVIEWSAPI, SECURITYMIG, REVIEWFLOW",
+      "qa_focus": "Blank/oversized name, guest, rating bounds, owned paths, pending stored name, missing migration",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-02",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Review upload accepts 1–3 JPEG/PNG/WebP files of 1 byte–2 MiB each for an authenticated user and existing product, checks signatures, and limits each account to ten upload requests/day. New private review-images paths are validated against product/user ownership before ten-minute signed URLs are returned to moderators or public approved-review readers. Historical public files, signed-link access until expiry after unpublishing and orphan cleanup remain limits.",
+      "source_codes": "DETAIL, REVIEWUPLOAD, REVIEWFLOW, SECURITYMIG, RATELIMIT",
+      "qa_focus": "File boundaries, ownership, private bucket, signed expiry, unpublish/deletion access window, historical cleanup",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-04",
+      "module": "Reviews and moderation",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Public GET /api/reviews and product detail show up to 100 newest approved rows only, including saved names/replies and signed owned photos when service-role signing is configured. Public responses omit user IDs and raw stored paths; without a service role displayImages is empty. Detail uses an eight-second request limit and Retry reviews feedback on failure. Database allows approved reads or author-owned pending reads and denies customer writes; live migration/visibility remain G-04.",
+      "source_codes": "DETAIL, REVIEWSAPI, SECURITYMIG, REVIEWFLOW",
+      "qa_focus": "Approved-only, safe public fields, 100-row cap, no-service photos, failure/retry/timeout, live role checks",
+      "known_gap_ids": "G-04",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-05",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Cookie-authenticated admins shall approve, unpublish and delete reviews through protected server routes. Approval/unpublishing records moderator/time and updates approved aggregates. Mutations reject cross-site/origin mismatches and share 60 changes/admin/minute with unavailable production limiter failing closed. Missing reviews return 404, invalid updates 400/413, limited changes 429 and unavailable storage/configuration 503. Deletion retains private attachments.",
+      "source_codes": "MODPAGE, MODAPI, REVIEWFLOW, SCHEMA",
+      "qa_focus": "Cookie/origin/limit denial, missing ID, aggregate changes, error/retry, retained attachments",
+      "known_gap_ids": "G-05",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-06",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Direct /admin/reviews and the Reviews sidebar shall use the same queue, loading up to 200 latest reviews via status=all and filtering pending/approved/all locally. API accepts pending (default), approved or all and rejects unknown statuses. Queue shows errors/refresh and confirms deletion. Legacy approve/delete form routes redirect to /admin/reviews with 303 after success and retain safe JSON errors on failure.",
+      "source_codes": "ADMIN, MODPAGE, MODAPI, REVIEWFLOW",
+      "qa_focus": "Both entry paths, filters/caps, failure/refresh, deletion confirmation, legacy redirects",
+      "known_gap_ids": "G-05",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-07",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Admins shall save trimmed replies of 1–2000 characters or remove them with null through cookie-protected PATCH. Server records replied_at or clears it; approval/reply are the only accepted fields. Failed saves retain drafts and report failure; only persisted updates show success. Public replies appear only with approved reviews. Workflow migration supplies name/admin_reply/replied_at; applied environment remains unverified.",
+      "source_codes": "ADMIN, DETAIL, MODAPI, REVIEWFLOW",
+      "qa_focus": "Whitespace/length/unknown fields, save/remove/reload, failed draft retention, public approval boundary",
+      "known_gap_ids": "G-03; G-05; G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-02",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Catalog reads/saves/deletes/uploads and review moderation/replies shall require a signed admin cookie independent of local UI flags. Server service-role writes use validated routes and same-origin mutation guards; browser catalog/image/review writes are restricted by current migrations. Applied live role/storage permissions remain G-06.",
+      "source_codes": "ADMIN, ADMINAUTH, ADMINAPIS, ADMINCAT, REVIEWFLOW, SCHEMA",
+      "qa_focus": "Forged/expired/customer cookies, cross-site writes, service-only RPCs/storage, review replies and live grants",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-04",
+      "module": "Admin access and dashboard",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Dashboard shall show product/configured-stock/out-of-stock/low-stock counts including unsized low stock, up to five newest orders, inventory warning and quick links. Refresh/retry shall reload catalog/stock and orders; failed/loading inventory metrics show an unavailable dash and failed order reads do not show a successful empty state. Add a product shall open its form.",
+      "source_codes": "ADMIN, ADMINCAT, ADMINAPIS",
+      "qa_focus": "Known sized/unsized counts, newest five, failed reads versus empty, refresh, working Add product",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-02",
+      "module": "Admin product management",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Add/edit shall persist validated name/category/price/description/sizes/main image/image list through server-only catalog routes and save_admin_product. Initial unsized stock can be supplied on create; existing quantities are changed only on Stock Management. Failed writes keep the form and values, release saving state and show a safe error.",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "Create/edit/reload, denied writes, retained fields, retry, stale metadata form versus checkout",
+      "known_gap_ids": "G-06; G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AOR-03",
+      "module": "Admin orders and users",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "View shall open a native modal dialog showing customer, products, quantities, saved size/color, totals, saved shipping/contact address and demo payment method. Escape/Close restores trigger focus. Only current and permitted next statuses are offered, terminal selectors are disabled and updates block duplicates. Failed status changes remain visible without claiming success; successful cancellation refreshes inventory.",
+      "source_codes": "ADMIN, ADMINAPIS, HISTORY, ORDERFLOW",
+      "qa_focus": "Keyboard/focus, present/missing fields, allowed statuses, failed update, cancellation inventory refresh",
+      "known_gap_ids": "G-07",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AOR-04",
+      "module": "Admin orders and users",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Service-only set_admin_order_status shall allow pending→processing/cancelled, processing→shipped/cancelled, shipped→delivered; delivered/cancelled are terminal. Repeating the current status is idempotent. Order/product locking makes pre-shipment cancellation restore configured size or unsized quantities once and set stock_restored_at. Missing/deleted products are skipped; incompatible changed size configuration aborts all restoration/status writes with 409. Historic already-cancelled rows are not retroactively restocked. Invalid transitions return 409, absent order 404, unavailable RPC 503; API mutations require same origin and 60 changes/admin/minute. Live concurrency/application remain G-19.",
+      "source_codes": "ADMINAPIS, ADMIN, ORDERFLOW, PURCHASETEST",
+      "qa_focus": "Forward/backward/terminal/repeated changes, shared colors, unsized/configured totals, atomic rollback, deleted/historical rows, privileges and live races",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "USR-02",
+      "module": "Admin orders and users",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "User View shall open a read-only native modal with full name, ID and profile update time. Escape/Close restores focus; View customer orders closes the dialog and selects Orders with that exact customer ID in search. Profile failures show Retry users. Email/edit/disable/delete are unsupported.",
+      "source_codes": "ADMIN, ORDERFLOW",
+      "qa_focus": "Dialog focus/keyboard/fallbacks, customer search, failed reads/retry, read-only boundary",
+      "known_gap_ids": "G-15; G-20",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "SET-01",
+      "module": "Analytics and settings",
+      "priority": "P2",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Settings shall show a read-only identity/catalog summary and status of the latest protected catalog request: checking, succeeded or unavailable with dashboard retry guidance. This is not a database-wide health probe; no configuration save or feature toggles exist.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Successful/failed/loading protected request, honest read-only/status copy",
+      "known_gap_ids": "G-21",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Home/checkout/privacy/terms/footer/history/detail shall explain demo limits and stored demo data. No charge, shipment, returns or support follow-up is promised; fictional details are requested. Privacy describes publicly approved review names/photos/replies, private photo storage, ten-minute signed links and attachment retention after review deletion. Attribution/license inconsistency remains G-22.",
+      "source_codes": "HOME, INFO, FOOTER, HISTORY, DETAIL, CHECKOUTUI, REVIEWFLOW",
+      "qa_focus": "Content consistency, fictional data, approved photos/names/replies, expiry/retention, attribution gap",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "UI/admin, catalog and assistant Chromium suites run sequentially on dedicated servers with disabled live Supabase service-role/mail/model credentials, no server reuse, separate artifacts and isolated compilation cache. Catalog and assistant browser fixtures intercept reserved .invalid Supabase domains; assistant tool tests use injected stores or local fallback data. Fictional local sessions exercise auth notifications without real accounts. Mocks/local cookies are not live integration acceptance.",
+      "source_codes": "UITEST, REQTOOLS, ADMINCAT, ASSIST",
+      "qa_focus": "Disabled live services, intercepted fictional auth/catalog, sequential suites/cache isolation, CI artifacts/review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-10",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "test:purchase applies base, checkout security, demo catalog, purchase safeguards, admin catalog, order lifecycle and review workflow migrations to isolated PGlite with minimal auth/storage fixtures. Twenty-six cases cover replay/options/rollback/totals, catalog synchronization/grants, lifecycle forward/idempotent transitions, cancellation restoration/rollback/deleted/historical products, service-only permissions and migration reapply. Single-connection mocked storage does not prove live Auth/Storage or concurrent sessions.",
+      "source_codes": "PURCHASETEST, UITEST, ADMINCAT, ORDERFLOW, REVIEWFLOW",
+      "qa_focus": "26 scoped cases, no live mutations, role/rollback/reapply assertions, live concurrency remains separate",
+      "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-11",
+      "module": "Content and operational utilities",
+      "priority": "P2",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run audit:storefront collects a read-only unauthenticated Chromium/axe report at desktop/390px/320px widths for configured origin/paths, defaulting to the public storefront. It blocks attempted mutations/helpers/logout, records accessibility flags, overflow, image sizing and unthrottled lab timing. Strict mode fails errors/non-200/writes/overflow/axe findings; collection without strict is not a passing quality test. Reports use test-results/quality/storefront-audit.json.",
+      "source_codes": "QUALITY",
+      "qa_focus": "Origin/path validation, guarded reads, strict failure, report scope; no field performance or WCAG conformance claim",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Tools shall read catalog facts, validate arguments and label authored text untrusted. Category filters match whole names or category prefixes/aliases, never men inside womens; subcategory phrases remain supported. Search uses normalized whole words with common singular/plural handling. Exact results require every query keyword in product name/category/brand/tag/configured color fields; description-only matches remain alternatives. Full matches exclude partial matches; absent full matches return relevant partial matches with “couldn't find an exact match” and “similar products you may like” copy including the query. Alternatives retain explicit category, budget, size, color and stock filters; no relevant candidate gives an empty result and filter guidance. Prompt/tool instructions preserve requested product type/keywords instead of silently broadening; real-provider routing remains G-26. Search/related returns at most eight products and replies at most three catalog-derived cards; invented IDs are dropped. Availability uses only configured sizes and their unique valid stock rows; missing/duplicate/retired rows never infer stock from the product total. Requested-size searches check that size. Demo contact-sheet products do not offer selectable colors, matching checkout. Server-rendered replies use tool-composed copy and catalog fields; raw model prose and descriptive instructions are never shown as factual answers. No-tool replies use a safe fallback. Recommendations remain cached for 30 seconds and model intent/tool selection still requires live evaluation (G-26).",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Men/women/legacy aliases/subcategory boundaries, size-stock rules, exact-versus-similar cargo shorts/jeans, preserved filters, whole-word/plural matching, factual renderer, malicious model/product text, invented IDs, failed lookups, cache age",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:35:42.005Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry, pending product navigation with exact destination and browser/server timing correlation",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:41:26.094Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "UI/admin, catalog and assistant Chromium suites run sequentially on dedicated servers with disabled live Supabase service-role/mail/model credentials, no server reuse, separate artifacts and isolated compilation cache. Catalog and assistant browser fixtures intercept reserved .invalid Supabase domains; assistant tool tests use injected stores or local fallback data. Fictional local sessions exercise auth notifications without real accounts. Mocks/local cookies are not live integration acceptance.",
+      "source_codes": "UITEST, REQTOOLS, ADMINCAT, ASSIST",
+      "qa_focus": "Disabled live services, intercepted fictional auth/catalog, sequential suites/cache isolation, CI artifacts/review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:41:27.117Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-04",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Price filters shall apply inclusive displayed-currency min/max bounds through two sliders and suggested Under tiers; sliders shall not cross; currency changes clear price bounds.",
+      "source_codes": "LIST, CURRENCY",
+      "qa_focus": "Boundary prices, tier rounding, currency change",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:41:27.117Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-07",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall initially reveal at most 24 matches and load 24 more per click; count shall say Showing {visible} of {matching} products, following filters and the final batch. Changing brand, size, stock-only or either price bound, including clearing filters, shall reset the reveal limit to 24. After revealing all 49 products, applying a brand matching 30 shall show 24 cards, Showing 24 of 30 products and Load More; the next click reveals the remaining six and hides Load More. Pending requests show Loading collection, distinct from genuine empty collections and no-filter-match results.",
+      "source_codes": "LIST, UITEST",
+      "qa_focus": "Pending request, 0/1/24/25/48/49 products, count text, final batch, each filter reset, removing filters, clear all, 49-to-30 brand regression",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:41:27.117Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-04",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Detail quantity shall start at one, not decrease below one, clamp to known positive available stock, and disable add/increase when the known limit is reached.",
+      "source_codes": "DETAIL",
+      "qa_focus": "1, stock limit, size change, unknown stock",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:41:27.117Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-06",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Direct /admin/reviews and the Reviews sidebar shall use the same queue, loading up to 200 latest reviews via status=all and filtering pending/approved/all locally. API accepts pending (default), approved or all and rejects unknown statuses. Queue shows errors/refresh and confirms deletion. Legacy approve/delete form routes redirect to /admin/reviews with 303 after success and retain safe JSON errors on failure.",
+      "source_codes": "ADMIN, MODPAGE, MODAPI, REVIEWFLOW",
+      "qa_focus": "Both entry paths, filters/caps, failure/refresh, deletion confirmation, legacy redirects",
+      "known_gap_ids": "G-05",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:41:27.117Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "UI/admin, catalog and assistant Chromium suites run sequentially on dedicated servers with disabled live Supabase service-role/mail/model credentials, no server reuse, separate artifacts and isolated compilation output. ISOLATED_BROWSER_TESTS=1 disables persistent Turbopack development caching to avoid stale HMR output across changed fixture configurations/source; ordinary development and production cache settings retain defaults. Catalog/assistant browser fixtures intercept reserved .invalid Supabase domains; tool tests use injected stores or fallback data. Fictional sessions exercise auth notifications without real accounts. Mocks/local cookies are not live acceptance.",
+      "source_codes": "UITEST, REQTOOLS, ADMINCAT, ASSIST, ROUTE",
+      "qa_focus": "Disabled live services, fresh fixture compilation after source/config change, sequential suites, artifacts/review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:41:27.117Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-01",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Every non-admin page shows a bottom-right Ask Zeouf launcher opening a non-modal panel named Zeouf Shopping Assistant. Warm neutral surfaces, wine/brown accents, editorial typography, a product/size/bag welcome and icon suggestions match the store. AI-answer warning and privacy reminder stay visible in the footer. Escape closes and restores launcher focus; opening focuses input; Enter sends, Shift+Enter inserts a newline and IME composition does not submit. Messages are escaped, duplicate sends blocked and errors offer applicable Retry. New conversation clears chat/comparisons/pending work and returns the log to the welcome top. Confirm success offers View bag, closing chat and opening the existing drawer.",
+      "source_codes": "ASSIST, SHELL",
+      "qa_focus": "Welcome/copy/privacy, focus/keyboard/IME, mobile layout, escaped HTML, retry/reset/top position, View bag, no admin launcher",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:41:27.117Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-07",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Widget conversations, reference IDs, failed retry history, comparisons, proposals and confirmation flags reset on identity change; same-account token refresh preserves chat. Reset/unmount cancels browser requests and ignores older-generation responses. Outgoing history is capped to the last 12 entries with at most 1,000 characters each; browser waits end after 45 seconds for chat or 15 seconds for confirmation, outside the shorter AST-02 server deadlines. No conversation is persisted by the app.",
+      "source_codes": "ASSIST",
+      "qa_focus": "Logout/switch, reference/comparison cleanup, late responses, token refresh, reset/unmount, bounded history, action retry",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-04",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Price filters shall apply inclusive displayed-currency min/max bounds through two sliders and suggested Under tiers; sliders shall not cross; currency changes clear price bounds.",
+      "source_codes": "LIST, CURRENCY",
+      "qa_focus": "Boundary prices, tier rounding, currency change",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CAT-07",
+      "module": "Catalog listing",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Listing shall initially reveal at most 24 matches and load 24 more per click; count shall say Showing {visible} of {matching} products, following filters and the final batch. Changing brand, size, stock-only or either price bound, including clearing filters, shall reset the reveal limit to 24. After revealing all 49 products, applying a brand matching 30 shall show 24 cards, Showing 24 of 30 products and Load More; the next click reveals the remaining six and hides Load More. Pending requests show Loading collection, distinct from genuine empty collections and no-filter-match results.",
+      "source_codes": "LIST, UITEST",
+      "qa_focus": "Pending request, 0/1/24/25/48/49 products, count text, final batch, each filter reset, removing filters, clear all, 49-to-30 brand regression",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-04",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Detail quantity shall start at one, not decrease below one, clamp to known positive available stock, and disable add/increase when the known limit is reached.",
+      "source_codes": "DETAIL",
+      "qa_focus": "1, stock limit, size change, unknown stock",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-05",
+      "module": "Customer account",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Forgot Password requires an entered email and requests a link to /reset-password with non-enumerating success copy. The recovery page verifies a Supabase user/session before offering new password and exact confirmation (8–128 characters in browser); mismatch makes no update. Provider errors preserve input; successful update clears passwords and signs out locally, with feedback if logout fails. Invalid/expired/missing sessions offer a fresh-link form; unconfigured fallback reports unavailable. Any verified current session can use this screen; it does not require a recovery-only token. Live email/redirect/provider policy remains G-02.",
+      "source_codes": "NAV, RECOVERY",
+      "qa_focus": "Missing email/config/session, expired/error links, mismatch, failed update/retry, success/signout, configured redirect/email",
+      "known_gap_ids": "G-02",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ORD-03",
+      "module": "Customer orders",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Saved size/color snapshots shall render on expanded customer order lines and admin order details when present, with deleted-product fallback. Admin detail also shows saved address/contact fields and demo payment method; historical absent fields use fallback copy.",
+      "source_codes": "HISTORY, ADMIN, DEMOMIG, ORDERFLOW",
+      "qa_focus": "Present/missing variants/address/method, reload, deleted product",
+      "known_gap_ids": "G-07",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-01",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Review form requires a nonblank display name of at most 120 trimmed characters, comment and integer stars 1–5. Verified bearer server creation stores the trimmed supplied name with pending product/user/rating/comment and optional owned private image paths. Workflow migration adds missing name/reply columns; historical names cannot be reconstructed. Direct customer writes remain denied.",
+      "source_codes": "DETAIL, REVIEWSAPI, SECURITYMIG, REVIEWFLOW",
+      "qa_focus": "Blank/oversized name, guest, rating bounds, owned paths, pending stored name, missing migration",
+      "known_gap_ids": "G-03",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-02",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Review upload accepts 1–3 JPEG/PNG/WebP files of 1 byte–2 MiB each for an authenticated user and existing product, checks signatures, and limits each account to ten upload requests/day. New private review-images paths are validated against product/user ownership before ten-minute signed URLs are returned to moderators or public approved-review readers. Historical public files, signed-link access until expiry after unpublishing and orphan cleanup remain limits.",
+      "source_codes": "DETAIL, REVIEWUPLOAD, REVIEWFLOW, SECURITYMIG, RATELIMIT",
+      "qa_focus": "File boundaries, ownership, private bucket, signed expiry, unpublish/deletion access window, historical cleanup",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-04",
+      "module": "Reviews and moderation",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Public GET /api/reviews and product detail show up to 100 newest approved rows only, including saved names/replies and signed owned photos when service-role signing is configured. Public responses omit user IDs and raw stored paths; without a service role displayImages is empty. Detail uses an eight-second request limit and Retry reviews feedback on failure. Database allows approved reads or author-owned pending reads and denies customer writes; live migration/visibility remain G-04.",
+      "source_codes": "DETAIL, REVIEWSAPI, SECURITYMIG, REVIEWFLOW",
+      "qa_focus": "Approved-only, safe public fields, 100-row cap, no-service photos, failure/retry/timeout, live role checks",
+      "known_gap_ids": "G-04",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-05",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Cookie-authenticated admins shall approve, unpublish and delete reviews through protected server routes. Approval/unpublishing records moderator/time and updates approved aggregates. Mutations reject cross-site/origin mismatches and share 60 changes/admin/minute with unavailable production limiter failing closed. Missing reviews return 404, invalid updates 400/413, limited changes 429 and unavailable storage/configuration 503. Deletion retains private attachments.",
+      "source_codes": "MODPAGE, MODAPI, REVIEWFLOW, SCHEMA",
+      "qa_focus": "Cookie/origin/limit denial, missing ID, aggregate changes, error/retry, retained attachments",
+      "known_gap_ids": "G-05",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-06",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Direct /admin/reviews and the Reviews sidebar shall use the same queue, loading up to 200 latest reviews via status=all and filtering pending/approved/all locally. API accepts pending (default), approved or all and rejects unknown statuses. Queue shows errors/refresh and confirms deletion. Legacy approve/delete form routes redirect to /admin/reviews with 303 after success and retain safe JSON errors on failure.",
+      "source_codes": "ADMIN, MODPAGE, MODAPI, REVIEWFLOW",
+      "qa_focus": "Both entry paths, filters/caps, failure/refresh, deletion confirmation, legacy redirects",
+      "known_gap_ids": "G-05",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "REV-07",
+      "module": "Reviews and moderation",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Admins shall save trimmed replies of 1–2000 characters or remove them with null through cookie-protected PATCH. Server records replied_at or clears it; approval/reply are the only accepted fields. Failed saves retain drafts and report failure; only persisted updates show success. Public replies appear only with approved reviews. Workflow migration supplies name/admin_reply/replied_at; applied environment remains unverified.",
+      "source_codes": "ADMIN, DETAIL, MODAPI, REVIEWFLOW",
+      "qa_focus": "Whitespace/length/unknown fields, save/remove/reload, failed draft retention, public approval boundary",
+      "known_gap_ids": "G-03; G-05; G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-02",
+      "module": "Admin access and dashboard",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Catalog reads/saves/deletes/uploads and review moderation/replies shall require a signed admin cookie independent of local UI flags. Server service-role writes use validated routes and same-origin mutation guards; browser catalog/image/review writes are restricted by current migrations. Applied live role/storage permissions remain G-06.",
+      "source_codes": "ADMIN, ADMINAUTH, ADMINAPIS, ADMINCAT, REVIEWFLOW, SCHEMA",
+      "qa_focus": "Forged/expired/customer cookies, cross-site writes, service-only RPCs/storage, review replies and live grants",
+      "known_gap_ids": "G-06",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ADM-04",
+      "module": "Admin access and dashboard",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Dashboard shall show product/configured-stock/out-of-stock/low-stock counts including unsized low stock, up to five newest orders, inventory warning and quick links. Refresh/retry shall reload catalog/stock and orders; failed/loading inventory metrics show an unavailable dash and failed order reads do not show a successful empty state. Add a product shall open its form.",
+      "source_codes": "ADMIN, ADMINCAT, ADMINAPIS",
+      "qa_focus": "Known sized/unsized counts, newest five, failed reads versus empty, refresh, working Add product",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AOR-03",
+      "module": "Admin orders and users",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "View shall open a native modal dialog showing customer, products, quantities, saved size/color, totals, saved shipping/contact address and demo payment method. Escape/Close restores trigger focus. Only current and permitted next statuses are offered, terminal selectors are disabled and updates block duplicates. Failed status changes remain visible without claiming success; successful cancellation refreshes inventory.",
+      "source_codes": "ADMIN, ADMINAPIS, HISTORY, ORDERFLOW",
+      "qa_focus": "Keyboard/focus, present/missing fields, allowed statuses, failed update, cancellation inventory refresh",
+      "known_gap_ids": "G-07",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AOR-04",
+      "module": "Admin orders and users",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Service-only set_admin_order_status shall allow pending→processing/cancelled, processing→shipped/cancelled, shipped→delivered; delivered/cancelled are terminal. Repeating the current status is idempotent. Order/product locking makes pre-shipment cancellation restore configured size or unsized quantities once and set stock_restored_at. Missing/deleted products are skipped; incompatible changed size configuration aborts all restoration/status writes with 409. Historic already-cancelled rows are not retroactively restocked. Invalid transitions return 409, absent order 404, unavailable RPC 503; API mutations require same origin and 60 changes/admin/minute. Live concurrency/application remain G-19.",
+      "source_codes": "ADMINAPIS, ADMIN, ORDERFLOW, PURCHASETEST",
+      "qa_focus": "Forward/backward/terminal/repeated changes, shared colors, unsized/configured totals, atomic rollback, deleted/historical rows, privileges and live races",
+      "known_gap_ids": "G-19",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "USR-02",
+      "module": "Admin orders and users",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "User View shall open a read-only native modal with full name, ID and profile update time. Escape/Close restores focus; View customer orders closes the dialog and selects Orders with that exact customer ID in search. Profile failures show Retry users. Email/edit/disable/delete are unsupported.",
+      "source_codes": "ADMIN, ORDERFLOW",
+      "qa_focus": "Dialog focus/keyboard/fallbacks, customer search, failed reads/retry, read-only boundary",
+      "known_gap_ids": "G-15; G-20",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "SET-01",
+      "module": "Analytics and settings",
+      "priority": "P2",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Settings shall show a read-only identity/catalog summary and status of the latest protected catalog request: checking, succeeded or unavailable with dashboard retry guidance. This is not a database-wide health probe; no configuration save or feature toggles exist.",
+      "source_codes": "ADMIN",
+      "qa_focus": "Successful/failed/loading protected request, honest read-only/status copy",
+      "known_gap_ids": "G-21",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CNT-03",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "D",
+      "requirement_and_acceptance": "Home/checkout/privacy/terms/footer/history/detail shall explain demo limits and stored demo data. No charge, shipment, returns or support follow-up is promised; fictional details are requested. Privacy describes publicly approved review names/photos/replies, private photo storage, ten-minute signed links and attachment retention after review deletion. Attribution/license inconsistency remains G-22.",
+      "source_codes": "HOME, INFO, FOOTER, HISTORY, DETAIL, CHECKOUTUI, REVIEWFLOW",
+      "qa_focus": "Content consistency, fictional data, approved photos/names/replies, expiry/retention, attribution gap",
+      "known_gap_ids": "G-22",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-07",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "UI/admin, catalog and assistant Chromium suites run sequentially on dedicated servers with disabled live Supabase service-role/mail/model credentials, no server reuse, separate artifacts and isolated compilation output. ISOLATED_BROWSER_TESTS=1 disables persistent Turbopack development caching to avoid stale HMR output across changed fixture configurations/source; ordinary development and production cache settings retain defaults. Catalog/assistant browser fixtures intercept reserved .invalid Supabase domains; tool tests use injected stores or fallback data. Fictional sessions exercise auth notifications without real accounts. Mocks/local cookies are not live acceptance.",
+      "source_codes": "UITEST, REQTOOLS, ADMINCAT, ASSIST, ROUTE",
+      "qa_focus": "Disabled live services, fresh fixture compilation after source/config change, sequential suites, artifacts/review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-10",
+      "module": "Content and operational utilities",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "test:purchase applies base, checkout security, demo catalog, purchase safeguards, admin catalog, order lifecycle and review workflow migrations to isolated PGlite with minimal auth/storage fixtures. Twenty-six cases cover replay/options/rollback/totals, catalog synchronization/grants, lifecycle forward/idempotent transitions, cancellation restoration/rollback/deleted/historical products, service-only permissions and migration reapply. Single-connection mocked storage does not prove live Auth/Storage or concurrent sessions.",
+      "source_codes": "PURCHASETEST, UITEST, ADMINCAT, ORDERFLOW, REVIEWFLOW",
+      "qa_focus": "26 scoped cases, no live mutations, role/rollback/reapply assertions, live concurrency remains separate",
+      "known_gap_ids": "G-18",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "OPS-11",
+      "module": "Content and operational utilities",
+      "priority": "P2",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "npm run audit:storefront collects a read-only unauthenticated Chromium/axe report at desktop/390px/320px widths for configured origin/paths, defaulting to the public storefront. It blocks attempted mutations/helpers/logout, records accessibility flags, overflow, image sizing and unthrottled lab timing. Strict mode fails errors/non-200/writes/overflow/axe findings; collection without strict is not a passing quality test. Reports use test-results/quality/storefront-audit.json.",
+      "source_codes": "QUALITY",
+      "qa_focus": "Origin/path validation, guarded reads, strict failure, report scope; no field performance or WCAG conformance claim",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-01",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Every non-admin page shows a bottom-right Ask Zeouf launcher opening a non-modal panel named Zeouf Shopping Assistant. Warm neutral surfaces, wine/brown accents, editorial typography, a product/size/bag welcome and icon suggestions match the store. AI-answer warning and privacy reminder stay visible in the footer. Escape closes and restores launcher focus; opening focuses input; Enter sends, Shift+Enter inserts a newline and IME composition does not submit. Messages are escaped, duplicate sends blocked and errors offer applicable Retry. New conversation clears chat/comparisons/pending work and returns the log to the welcome top. Confirm success offers View bag, closing chat and opening the existing drawer.",
+      "source_codes": "ASSIST, SHELL",
+      "qa_focus": "Welcome/copy/privacy, focus/keyboard/IME, mobile layout, escaped HTML, retry/reset/top position, View bag, no admin launcher",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-03",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Tools shall read catalog facts, validate arguments and label authored text untrusted. Category filters match whole names or category prefixes/aliases, never men inside womens; subcategory phrases remain supported. Search uses normalized whole words with common singular/plural handling. Exact results require every query keyword in product name/category/brand/tag/configured color fields; description-only matches remain alternatives. Full matches exclude partial matches; absent full matches return relevant partial matches with “couldn't find an exact match” and “similar products you may like” copy including the query. Alternatives retain explicit category, budget, size, color and stock filters; no relevant candidate gives an empty result and filter guidance. Prompt/tool instructions preserve requested product type/keywords instead of silently broadening; real-provider routing remains G-26. Search/related returns at most eight products and replies at most three catalog-derived cards; invented IDs are dropped. Availability uses only configured sizes and their unique valid stock rows; missing/duplicate/retired rows never infer stock from the product total. Requested-size searches check that size. Demo contact-sheet products do not offer selectable colors, matching checkout. Server-rendered replies use tool-composed copy and catalog fields; raw model prose and descriptive instructions are never shown as factual answers. No-tool replies use a safe fallback. Recommendations remain cached for 30 seconds and model intent/tool selection still requires live evaluation (G-26).",
+      "source_codes": "ASSIST, CATDEF",
+      "qa_focus": "Men/women/legacy aliases/subcategory boundaries, size-stock rules, exact-versus-similar cargo shorts/jeans, preserved filters, whole-word/plural matching, factual renderer, malicious model/product text, invented IDs, failed lookups, cache age",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-10-30T17:44:49.019Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-07",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Widget conversations, reference IDs, failed retry history, comparisons, proposals and confirmation flags reset on identity change; same-account token refresh preserves chat. Reset/unmount cancels browser requests and ignores older-generation responses. Outgoing history is capped to the last 12 entries with at most 1,000 characters each; browser waits end after 45 seconds for chat or 15 seconds for confirmation, outside the shorter AST-02 server deadlines. No conversation is persisted by the app.",
+      "source_codes": "ASSIST",
+      "qa_focus": "Logout/switch, reference/comparison cleanup, late responses, token refresh, reset/unmount, bounded history, action retry",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

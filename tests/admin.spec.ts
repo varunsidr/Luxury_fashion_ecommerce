@@ -137,6 +137,8 @@ async function dashboard(page: Page, products = [{ id, ...input, created_at: "20
 }
 
 test("dashboard counts unsized low stock and excludes cancelled demo value and unapproved ratings", async ({ page }) => {
+  const pageErrors: Error[] = [];
+  page.on("pageerror", error => pageErrors.push(error));
   await dashboard(page);
   await expect(page.getByText("Low Stock", { exact: true }).locator("..").locator("..")).toContainText("1");
   await expect(page.getByText("Active demo order value", { exact: true }).locator("..")).toContainText("1,000");
@@ -146,6 +148,7 @@ test("dashboard counts unsized low stock and excludes cancelled demo value and u
   await page.getByRole("button", { name: "Analytics", exact: true }).click();
   await expect(page.locator("section").filter({ has: page.getByRole("heading", { name: "Customer signal", exact: true }) })).toContainText("4.0");
   await expect(page.getByText("1 approved reviews")).toBeVisible();
+  expect(pageErrors).toEqual([]);
 });
 
 test("failed product save preserves the form and supports a successful retry", async ({ page }) => {

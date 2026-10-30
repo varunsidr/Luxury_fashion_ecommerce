@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyToken } from "@/lib/adminAuth";
+import { isRateLimited } from "@/lib/rateLimit";
 
 function isAdmin(request: Request) {
   const cookie = request.headers.get("cookie") ?? "";
@@ -34,23 +35,30 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  if (!isAdmin(request)) return unauthorized();
+  const admin = isAdmin(request);
+  if (!admin) return unauthorized();
+  const origin = request.headers.get("origin");
+  if (request.headers.get("sec-fetch-site") === "cross-site" || origin && origin !== new URL(request.url).origin) return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+  const limited = await isRateLimited(`admin-orders:${admin.adminId}`, 60, 60_000);
+  if (limited === null) return NextResponse.json({ error: "Order updates are temporarily unavailable." }, { status: 503 });
+  if (limited) return NextResponse.json({ error: "Too many changes. Please wait." }, { status: 429 });
   const supabase = adminClient();
   if (!supabase) return NextResponse.json({ error: "missing Supabase configuration" }, { status: 500 });
 
   const body = await request.json().catch(() => ({}));
   const allowedStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
-  if (!allowedStatuses.includes(body.status) || typeof body.id !== "string") {
+  if (!allowedStatuses.includes(body.status) || typeof body.id !== "string" || !/^[0-9a-f-]{36}$/i.test(body.id)) {
     return NextResponse.json({ error: "invalid order status or id" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
-    .from("orders")
-    .update({ status: body.status })
-    .eq("id", body.id)
-    .select()
-    .single();
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ order: data });
+  try {
+    const { data, error } = await supabase.rpc("set_admin_order_status", { p_order_id: body.id, p_status: body.status });
+    if (error) {
+      if (error.message.includes("ORDER_NOT_FOUND")) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+      if (error.message.includes("INVALID_TRANSITION")) return NextResponse.json({ error: "This status change is no longer allowed. Refresh the order." }, { status: 409 });
+      if (error.message.includes("INVENTORY_CONFIGURATION_CHANGED")) return NextResponse.json({ error: "Product sizes changed after purchase. Reconcile the original inventory configuration before cancelling." }, { status: 409 });
+      return NextResponse.json({ error: "Could not update the order. Check the order lifecycle migration and retry." }, { status: 503 });
+    }
+    return NextResponse.json({ order: data }, { headers: { "Cache-Control": "no-store" } });
+  } catch { return NextResponse.json({ error: "Order updates are temporarily unavailable." }, { status: 503 }); }
 }

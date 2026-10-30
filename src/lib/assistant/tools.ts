@@ -107,7 +107,20 @@ function findProduct(products: Product[], idOrSlug: string): Product | undefined
 
 const STOP_WORDS = new Set(["a", "an", "the", "for", "me", "show", "find", "i", "want", "need", "some", "any", "with", "in", "of", "and", "to", "please", "something", "under", "below", "over", "than"]);
 
-const tokens = (value: string) => normalizeCatalogText(value).split(/[^a-z0-9]+/).filter((token) => token && !STOP_WORDS.has(token));
+const tokens = (value: string) => normalizeCatalogText(value).split(/[^a-z0-9]+/)
+  .filter((token) => token && !STOP_WORDS.has(token))
+  .map((token) => /(?:ss|sh|ch|x|z)es$/.test(token) ? token.slice(0, -2)
+    : token.length > 3 && token.endsWith("s") && !token.endsWith("ss") ? token.slice(0, -1) : token);
+
+// Match whole words in product identity fields. Description prose can mention
+// other garment types and must not make jeans an exact match for shorts.
+function searchFields(product: Product): [Set<string>, number][] {
+  return [
+    [new Set(tokens(product.name)), 4], [new Set(tokens(product.category)), 3],
+    [new Set(tokens(product.brand ?? "")), 2], [new Set(tokens(product.tag ?? "")), 1],
+    [new Set(tokens(configuredColors(product).map((color) => color.name).join(" "))), 2],
+  ];
+}
 
 function mainCategoryMatches(product: Product, wanted: string): boolean {
   const normalizedCategory = normalizeCatalogText(product.category);
@@ -120,19 +133,17 @@ function mainCategoryMatches(product: Product, wanted: string): boolean {
     aliases.includes(normalizedWanted) && aliases.some(hasPrefix));
 }
 
-function score(product: Product, queryTokens: string[]): number {
-  if (!queryTokens.length) return 1;
-  const fields: [string, number][] = [
-    [normalizeCatalogText(product.name), 4], [normalizeCatalogText(product.category), 3],
-    [normalizeCatalogText(product.brand), 2], [normalizeCatalogText(product.tag), 1],
-    [normalizeCatalogText((product.color_options ?? []).map((color) => color.name).join(" ")), 2],
-    [normalizeCatalogText(product.description), 1],
-  ];
+function searchMatch(product: Product, queryTokens: string[]) {
+  const fields = searchFields(product);
+  const descriptionWords = new Set(tokens(product.description ?? ""));
   let total = 0;
+  let matched = 0;
   for (const token of queryTokens) {
-    for (const [text, weight] of fields) if (text.includes(token)) total += weight;
+    if (fields.some(([words]) => words.has(token))) matched++;
+    for (const [words, weight] of fields) if (words.has(token)) total += weight;
+    if (descriptionWords.has(token)) total++;
   }
-  return total;
+  return { score: queryTokens.length ? total : 1, exact: matched === queryTokens.length };
 }
 
 async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState) {
@@ -164,8 +175,14 @@ async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState)
     .filter((product) => !color || configuredColors(product).some((option) => normalizeCatalogText(option.name) === normalizeCatalogText(color)))
     .filter((product) => !size || configuredSizes(product).some((value) => normalizeCatalogText(value) === normalizeCatalogText(size)))
     .filter((product) => !inStockOnly || availabilityOf(product, size ? configuredSizes(product).find(value => normalizeCatalogText(value) === normalizeCatalogText(size)) : null) !== "out_of_stock")
-    .map((product) => ({ product, score: score(product, queryTokens) }))
+    .map((product) => ({ product, ...searchMatch(product, queryTokens) }))
     .filter((entry) => entry.score > 0);
+
+  const exactMatches = matches.filter((entry) => entry.exact);
+  const matchType = exactMatches.length ? "exact" : matches.length ? "similar" : "none";
+  // Only relax keyword matching; explicit budget, category, size, color and
+  // stock filters above still apply to every alternative.
+  if (exactMatches.length) matches = exactMatches;
 
   matches = matches.sort((a, b) => {
     if (sort === "price_asc") return a.product.price - b.product.price;
@@ -176,10 +193,13 @@ async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState)
 
   const page = matches.slice(0, limit).map((entry) => entry.product);
   state.lastProductIds = page.map((product) => String(product.id));
-  state.sections.set("search", page.length ? "Here are matching products. Prices and available options are shown on the cards."
+  state.sections.set("search", matchType === "exact" ? "Here are matching products. Prices and available options are shown on the cards."
+    : matchType === "similar" ? `I couldn't find an exact match for “${query}” with your filters. Here are some similar products you may like. Prices and available options are shown on the cards.`
     : "No products matched those filters. Try a different category, budget, size or color.");
   return {
     total_matches: matches.length,
+    exact_matches: exactMatches.length,
+    match_type: matchType,
     note: color ? "Color filtering only covers products that list color options." : undefined,
     products: page.map((product) => summarize(product, state)),
   };
@@ -343,7 +363,7 @@ const obj = (properties: Record<string, unknown>, required: string[] = []) => ({
 
 export const TOOL_DEFINITIONS = [
   { type: "function" as const, name: "searchProducts", strict: false,
-    description: "Search the store catalog. Use targeted filters; returns at most 8 products. Budget filters use the shopper's display currency unless priceCurrency is specified. Returned price_inr is always INR.",
+    description: "Search the store catalog. Preserve all requested product keywords in query; do not drop a missing garment type to force a match. Returns exact matches first, or clearly labeled similar alternatives when no exact match exists; at most 8 products. Budget filters use the shopper's display currency unless priceCurrency is specified. Returned price_inr is always INR.",
     parameters: obj({
       query: { type: "string", description: "Keywords such as 'black dress' or 'leather bag'." },
       category: { type: "string", description: "Main category: women, men, perfume, shoes, bags, accessories, makeup, or a sub-category name." },

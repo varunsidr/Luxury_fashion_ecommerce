@@ -24,6 +24,10 @@ export default function PrivacyPage() {
             </p>
           </section>
           <section>
+            <h2 className="mb-2 text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-900">Reviews and photos</h2>
+            <p>Submitted reviews and photos wait for moderation. Approved reviews, the display name you supply, store replies and approved review photos can be shown publicly. New photos are stored privately and displayed through links that expire after ten minutes. Removing a review does not automatically delete its stored attachments. Use fictional names and avoid uploading personal or sensitive photos to this demo.</p>
+          </section>
+          <section>
             <h2 className="mb-2 text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-900">Email features</h2>
             <p>
               The newsletter form is a visual preview and does not currently subscribe or send email. Restock alert requests may be saved in the demo database; email delivery depends on server configuration.

@@ -177,14 +177,19 @@ export default function ProductListing({ mainCategory, subCategory, subCategoryS
     return () => { active = false; controller.abort(); };
   }, [subCategorySlug, dbCategory, isMainCategoryOnly, dataCategoryPrefix, filterProducts, retryCount]);
 
-  useEffect(() => {
+  const [priceCurrency, setPriceCurrency] = useState(currency);
+  if (priceCurrency !== currency) {
+    setPriceCurrency(currency);
     setMinPrice("");
     setMaxPrice("");
-  }, [currency]);
+  }
 
-  useEffect(() => {
+  const filterKey = JSON.stringify([brand, size, inStockOnly, minPrice, maxPrice]);
+  const [previousFilterKey, setPreviousFilterKey] = useState(filterKey);
+  if (previousFilterKey !== filterKey) {
+    setPreviousFilterKey(filterKey);
     setVisibleCount(24);
-  }, [brand, size, inStockOnly, minPrice, maxPrice]);
+  }
 
   const brandOptions = useMemo(() => [...new Set(products.map((p) => p.brand).filter((v): v is string => Boolean(v)))].sort(), [products]);
   const sizeOptions = useMemo(() => [...new Set(products.flatMap((p) => p.sizes ?? []))].sort(), [products]);

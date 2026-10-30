@@ -26,7 +26,7 @@ before(async () => {
     GRANT USAGE ON SCHEMA storage TO authenticated;
     GRANT ALL ON storage.objects TO authenticated;
     CREATE POLICY legacy_storage_write ON storage.objects FOR ALL TO authenticated USING (true) WITH CHECK (true);`);
-  for (const path of ['supabase_schema.sql', 'supabase_checkout_security_migration.sql', 'supabase_demo_catalog_migration.sql', 'supabase_purchase_safeguards_migration.sql', 'supabase_admin_catalog_migration.sql']) {
+  for (const path of ['supabase_schema.sql', 'supabase_checkout_security_migration.sql', 'supabase_demo_catalog_migration.sql', 'supabase_purchase_safeguards_migration.sql', 'supabase_admin_catalog_migration.sql', 'supabase_order_lifecycle_migration.sql', 'supabase_review_workflow_migration.sql']) {
     await db.exec(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
   }
 });
@@ -245,4 +245,70 @@ test('staging product-option setup preserves IDs and provides mixed and zero-sto
   assert.deepEqual(rows.map((row) => row.id), fixtures);
   assert.deepEqual(rows.map((row) => row.stock), [9, 6, 0]);
   assert.ok(rows.every((row) => row.sizes.join(',') === 'S,M,L'));
+});
+
+async function orderStatus(id, status) {
+  return (await db.query('SELECT set_admin_order_status($1,$2) AS result', [id, status])).rows[0].result;
+}
+
+test('cancellation restores unsized stock once and repeated cancellation does not add stock', async () => {
+  const order = await checkout([{ id: unsized, quantity: 1 }]);
+  assert.equal((await db.query('SELECT stock FROM products WHERE id=$1', [unsized])).rows[0].stock, 0);
+  const cancelled = await orderStatus(order.order_id, 'cancelled');
+  assert.equal(cancelled.status, 'cancelled');
+  assert.ok(cancelled.stock_restored_at);
+  assert.equal((await db.query('SELECT stock FROM products WHERE id=$1', [unsized])).rows[0].stock, 1);
+  assert.deepEqual(await orderStatus(order.order_id, 'cancelled'), cancelled);
+  assert.equal((await db.query('SELECT stock FROM products WHERE id=$1', [unsized])).rows[0].stock, 1);
+});
+
+test('sized cancellation restores shared-color quantities and configured aggregate', async () => {
+  const order = await checkout([{ id: sized, size: 'M', color: 'Brown', quantity: 1 }, { id: sized, size: 'M', color: 'Black', quantity: 1 }]);
+  await orderStatus(order.order_id, 'processing');
+  await orderStatus(order.order_id, 'cancelled');
+  assert.equal((await db.query("SELECT stock FROM product_size_stock WHERE product_id=$1 AND size='M'", [sized])).rows[0].stock, 3);
+  assert.equal((await db.query('SELECT stock FROM products WHERE id=$1', [sized])).rows[0].stock, 3);
+});
+
+test('orders follow forward transitions and shipped orders cannot cancel or restore stock', async () => {
+  const order = await checkout([{ id: unsized, quantity: 1 }]);
+  await assert.rejects(orderStatus(order.order_id, 'shipped'), /INVALID_TRANSITION/);
+  await orderStatus(order.order_id, 'processing');
+  await orderStatus(order.order_id, 'shipped');
+  await assert.rejects(orderStatus(order.order_id, 'cancelled'), /INVALID_TRANSITION/);
+  await orderStatus(order.order_id, 'delivered');
+  await assert.rejects(orderStatus(order.order_id, 'processing'), /INVALID_TRANSITION/);
+  assert.equal((await db.query('SELECT stock FROM products WHERE id=$1', [unsized])).rows[0].stock, 0);
+});
+
+test('changed inventory configuration rolls back earlier restoration and cancellation together', async () => {
+  const order = await checkout([{ id: sized, size: 'M', color: 'Brown', quantity: 1 }, { id: unsized, quantity: 1 }]);
+  await db.query("UPDATE products SET sizes=ARRAY['M'] WHERE id=$1", [unsized]);
+  await assert.rejects(orderStatus(order.order_id, 'cancelled'), /INVENTORY_CONFIGURATION_CHANGED/);
+  assert.equal((await db.query('SELECT status FROM orders WHERE id=$1', [order.order_id])).rows[0].status, 'pending');
+  assert.equal((await db.query("SELECT stock FROM product_size_stock WHERE product_id=$1 AND size='M'", [sized])).rows[0].stock, 2);
+});
+
+test('deleted product lines do not recreate inventory during cancellation', async () => {
+  const order = await checkout([{ id: unsized, quantity: 1 }]);
+  await db.query('DELETE FROM products WHERE id=$1', [unsized]);
+  assert.equal((await orderStatus(order.order_id, 'cancelled')).status, 'cancelled');
+  assert.equal((await db.query('SELECT count(*)::int AS count FROM products WHERE id=$1', [unsized])).rows[0].count, 0);
+});
+
+test('historically cancelled orders are not retroactively restocked', async () => {
+  const order = await checkout([{ id: unsized, quantity: 1 }]);
+  await db.query("UPDATE orders SET status='cancelled' WHERE id=$1", [order.order_id]);
+  assert.equal((await orderStatus(order.order_id, 'cancelled')).stock_restored_at, null);
+  assert.equal((await db.query('SELECT stock FROM products WHERE id=$1', [unsized])).rows[0].stock, 0);
+});
+
+test('order lifecycle is service-only and review reply writes stay denied to browser roles', async () => {
+  for (const role of ['anon', 'authenticated']) {
+    const result = (await db.query("SELECT has_function_privilege($1,'public.set_admin_order_status(uuid,text)','EXECUTE') AS execute, has_table_privilege($1,'public.reviews','UPDATE') AS update", [role])).rows[0];
+    assert.equal(result.execute, false); assert.equal(result.update, false);
+  }
+  assert.equal((await db.query("SELECT has_function_privilege('service_role','public.set_admin_order_status(uuid,text)','EXECUTE') AS allowed")).rows[0].allowed, true);
+  await db.exec(readFileSync(new URL('../supabase_order_lifecycle_migration.sql', import.meta.url), 'utf8'));
+  await db.exec(readFileSync(new URL('../supabase_review_workflow_migration.sql', import.meta.url), 'utf8'));
 });

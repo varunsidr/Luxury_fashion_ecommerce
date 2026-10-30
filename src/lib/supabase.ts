@@ -97,6 +97,12 @@ const localSupabase = {
     async signUp() {
       return { error: CONFIG_ERROR };
     },
+    async resetPasswordForEmail() {
+      return { data: {}, error: CONFIG_ERROR };
+    },
+    async getUser() {
+      return { data: { user: null }, error: CONFIG_ERROR };
+    },
     async signOut() {
       return { error: null };
     },

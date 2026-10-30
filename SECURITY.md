@@ -15,7 +15,7 @@ Please do not report security vulnerabilities in a public GitHub issue. Use GitH
 
 ## Deployment requirements
 
-1. Apply the current [ordered migrations](README.md#database-schema), including security hardening, purchase safeguards and admin catalog last. Deploy matching application/schema versions; older checkout definitions must not replace the five-argument RPC.
+1. Apply the current [ordered migrations](README.md#database-schema): hardening, purchase safeguards, admin catalog, then order lifecycle and review workflow. Deploy matching application/schema versions; older checkout definitions must not replace the five-argument RPC. Verify the new service-only lifecycle RPC, denied customer review writes and recovery redirect allowlist separately; the existing inspector does not fully check the new workflow RPC/columns.
 2. Configure distinct admin credentials/signing secret and `RATE_LIMIT_SECRET` of at least 32 characters. The shared limiter also needs Supabase URL, server service role, `consume_api_rate_limit` and a proxy that overwrites/appends `x-forwarded-for`. Limiter keys are HMAC-hashed.
 3. Production fails closed with 503 if the limiter is unavailable. This covers admin login, checkout, reviews/uploads, restock subscription, assistant chat/confirmation and protected catalog mutations/uploads. `npm run start` is production mode even on localhost; process liveness does not prove these integrations work.
 4. Set `GROQ_API_KEY` only for server model requests; `GROQ_MODEL` is optional. No OpenAI credential fallback exists. Valid card interactions use no model key, but still require working rate limits and applicable customer authentication.
@@ -37,4 +37,4 @@ Chat/card interactions have one 35-second server deadline; confirmation has 10 s
 
 Product images are public; validated uploads use a server-admin route. New review uploads use private `review-images` paths, with short-lived moderator URLs. Historical public review files and orphan retention/cleanup remain unresolved.
 
-The browser bag remains shared across account changes (G-10). Review identity/replies, real cross-role/RLS verification, native-device/accessibility checks, live concurrent stock/replay behavior and provider retention remain open. See [architecture.md](architecture.md) and the [BRD gaps](docs/BRD.md#12-known-gaps-and-business-decisions); source controls and scoped tests are not full production acceptance.
+The browser bag remains shared across account changes (G-10). Review names/replies and signed approved photos now have server workflows; historical names, public files and orphan cleanup remain limits. Real cross-role/RLS verification, native-device/accessibility checks, live concurrent stock/replay/cancellation behavior and provider retention remain open. See [architecture.md](architecture.md) and the [BRD gaps](docs/BRD.md#12-known-gaps-and-business-decisions); source controls and scoped tests are not full production acceptance.

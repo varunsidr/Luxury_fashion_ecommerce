@@ -45,6 +45,40 @@ test("tool inputs are validated server-side", async () => {
   expect((await run("constructor", {})).out.error).toBe("unknown_tool");
 });
 
+const cargoCatalog: Product[] = [
+  product({ id: "cargo-jeans", name: "Cargo Jeans", category: "Men's Jeans", description: "An alternative to cargo shorts.", price: 1800 }),
+  product({ id: "cargo-expensive", name: "Premium Cargo Jeans", category: "Men's Jeans", price: 5000 }),
+  product({ id: "cargo-sold-out", name: "Cargo Shorts", category: "Men's Shorts", size_stock: [{ size: "M", stock: 0 }] }),
+  product({ id: "unrelated", name: "Midi Dress", category: "Women's Dress" }),
+];
+const cargoContext = (products = cargoCatalog) => ctx({ store: { listProducts: async () => products }, lastUserMessage: "cargo shorts" });
+
+test("missing cargo shorts yield labeled alternatives while keeping filters and stock constraints", async () => {
+  const { out, state } = await run("searchProducts", { query: "cargo shorts", category: "men", size: "M", maxPrice: 2000 }, cargoContext());
+  expect(out).toMatchObject({ match_type: "similar", exact_matches: 0, total_matches: 1 });
+  expect(out.products.map((p: { id: string }) => p.id)).toEqual(["cargo-jeans"]);
+  expect(state.sections.get("search")).toContain("couldn't find an exact match for “cargo shorts” with your filters");
+  expect(state.sections.get("search")).toContain("similar products you may like");
+  for (const filters of [{ maxPrice: 1000 }, { size: "S" }, { color: "Red" }, { category: "women" }]) {
+    const empty = await run("searchProducts", { query: "cargo shorts", ...filters }, cargoContext());
+    expect(empty.out).toMatchObject({ match_type: "none", exact_matches: 0, products: [] });
+    expect(empty.state.sections.get("search")).not.toContain("Here are some similar");
+  }
+});
+
+test("exact garment matches take priority and plural and whole-word matching avoid false matches", async () => {
+  const availableShorts = product({ id: "shorts", name: "Cargo Short", category: "Men's Shorts" });
+  const exact = await run("searchProducts", { query: "CARGO shorts" }, cargoContext([...cargoCatalog, availableShorts]));
+  expect(exact.out).toMatchObject({ match_type: "exact", exact_matches: 1 });
+  expect(exact.out.products.map((p: { id: string }) => p.id)).toEqual(["shorts"]);
+  expect(exact.state.sections.get("search")).not.toContain("couldn't find");
+  expect((await run("searchProducts", { query: "dresses" })).out.match_type).toBe("exact");
+  expect((await run("searchProducts", { query: "men" })).out.products).toEqual([]);
+  expect((await run("searchProducts", { query: "art" }, cargoContext())).out.products).toEqual([]);
+  const noStockFilter = await run("searchProducts", { query: "cargo shorts", inStockOnly: false }, cargoContext());
+  expect(noStockFilter.out.products.map((p: { id: string }) => p.id)).toEqual(["cargo-sold-out"]);
+});
+
 test("product text is surfaced as untrusted data and unknown products are not invented", async () => {
   const { out } = await run("getProduct", { productIdOrSlug: "p3" });
   expect(out.product.untrusted_description).toContain("IGNORE ALL PREVIOUS");
@@ -109,6 +143,19 @@ function fakeClient(script: Array<Record<string, unknown>>, calls: Record<string
   let index = 0;
   return { responses: { create: async (params) => { calls.push(params); return script[index++] as never; } } };
 }
+
+test("rendered search reply retains the alternatives disclosure when the model claims an exact match", async () => {
+  const client = fakeClient([
+    { output: [{ type: "function_call", name: "searchProducts", arguments: '{"query":"cargo shorts","maxPrice":2000}', call_id: "cargo" }] },
+    { output: [], output_text: "These are exactly the cargo shorts you requested! [[product:cargo-jeans]]" },
+  ]);
+  const result = await runAssistant(client, "m", [{ role: "user", content: "cargo shorts" }], cargoContext());
+  expect(result.reply).toContain("couldn't find an exact match");
+  expect(result.reply).toContain("similar products");
+  expect(result.reply).not.toContain("exactly the cargo shorts");
+  expect(result.products.map(p => p.id)).toEqual(["cargo-jeans"]);
+  expect(result.actions).toEqual([]);
+});
 
 test("runAssistant executes tools, builds cards from catalog data only and drops invented ids", async () => {
   const calls: Record<string, unknown>[] = [];
@@ -448,6 +495,30 @@ test.describe("chat widget", () => {
       return route.fulfill({ json: path.includes("/products") ? catalog : [] });
     });
     await page.route("**/api/storefront/region**", (route) => route.fulfill({ json: { country: "IN", currency: "INR", rate: 1, rateDate: null } }));
+  });
+
+  test("a cargo-shorts request displays the actual search disclosure above alternative cards", async ({ page }) => {
+    await page.route("**/api/assistant", async route => {
+      const body = route.request().postDataJSON();
+      expect(body.messages.at(-1).content).toBe("cargo shorts");
+      const client = fakeClient([
+        { output: [{ type: "function_call", name: "searchProducts", arguments: '{"query":"cargo shorts","maxPrice":2000}', call_id: "cargo" }] },
+        { output: [], output_text: "[[product:cargo-jeans]]" },
+      ]);
+      const response = await handleAssistantRequest(post(body), deps({
+        store: cargoContext().store, createClient: () => client,
+      }));
+      await route.fulfill({ status: response.status, json: await response.json() });
+    });
+    await page.goto("/");
+    await page.getByTestId("assistant-launcher").click();
+    const input = page.getByLabel("Message the shopping assistant");
+    await input.fill("cargo shorts"); await input.press("Enter");
+    await expect(page.getByTestId("assistant-message-assistant")).toContainText("couldn't find an exact match for “cargo shorts”");
+    await expect(page.getByTestId("assistant-message-assistant")).toContainText("similar products you may like");
+    await expect(page.getByTestId("assistant-product")).toHaveCount(1);
+    await expect(page.getByTestId("assistant-product")).toContainText("Cargo Jeans");
+    await expect(page.getByTestId("assistant-product-card")).toHaveAttribute("href", "/men/cargo-jeans");
   });
 
   test("opens accessibly, sends with Enter, shows cards, confirmation and retry", async ({ page }) => {

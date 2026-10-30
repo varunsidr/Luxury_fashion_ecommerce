@@ -194,6 +194,7 @@ export default function Navbar() {
   };
 
   const handleForgotPassword = async () => {
+    setRegisterSuccess(null);
     if (!email.trim()) {
       setError("Enter your email address first.");
       return;
@@ -201,15 +202,15 @@ export default function Navbar() {
 
     setLoading(true);
     setError(null);
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/`,
-    });
-    if (resetError) {
-      setError(resetError.message);
-    } else {
-      setRegisterSuccess("Password reset instructions sent. Check your inbox.");
-    }
-    setLoading(false);
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (resetError) throw resetError;
+      setRegisterSuccess("If an account exists for this address, you’ll receive password reset instructions. Check your inbox.");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Password recovery is unavailable. Please try again.");
+    } finally { setLoading(false); }
   };
 
   const handleRegister = async (e: React.FormEvent) => {

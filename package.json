@@ -20,6 +20,7 @@
     "test:catalog": "playwright test --config=playwright.catalog.config.ts",
     "test:assistant": "playwright test --config=playwright.assistant.config.ts",
     "test:live": "playwright test --config=playwright.live.config.ts",
+    "audit:storefront": "node scripts/audit-storefront.mjs",
     "seed:products": "node --env-file=.env.local migrate-products.js",
     "seed:admin-data": "node --env-file=.env.local scripts/seed_admin_data.js",
     "upload:images": "node upload-images.js",
@@ -31,13 +32,14 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",
     "lucide-react": "^1.7.0",
-    "next": "16.2.1",
+    "next": "16.4.3",
     "openai": "^6.49.0",
     "pg": "^8.11.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@electric-sql/pglite": "^0.5.8",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
@@ -45,7 +47,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.1",
+    "eslint-config-next": "16.4.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

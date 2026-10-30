@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getClientAddress, isRateLimited } from '@/lib/rateLimit';
+import { reviewImageUrls } from '@/lib/reviewImages';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -16,9 +17,10 @@ export async function POST(req: Request) {
   try { body = await req.json(); } catch { return NextResponse.json({ error: 'Invalid review.' }, { status: 400 }); }
   if (!body || typeof body !== 'object') return NextResponse.json({ error: 'Invalid review.' }, { status: 400 });
   try {
-    const { productId, rating, title, comment, images } = body as Record<string, unknown>;
+    const { productId, name, rating, title, comment, images } = body as Record<string, unknown>;
 
     if (typeof productId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productId) || typeof rating !== 'number' || !Number.isInteger(rating) || rating < 1 || rating > 5 ||
+        typeof name !== 'string' || !name.trim() || name.trim().length > 120 ||
         (title != null && (typeof title !== 'string' || title.length > 160)) ||
         typeof comment !== 'string' || !comment.trim() || comment.length > 4000 ||
         (images != null && (!Array.isArray(images) || images.length > 3 || images.some((image) => typeof image !== 'string' || image.length > 2048)))) {
@@ -44,6 +46,7 @@ export async function POST(req: Request) {
     const { data, error } = await admin.from('reviews').insert({
       product_id: productId,
       user_id: userData.user.id,
+      name: name.trim(),
       rating,
       title: title ?? null,
       comment: comment.trim(),
@@ -65,14 +68,19 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const productId = url.searchParams.get('productId');
 
-  if (!productId) return NextResponse.json({ error: 'productId required' }, { status: 400 });
+  if (!productId || !/^[0-9a-f-]{36}$/i.test(productId)) return NextResponse.json({ error: 'Valid productId required' }, { status: 400 });
+  if (!supabaseUrl || !anonKey) return NextResponse.json({ error: 'Reviews are not configured.' }, { status: 503 });
 
   try {
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-    const q = supabase.from('reviews').select('*').eq('product_id', productId).eq('approved', true).order('created_at', { ascending: false });
+    const supabase = createClient(supabaseUrl, svc || anonKey, { auth: { persistSession: false } });
+    const q = supabase.from('reviews').select('id,product_id,user_id,name,rating,title,comment,images,created_at,admin_reply,replied_at').eq('product_id', productId).eq('approved', true).order('created_at', { ascending: false }).limit(100);
     const { data, error } = await q;
     if (error) return NextResponse.json({ error: 'Could not load reviews.' }, { status: 500 });
-    return NextResponse.json({ status: 'ok', reviews: data });
+    const reviews = await Promise.all((data ?? []).map(async review => {
+      const displayImages = svc ? await reviewImageUrls(supabase, review) : [];
+      return { id: review.id, product_id: review.product_id, name: review.name, rating: review.rating, title: review.title, comment: review.comment, created_at: review.created_at, admin_reply: review.admin_reply, replied_at: review.replied_at, displayImages };
+    }));
+    return NextResponse.json({ status: 'ok', reviews }, { headers: { 'Cache-Control': 'no-store' } });
   } catch {
     return NextResponse.json({ error: 'Could not load reviews.' }, { status: 500 });
   }

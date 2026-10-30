@@ -101,7 +101,7 @@ zeouf is split into **two distinct sections**:
 - Product detail page with size selection, image gallery, "Complete Your Look" cross-sell, and reviews
 - Color swatches for products with verified color-specific photography
 - Email restock alerts for unavailable items and sizes
-- Customer registration with password confirmation and login via Supabase Auth; password recovery completion remains pending
+- Customer registration/login via Supabase Auth and verified-session password recovery at `/reset-password`; deployed email/redirect completion requires separate verification
 - Star ratings and customer reviews
 - Editorial homepage with manual hero navigation, pause controls, and reduced-motion support
 - Privacy and Terms of Service pages
@@ -114,7 +114,7 @@ zeouf is split into **two distinct sections**:
 - Product image uploads through a protected server route; applied bucket permissions still require staging verification
 - Stock management per size
 - Category assignment from a predefined list
-- Review listing and a separate pending-review moderation page; unified moderation and visible reply controls remain pending
+- Unified review moderation through the sidebar or `/admin/reviews`, with approval, unpublishing, deletion, stored replies and signed photos
 - Analytics dashboard
 - Product search and filtering
 
@@ -199,6 +199,10 @@ Apply these SQL files in order in a dedicated Supabase demo project:
 6. [supabase_security_hardening_migration.sql](supabase_security_hardening_migration.sql) — restrict public reviews, remove direct review writes, create a private `review-images` bucket, and install the shared rate limiter. New uploads return private object paths; the admin moderation page uses short-lived signed URLs. Previously uploaded files in the old public bucket remain public until migrated or removed separately.
 7. [supabase_purchase_safeguards_migration.sql](supabase_purchase_safeguards_migration.sql) — install customer-scoped checkout replay protection, enforce size/color choices and update stock atomically. This removes the old four-argument checkout RPC and installs the five-argument version required by the current app, plus `set_product_stock`. Apply in isolated staging first and deploy the matching app/schema together; do not reapply older checkout definitions afterward.
 8. [supabase_admin_catalog_migration.sql](supabase_admin_catalog_migration.sql) - protected catalog save RPC, atomic size-row synchronization, future-write price/stock checks, and restrictive browser catalog/product-image write guards. Apply after purchase safeguards in isolated staging, then deploy the matching admin app. Product images use a public 2 MiB JPEG/PNG/WebP bucket; uploads require a verified server admin session. Existing invalid rows are retained for explicit repair.
+9. [supabase_order_lifecycle_migration.sql](supabase_order_lifecycle_migration.sql) — service-only forward status transitions and transactional one-time pre-shipment cancellation stock restoration. Historical cancellations are unchanged; changed size configurations require reconciliation.
+10. [supabase_review_workflow_migration.sql](supabase_review_workflow_migration.sql) — stored display names/replies and reply-length checks, retaining denied browser review writes. Existing missing author names cannot be reconstructed.
+
+Apply steps 9–10 before deploying the corresponding order/review code. Configure Supabase Auth's redirect allowlist for `/reset-password` on each intended origin, then verify real reset-email completion. Local fixture tests do not apply these migrations to your hosted database.
 
 The read-only `npm run security:check-db` inspector now recognizes the five-argument checkout RPC, stock/catalog RPCs and private checkout attempts; it checks browser catalog writes, product-image guards and legacy invalid product values. Configure DATABASE_URL explicitly for an isolated staging database after all migrations. The catalog queries have isolated PostgreSQL regression coverage, but no full live Supabase inspector run or multi-session stock/replay test has been performed. Earlier checker results are historical (BRD G-25).
 
@@ -448,7 +452,7 @@ Admin product reads, saves, deletes and uploads use cookie-protected server rout
 
 Apply supabase_admin_catalog_migration.sql after purchase safeguards before using the updated admin. Atomic saves retain existing size quantities, initialize new sizes at zero, remove retired rows and recompute totals. Existing stock changes go through Stock Management; saving stale metadata cannot restore depleted stock. Removing all sizes starts overall stock at zero. Failed saves preserve the form for Retry. Product image URLs may be local root paths or HTTPS on the configured Supabase origin; upload JPEG/PNG/WebP files up to 2 MiB. Uploaded/removed/abandoned media is not garbage-collected.
 
-Dashboard improvements include working Add a product, refresh/data-failure feedback, unsized low-stock counts, a pending-order queue shortcut and active demo order value. Cancelled orders are excluded from order value/average/top-unit metrics; only approved reviews contribute to the rating metric. These are demo values, with no real payment collection. Review-reply workflows, lifecycle/cancellation stock rules and live integration/concurrency QA remain separate gaps.
+Dashboard improvements include working Add a product, refresh/data-failure feedback, unsized low-stock counts, a pending-order queue shortcut and active demo order value. Cancelled orders are excluded from order value/average/top-unit metrics; only approved reviews contribute to the rating metric. These are demo values, with no real payment collection. The workflow migrations add unified review replies and forward order transitions with one-time cancellation restoration. Applied migrations and live integration/concurrency QA remain separate requirements.
 
 Run npm run test:ui for storefront plus admin API/dashboard/form tests, then other browser suites sequentially. Admin tests intercept fictional data and use fixture cookies/dependencies; they do not perform live catalog or storage writes.
 
@@ -472,7 +476,7 @@ A floating chat widget named **Zeouf Shopping Assistant** (bottom-right, all non
 
 1. `npm install`, then copy `.env.example` to `.env.local` if it does not already exist and set `GROQ_API_KEY` (and optionally `GROQ_MODEL`, default `openai/gpt-oss-20b`). Keep your existing Supabase and other settings. Restart the dev server after changing environment variables.
 2. `npm run dev` and open the chat button. Without Supabase configured the bundled demo catalog is used.
-3. Tests: `npm run test:assistant` (set `ASSISTANT_TEST_PORT` to change the port). Run sequentially with the other browser suites because they share the isolated compilation cache. They use fake model clients/intercepted SDK and chat requests; the test server explicitly disables the Groq key. No real model key or calls are needed.
+3. Tests: `npm run test:assistant` (set `ASSISTANT_TEST_PORT` to change the port). Run sequentially with the other browser suites because they share isolated compilation output. Fixture servers disable persistent development caching to prevent stale HMR hashes. They use fake model clients/intercepted SDK and chat requests; the test server explicitly disables the Groq key. No real model key or calls are needed.
 
 Use Groq's Free plan to start with capped usage. One shopper message can make up to five model requests; the application's 10/address/minute limit does not enforce the provider's shared request/token allowance. Provider 429 responses produce a safe usage-limit message and Retry; there are no automatic SDK retries or fallback calls to OpenAI. Other provider failures return a generic 502. Check your account's exact limits in the [Groq rate-limit documentation](https://console.groq.com/docs/rate-limits). Groq's [Responses API](https://console.groq.com/docs/responses-api) is currently beta; test any model override for Responses/function-calling and low-effort reasoning compatibility.
 

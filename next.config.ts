@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   distDir: process.env.ISOLATED_BROWSER_TESTS === "1" ? ".next-browser-tests" : ".next",
   turbopack: { root: process.cwd() },
+  // Fixture servers vary public configuration between suites. Compile fresh so
+  // persisted development output cannot restart pages with stale HMR hashes.
+  experimental: {
+    turbopackFileSystemCacheForDev: process.env.ISOLATED_BROWSER_TESTS !== "1",
+  },
   images: {
     remotePatterns: [
       {
