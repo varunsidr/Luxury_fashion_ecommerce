@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/CatalogImage";
 import Link from "next/link";
 import { Heart, ShoppingBag, ArrowUpRight, ImageOff } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -188,7 +188,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 25vw"
             onLoad={() => setLoadedImage(imageSource)}
             onError={() => setFailedImage(imageSource)}
-            className={`object-cover object-top origin-top transition-all duration-700 ${loadedImage === imageSource && failedImage !== imageSource ? "opacity-100" : "opacity-0"} ${isDemoProduct ? "scale-[1.08] motion-safe:group-hover:scale-[1.12]" : "motion-safe:group-hover:scale-105"} ${hasStock ? "" : "grayscale-[35%]"}`}
+            className={`object-contain object-center transition-opacity duration-300 ${loadedImage === imageSource && failedImage !== imageSource ? "opacity-100" : "opacity-0"} ${hasStock ? "" : "grayscale-[35%]"}`}
           />
           {!hasStock && <span className="absolute inset-x-0 top-1/2 z-10 mx-auto w-fit -translate-y-1/2 border border-white/50 bg-black/75 px-5 py-3 text-[9px] font-medium uppercase tracking-[0.28em] text-white backdrop-blur-sm">Out of stock</span>}
         </Link>

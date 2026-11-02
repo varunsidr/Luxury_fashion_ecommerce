@@ -22,6 +22,7 @@ export const CONFIG_ERROR = {
 type LocalRow = Record<string, unknown>;
 
 interface LocalQuery {
+  abortSignal(signal: AbortSignal): LocalQuery;
   select(): LocalQuery;
   eq(field: string, value: unknown): LocalQuery;
   neq(field: string, value: unknown): LocalQuery;
@@ -38,6 +39,7 @@ function createLocalQuery(table: string) {
     : table === "product_size_stock" ? localProducts.flatMap((product) => (product.size_stock ?? []).map((row) => ({ ...row, product_id: product.id }))) : [];
 
   const query: LocalQuery = {
+    abortSignal() { return query; },
     select() {
       return query;
     },

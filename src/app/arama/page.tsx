@@ -6,6 +6,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
+import { catalogRequest } from "@/lib/catalogRequest";
 
 interface SearchProduct {
   id: string;
@@ -19,32 +20,39 @@ interface SearchProduct {
 
 function AramaResults() {
   const searchParams = useSearchParams();
-  const q = searchParams.get("q") || "";
-  const [products, setProducts] = useState<SearchProduct[]>([]);
-  const [loading, setLoading] = useState(false);
+  const q = (searchParams.get("q") || "").trim();
+  const [retry, setRetry] = useState(0);
+  const [result, setResult] = useState<{ key: string; products: SearchProduct[]; error: boolean } | null>(null);
+  const key = JSON.stringify([q, retry]);
+  const products = q && result?.key === key ? result.products : [];
+  const loading = Boolean(q && result?.key !== key);
+  const failed = Boolean(q && result?.key === key && result.error);
 
   useEffect(() => {
-    if (!q.trim()) return;
+    if (!q) return;
     let active = true;
+    const controller = new AbortController();
     const search = async () => {
-      setLoading(true);
-      const [nameResult, categoryResult] = await Promise.all([
-        supabase.from("products").select("*").ilike("name", `%${q}%`),
-        supabase.from("products").select("*").ilike("category", `%${q}%`),
-      ]);
-
-      if (!active) return;
-      const matches = [...(nameResult.data ?? []), ...(categoryResult.data ?? [])];
-      const uniqueProducts = Array.from(new Map(matches.map((product) => [product.id, product])).values());
-      setProducts(uniqueProducts);
-      setLoading(false);
+      try {
+        const [nameResult, categoryResult] = await catalogRequest((signal) => Promise.all([
+          supabase.from("products").select("*").ilike("name", `%${q}%`).abortSignal(signal),
+          supabase.from("products").select("*").ilike("category", `%${q}%`).abortSignal(signal),
+        ]), controller.signal);
+        if (nameResult.error || categoryResult.error) throw new Error("Search unavailable");
+        const matches = [...(nameResult.data ?? []), ...(categoryResult.data ?? [])];
+        const uniqueProducts = Array.from(new Map(matches.map((product) => [product.id, product])).values());
+        if (active) setResult({ key, products: uniqueProducts, error: false });
+      } catch {
+        if (active) setResult({ key, products: [], error: true });
+      }
     };
 
     void search();
     return () => {
       active = false;
+      controller.abort();
     };
-  }, [q]);
+  }, [q, key]);
 
   return (
     <div className="pt-[120px] md:pt-[140px] pb-20 bg-white min-h-screen">
@@ -59,7 +67,7 @@ function AramaResults() {
           </h1>
           {q && (
             <p className="text-sm text-neutral-500 mb-10">
-              &ldquo;{q}&rdquo; — {loading ? "searching..." : `${products.length} results found`}
+              &ldquo;{q}&rdquo; — {loading ? "searching..." : failed ? "search unavailable" : `${products.length} results found`}
             </p>
           )}
 
@@ -67,7 +75,14 @@ function AramaResults() {
             <div className="flex justify-center items-center py-32">
               <Loader2 size={28} strokeWidth={1.5} className="animate-spin text-neutral-400" />
             </div>
-          ) : products.length === 0 && q ? (
+          ) : failed ? (
+            <div role="alert" className="text-center py-32">
+              <p className="text-neutral-600 text-sm">We couldn&apos;t load search results. Please try again.</p>
+              <button onClick={() => setRetry((value) => value + 1)} className="mt-4 border border-neutral-300 px-5 py-2 text-sm">Retry search</button>
+            </div>
+          ) : !q ? (
+            <p className="py-32 text-center text-sm text-neutral-500">Enter a search term to find products.</p>
+          ) : products.length === 0 ? (
             <div className="text-center py-32">
               <p className="text-neutral-400 text-sm tracking-wide">No results found.</p>
               <p className="text-neutral-300 text-xs mt-2">Try a different search term.</p>

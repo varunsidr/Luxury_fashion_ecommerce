@@ -180,3 +180,21 @@ test("dashboard reports unavailable catalog data instead of showing zero invento
   await expect(page.getByText("Total Products", { exact: true }).locator("..").locator("..")).toContainText("—");
   await expect(page.getByRole("button", { name: "Retry loading data" })).toBeVisible();
 });
+
+test("stock alert processing retries independently and reports email failures without changing stock", async ({ page }) => {
+  await dashboard(page);
+  await page.getByRole("button", { name: "Stock Management", exact: true }).click();
+  let calls = 0, stockWrites = 0;
+  await page.route("**/api/admin/stock", route => { stockWrites++; return route.fulfill({ json: { status: "ok", stock: 3 } }); });
+  await page.route("**/api/admin/restock-alerts/notify", route => {
+    calls++;
+    expect(route.request().postDataJSON()).toEqual({ productId: null });
+    return calls === 1 ? route.fulfill({ status: 503,json: { error: "Fixture delivery unavailable; alerts remain queued." } })
+      : route.fulfill({ json: { configured: true,sent: 2,failed: 1,claimed: 3 } });
+  });
+  await page.getByRole("button", { name: "Process due alerts", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("alerts remain queued");
+  await page.getByRole("button", { name: "Process due alerts", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("2 alerts accepted by the email provider. 1 attempts failed");
+  expect(stockWrites).toBe(0);
+});

@@ -26,7 +26,7 @@ before(async () => {
     GRANT USAGE ON SCHEMA storage TO authenticated;
     GRANT ALL ON storage.objects TO authenticated;
     CREATE POLICY legacy_storage_write ON storage.objects FOR ALL TO authenticated USING (true) WITH CHECK (true);`);
-  for (const path of ['supabase_schema.sql', 'supabase_checkout_security_migration.sql', 'supabase_demo_catalog_migration.sql', 'supabase_purchase_safeguards_migration.sql', 'supabase_admin_catalog_migration.sql', 'supabase_order_lifecycle_migration.sql', 'supabase_review_workflow_migration.sql']) {
+  for (const path of ['supabase_schema.sql', 'supabase_checkout_security_migration.sql', 'supabase_demo_catalog_migration.sql', 'supabase_purchase_safeguards_migration.sql', 'supabase_admin_catalog_migration.sql', 'supabase_order_lifecycle_migration.sql', 'supabase_review_workflow_migration.sql', 'supabase_restock_delivery_migration.sql']) {
     await db.exec(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
   }
 });
@@ -260,6 +260,17 @@ test('cancellation restores unsized stock once and repeated cancellation does no
   assert.equal((await db.query('SELECT stock FROM products WHERE id=$1', [unsized])).rows[0].stock, 1);
   assert.deepEqual(await orderStatus(order.order_id, 'cancelled'), cancelled);
   assert.equal((await db.query('SELECT stock FROM products WHERE id=$1', [unsized])).rows[0].stock, 1);
+});
+
+test('cancellation queues a waiting restock alert once when it restores the last unit', async () => {
+  const order = await checkout([{ id: unsized, quantity: 1 }]);
+  await db.query("SELECT subscribe_restock($1,'fixture@example.invalid',null,null,$2)", [unsized,'a'.repeat(64)]);
+  assert.equal((await db.query('SELECT claim_restock_notifications(null,10)')).rows.length,0);
+  await orderStatus(order.order_id,'cancelled');
+  const queued = (await db.query('SELECT claim_restock_notifications(null,10) AS alert')).rows;
+  assert.equal(queued.length,1);
+  await orderStatus(order.order_id,'cancelled');
+  assert.equal((await db.query('SELECT claim_restock_notifications(null,10)')).rows.length,0);
 });
 
 test('sized cancellation restores shared-color quantities and configured aggregate', async () => {

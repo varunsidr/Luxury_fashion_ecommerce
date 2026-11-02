@@ -1,0 +1,1703 @@
+{
+  "/demo-products/accessories/01.jpg": {
+    "src": "/product-photos-v2/accessories/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "e6b5a26933efeab81876721a3b4cb2b05c2e664612f6cfefa8f883de1967ba8f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/02.jpg": {
+    "src": "/product-photos-v2/accessories/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2d8cfb6ddffee1213e7c5c81766260cee444bae134396513a5500be938836a76",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/03.jpg": {
+    "src": "/product-photos-v2/accessories/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "e947a539be2d1cf4ea10f699992c8e9e827d7fcc4e553467b3e9bcb34272baa1",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/04.jpg": {
+    "src": "/product-photos-v2/accessories/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "9a08cb73685c696bd33a8a83620be25956439b97778f3c3111adc7407c750d1f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/05.jpg": {
+    "src": "/product-photos-v2/accessories/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "584ce216c2e345aaae8c7d9af2919284c29978fe6acbb45f073e067ceaa36724",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/06.jpg": {
+    "src": "/product-photos-v2/accessories/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "dc83193a30de9ccfc6bcebc1e7f8a8720fb37ab59a2fa172e63d505812fa795e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/07.jpg": {
+    "src": "/product-photos-v2/accessories/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a349814817f7607917d7ab761608476b032613f15e6046fa4462f7a66b5d83df",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/08.jpg": {
+    "src": "/product-photos-v2/accessories/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b8cd4716c3aa57d8f4fda52e8638d3bcdb35c208f7c59e491983a5ba0f37dc28",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/09.jpg": {
+    "src": "/product-photos-v2/accessories/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "930d12e18b0ba656d215be0c0a81bbf7dc50464cfabafded1285ebed0af0cb23",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/10.jpg": {
+    "src": "/product-photos-v2/accessories/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "afe36d3bf2af92513aca0223ea422b9ddfdd1ad056ce780a8095cd77393645da",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/11.jpg": {
+    "src": "/product-photos-v2/accessories/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "432e0b362a95daf37ee0b44c6134cf5bbc2cd262b5e13a35af6a61dffb0b838a",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/12.jpg": {
+    "src": "/product-photos-v2/accessories/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c43315191a317db60267c66732e36714c07c30234aec5e2ee14f99821ae5ea7b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/13.jpg": {
+    "src": "/product-photos-v2/accessories/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8e5cdebcc3cad19035a88c12728e84056a21de232bce9003ebf25cc11d9591c6",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/14.jpg": {
+    "src": "/product-photos-v2/accessories/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "3e5f4e68d29b50ba918c8618be24d994f3898643002d66cd145ff8a118e8a441",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/15.jpg": {
+    "src": "/product-photos-v2/accessories/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2eafb2d75c1bf21ac9bbf2c660aa4f53eebb2b0e3ffd663b44fdeadc0ffc569d",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/16.jpg": {
+    "src": "/product-photos-v2/accessories/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1cd2e632f320520b33a7bc25f6a87859f05badebe256d5d8792ab5e0fb023a1b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/17.jpg": {
+    "src": "/product-photos-v2/accessories/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c866641e2aca8cd45fc2f0c3f1955b1f0bad854cf7e4aaa735b5044725819c27",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/18.jpg": {
+    "src": "/product-photos-v2/accessories/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "dd91154552363b9bded3a239d949d5c1d79ade02127697a93169a9daa4fd7af0",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/19.jpg": {
+    "src": "/product-photos-v2/accessories/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "0b92b162d1959dbfeedcec4fb9f444b3141526e459f1e9f9746e58dbb6e66c4a",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/accessories/20.jpg": {
+    "src": "/product-photos-v2/accessories/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "f4476ebe7236386240ea7ee996d91d509c1a1228fc187bdafb20ef728a4fb321",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/01.jpg": {
+    "src": "/product-photos-v2/bags/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "042d666a4a2726b5d12b492d191cd9256c380dfd3cc7cf08959b44bf69b84b08",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/02.jpg": {
+    "src": "/product-photos-v2/bags/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8f8f694684f0c110191df15d240c5deddcd9f8f80eaf740e47d18878c61dbfa2",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/03.jpg": {
+    "src": "/product-photos-v2/bags/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c38ab096c9e918cf75c9e23cf7daad824ffe6e5b4a66c762a719a10aa1a349f4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/04.jpg": {
+    "src": "/product-photos-v2/bags/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "567ab33cadb1c06faffcdc3738e0e095f0e185630fa7d2a81fbbb653e77e8122",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/05.jpg": {
+    "src": "/product-photos-v2/bags/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "9137e22e4a3268bc9d207bf7539444992e01b03a6af511f5cab826c53bc54d8e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/06.jpg": {
+    "src": "/product-photos-v2/bags/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "e1b2b3b65e9e7d89ca7b11275bef942e08306cb79841a0c24f656c35dfda2023",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/07.jpg": {
+    "src": "/product-photos-v2/bags/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "582975566b1b699dd26ce346b15ade33fb05b97cc47d941c3cb6e121b1338dc7",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/08.jpg": {
+    "src": "/product-photos-v2/bags/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "efde12c39521d3b03b1fb3168a7865d400933bf19e60227d46312123578c0d1d",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/09.jpg": {
+    "src": "/product-photos-v2/bags/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "65404639c9f67cca262a524f01965622ea95963d4e26c565fe82c0a0d4d4ff55",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/10.jpg": {
+    "src": "/product-photos-v2/bags/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "fa46f2f241595e82418391476a3e695c1659bba2e6c41f4d708a051c7583d78d",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/11.jpg": {
+    "src": "/product-photos-v2/bags/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "d26ad78953f005dd1cff63e78efd8923c7e8fd8ce4cd4e36e708c74d95d97055",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/12.jpg": {
+    "src": "/product-photos-v2/bags/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "f96dc15f759a3293d5cda6d1cbcb5bf0de6dcfb9dbfe0ee17a2098df032edf2e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/13.jpg": {
+    "src": "/product-photos-v2/bags/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "74f471f611e350d1ef901cc27afa12a8a1e9bae2686770addeb4e8050ad02374",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/14.jpg": {
+    "src": "/product-photos-v2/bags/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "845c059f649bb2c361ab4f95fc61f2dce092538beab4d9d4789b98b86a87c435",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/15.jpg": {
+    "src": "/product-photos-v2/bags/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5abfecd328c743398169c7af4be01587417233f23f5fe3559bcdb67d119c4999",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/16.jpg": {
+    "src": "/product-photos-v2/bags/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "dc646444070f907b94a0dc797a1631eef74b59ba8fb0cab15106b27cd9ebc362",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/17.jpg": {
+    "src": "/product-photos-v2/bags/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a0ba2e36a518d3bd2824d0d7a764b50f7f7e86528c69c15caf920e96df6b44b3",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/18.jpg": {
+    "src": "/product-photos-v2/bags/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "d3deedf85537d674e7849525ef97207dbbc4bf1687cc48beb07680480d433cee",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/19.jpg": {
+    "src": "/product-photos-v2/bags/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8978f2e48ebfaf32ebd6b165030058ee52b74e35b8690243ca232a622d3cd59b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/bags/20.jpg": {
+    "src": "/product-photos-v2/bags/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "193d34c0f9e6a1e554e1543ec7e1103da93e8afc25bfe43b8fdceff582f590b3",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/01.jpg": {
+    "src": "/product-photos-v2/makeup/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "6fa25a86c577fbab543ee5192a9f43217cec4c7631faa6bbd5491c120bb20538",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/02.jpg": {
+    "src": "/product-photos-v2/makeup/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "4b919f04b94c7b1dc808cadcf0b55be57c3983bc3bf4d86d32ae7515acce0e9f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/03.jpg": {
+    "src": "/product-photos-v2/makeup/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7841b7ec7dfc5192cda3a00c332b9a9a120e93c97615ea9a7e66383c3b8a3d99",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/04.jpg": {
+    "src": "/product-photos-v2/makeup/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "899f6d866028c733fbed252ce5d4f95b3fd0591d7600646c06401f98f4936a02",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/05.jpg": {
+    "src": "/product-photos-v2/makeup/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "85d0ad5e4b64771656176b92ed760bff82975dc1d7c8e715bd7fde305d480a71",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/06.jpg": {
+    "src": "/product-photos-v2/makeup/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1e557dc8b52dd912e752b42f8d8ee26d36f6aa65d52ef63a2efb9df2334e90a2",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/07.jpg": {
+    "src": "/product-photos-v2/makeup/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2a69fd3fde7ee2801b292fc2ae87ff25b3ae0d292f5985c7f979367804b3f6d6",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/08.jpg": {
+    "src": "/product-photos-v2/makeup/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "dc8f0aba0284b9dfde37af8c00d8ece597e976445a646a3ae3fbeceffe9394ca",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/09.jpg": {
+    "src": "/product-photos-v2/makeup/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5520397e6a8f414f3cc52383f26d817045f02fa11d900023ecbf056a7d08bad2",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/10.jpg": {
+    "src": "/product-photos-v2/makeup/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b517e452c9c37f8fd317130ffcb6215d912ae044d76bd8102cba3a72c59ce40b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/11.jpg": {
+    "src": "/product-photos-v2/makeup/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "0fd9c6be71fc57bae1a1226fbb077999f6ae3118192b4de3ba12424b67852256",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/12.jpg": {
+    "src": "/product-photos-v2/makeup/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b1196c9d606013bcbfc060e7e5e77e3976164ac26dd4ccc894a495089a284fc4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/13.jpg": {
+    "src": "/product-photos-v2/makeup/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "91d008d419ee35d6262cc1ac0c1e02b7cc47b9148c25ad563eb2a257501854db",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/14.jpg": {
+    "src": "/product-photos-v2/makeup/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "94d91814ea53a6a97fb673ab1b5c9f5d4a9760f905782e91175e3dd78fab3479",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/15.jpg": {
+    "src": "/product-photos-v2/makeup/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "aa1593d0cabdcd6febdf0ccf1d03dd0a3c9d758da2c5e3d091001dff36e38fac",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/16.jpg": {
+    "src": "/product-photos-v2/makeup/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2bd06b30cdfcf2b65c881e5de3bd6be8ace778f3056f8a2019cd107aebb2c280",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/17.jpg": {
+    "src": "/product-photos-v2/makeup/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2a12bb3bb036f26bbdea1e6eceb61faff94a9bf44716b6a6cc0a3ac11aff46f1",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/18.jpg": {
+    "src": "/product-photos-v2/makeup/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "09521867f1ef33a6551ca3f33ed0c603f843e7f0f716f3cffa745bb25468604b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/19.jpg": {
+    "src": "/product-photos-v2/makeup/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c4e12cf1db32479612f285a3defd2722abe680a2fbe21fd968d44a3a33df1898",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/makeup/20.jpg": {
+    "src": "/product-photos-v2/makeup/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "226994e13e4361101a79abc5b07446c06eb0f4761e5d063de865c5bdfbe23466",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/01.jpg": {
+    "src": "/product-photos-v2/mens-jacket/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "3c5f987876ff4156bfb5c2420f1b9dccb57b127ac9d9710b20b931b67516f287",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/02.jpg": {
+    "src": "/product-photos-v2/mens-jacket/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "08601b1ca300fae71a719e104f8a657492a0ef2ab723e1911e350d0469d56cce",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/03.jpg": {
+    "src": "/product-photos-v2/mens-jacket/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "9bf358542eb3c04aa6d7bfe2cc5c9689f05ce616ad387036ca6e3aecaf20bd63",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/04.jpg": {
+    "src": "/product-photos-v2/mens-jacket/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "84a84dcee6df3d438837d441cdf30cd1b2f84de90ec71792c5fcd03ac819c2d8",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/05.jpg": {
+    "src": "/product-photos-v2/mens-jacket/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "26a5d3e0d2ff0e8e19a4bb55817f7fbbb7dfb34787990ab2077a60770f99d9f4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/06.jpg": {
+    "src": "/product-photos-v2/mens-jacket/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "6365f64bbd672943a6babfe7c728d3c4a8f63e8ffc5f7058101085084691e82f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/07.jpg": {
+    "src": "/product-photos-v2/mens-jacket/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "474fb4a212a3c715efc0e46813fde15567d57babd1be7e9a56d20733d38e0c22",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/08.jpg": {
+    "src": "/product-photos-v2/mens-jacket/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "d5ac4d5aa71369b5e340756acd5b3083be402bdaaebf4bd23cc0ae9b54c9a552",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/09.jpg": {
+    "src": "/product-photos-v2/mens-jacket/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "364cc2b3c10bbb152c27d903e54c840ccb160e32feebd5c22ccbbc549e4d2a1a",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/10.jpg": {
+    "src": "/product-photos-v2/mens-jacket/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "e1a63b3cd6ecfa3cf5789befaa04a6022bb8d864eba64020b2412bd5b65f78dc",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/11.jpg": {
+    "src": "/product-photos-v2/mens-jacket/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "423a50e24419962d74edb7d6f5a125612a7320b59b58710f69684b2d29df0d5c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/12.jpg": {
+    "src": "/product-photos-v2/mens-jacket/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "6631f0f0e41b48a554f726ce06a010769118297e29cb7df9b3c1abc77b96f1c2",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/13.jpg": {
+    "src": "/product-photos-v2/mens-jacket/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "17ebef226f34e5a296b15c98e317bea04d1c9ae365266a0ba7a764a4c857db16",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/14.jpg": {
+    "src": "/product-photos-v2/mens-jacket/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "565adbd5352bb882faa023011fbd4a299a7acfff9f8286f8ad71fa67ed2981d1",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/15.jpg": {
+    "src": "/product-photos-v2/mens-jacket/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5f098a08fb34c10728db1a4723a50af829f2f1075b5df854353ffa952304f035",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/16.jpg": {
+    "src": "/product-photos-v2/mens-jacket/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "e6979157140767b4e5bbcd039bd6a106f62eebea18f559f430a488011194b0e4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/17.jpg": {
+    "src": "/product-photos-v2/mens-jacket/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "68f225d7c501dbfcc7bd123e1ca44cfb5cec4552797f3f588e19510077ff3023",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/18.jpg": {
+    "src": "/product-photos-v2/mens-jacket/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7727a120b60db9f65394c582c92bd1da927875383063329ad436702b0f9987c5",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/19.jpg": {
+    "src": "/product-photos-v2/mens-jacket/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7f610d84ec22a4b098f378cd1f6ec964413725fef1b28ab9ced9ec45e0b280de",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-jacket/20.jpg": {
+    "src": "/product-photos-v2/mens-jacket/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "11ac9e82dcdeee9ce442c71c066edb9009efee92337cedcc7a6d4f6701a9a910",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/01.jpg": {
+    "src": "/product-photos-v2/mens-shirt/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1894baeb95a9ba199395ce91265904024a3f4231f06f96b19a193552092b4169",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/02.jpg": {
+    "src": "/product-photos-v2/mens-shirt/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "bac890641c78b9db246ff8e34407887c86b679d7e395bd1d6fa9dd3ccce2fc8d",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/03.jpg": {
+    "src": "/product-photos-v2/mens-shirt/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8c94c5a83f2881a2d061d29a593babc704ec161cba9e15536a58b56420c69022",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/04.jpg": {
+    "src": "/product-photos-v2/mens-shirt/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5b7e448d4ff42100d1c1e110466dd854e07faf8ea911a5799aca8da0ba7e1d59",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/05.jpg": {
+    "src": "/product-photos-v2/mens-shirt/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "77f7d1fc6c2f2e13818bd0313d17eeb059fb4b2640875abaa0936842990730a7",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/06.jpg": {
+    "src": "/product-photos-v2/mens-shirt/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "ef6755de7281d5ec0d8e7f385a0abf370ad76b5f45a7dee5c247b5f45e98086a",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/07.jpg": {
+    "src": "/product-photos-v2/mens-shirt/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "29304d3c29f3f3b57022e9c4631cbc2c60a56abc33ecf641b0369dfb835537ac",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/08.jpg": {
+    "src": "/product-photos-v2/mens-shirt/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "f7abb5c313fe93ebbaaf51683139e87ef0273ba437b90e27cbf5e57c656d21a4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/09.jpg": {
+    "src": "/product-photos-v2/mens-shirt/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "836af22fba52fbfc51b5df9002eee91a17cdc92b80594c3407d644d4ee72dd14",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/10.jpg": {
+    "src": "/product-photos-v2/mens-shirt/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "96c8f46d7ac274222c306266098922c3bd36706f677871f4b7105c78397275a3",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/11.jpg": {
+    "src": "/product-photos-v2/mens-shirt/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "63b897b06e19c69c7dff9152fe2a22187b54c11d9b9e1a9e7af37fe067cdd692",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/12.jpg": {
+    "src": "/product-photos-v2/mens-shirt/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a8e6e7a4e14e4de0d25f9839e8fa5946f680e1a7061fb0bbccdf6eb322487e39",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/13.jpg": {
+    "src": "/product-photos-v2/mens-shirt/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "acf84b708d275f0ad9c02c61c9c34d9876046039b76488ee766116b6aa653422",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/14.jpg": {
+    "src": "/product-photos-v2/mens-shirt/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "e961b5a508de1f8938d0533124d12e7f4b76d2039be2d7d0bea3213d89cdfd6c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/15.jpg": {
+    "src": "/product-photos-v2/mens-shirt/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7802d462dba54402823d6b5f6103334db057d1f526b0bfa90e1232d63d3e835e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/16.jpg": {
+    "src": "/product-photos-v2/mens-shirt/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5127653414263eb295c00ca5838892674ae35dec995a628adedf6366f95f0ad8",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/17.jpg": {
+    "src": "/product-photos-v2/mens-shirt/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a1a7a2062a1b151fa099b2434cb4543bc00e2371a03870feb82f7453f6f4bdda",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/18.jpg": {
+    "src": "/product-photos-v2/mens-shirt/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "112802c11cec91e962b615a2e361a0f2890dd2c900e2d77f470d7e53b6cc1cde",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/19.jpg": {
+    "src": "/product-photos-v2/mens-shirt/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "28af2b1dec510f76913f399725274a0cf1d4be1b653cfc084330ac1554619e0e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-shirt/20.jpg": {
+    "src": "/product-photos-v2/mens-shirt/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c68748612e01418ecdb9630542a8489005dbb978ad6564a5c70cd516a5b84879",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/01.jpg": {
+    "src": "/product-photos-v2/mens-suit/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "908912a314c8c77b9cd565cf9f937130e521fb507cb6fbf1c8f266d0bcd562cb",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/02.jpg": {
+    "src": "/product-photos-v2/mens-suit/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "591e0659d45dd4c735a0f1c29122442e7a37f99b47fb66bf992f1d60752d285d",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/03.jpg": {
+    "src": "/product-photos-v2/mens-suit/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "99a05307bf8947010969023423cdd2bbd6136b6ff3374994fba02d2648c2bdfb",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/04.jpg": {
+    "src": "/product-photos-v2/mens-suit/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "83dc69644612b1e19aa015f2a722c921828bb7dbf98a919fea3f47417fe3b753",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/05.jpg": {
+    "src": "/product-photos-v2/mens-suit/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c8f7d1d0893de62e883674230da80f25dc90bb097591e238f60270d6deb924c5",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/06.jpg": {
+    "src": "/product-photos-v2/mens-suit/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "87e8ac2416986edc8bb1cee469ddca23d830defa8b85eb4f46dfc81221479132",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/07.jpg": {
+    "src": "/product-photos-v2/mens-suit/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "932c6459b20ea24145aee35ec77b2b66c0c121206cdb5fb9e010e14eb883e989",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/08.jpg": {
+    "src": "/product-photos-v2/mens-suit/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "39aa9329d06536bd4a03de0fbc8b1b2d798fdd2357d3f6a6e20eb0d33699ea07",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/09.jpg": {
+    "src": "/product-photos-v2/mens-suit/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b1b91ce8c677ac96ad04349c295eab3c36146733191f6bd8fbb2e16db584a3f5",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/10.jpg": {
+    "src": "/product-photos-v2/mens-suit/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c185792748d6012066db0298f63818d2b4316a56c6402cb649f4ef09cf9dc09e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/11.jpg": {
+    "src": "/product-photos-v2/mens-suit/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "e3a19e329dfa6ad695b1fe5d1817d83b9b55693bde9016b53e5d3008b3de8abf",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/12.jpg": {
+    "src": "/product-photos-v2/mens-suit/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "9648f3bc8510ea42d4f621a244376e7980bc438ae68482f1e8cd3f1ef834a52e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/13.jpg": {
+    "src": "/product-photos-v2/mens-suit/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "39435fb0379d4f013732eb4dd9b2beddf90334e8e4802fbce1303d9f8963a3a5",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/14.jpg": {
+    "src": "/product-photos-v2/mens-suit/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "f42ecce75f2fab57ec4dca43fc8ad1f52c8e274bf8076db6b65a13b8de84b3fa",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/15.jpg": {
+    "src": "/product-photos-v2/mens-suit/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "910c481743f9987f38d601f2ac33c91ccd041fabfb9fe3b228e2cc4a3bf8eec1",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/16.jpg": {
+    "src": "/product-photos-v2/mens-suit/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8807efcf9d7179ab9e96beb0756beba1ac4d57a5a96f2365ac7d9a23bf870916",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/17.jpg": {
+    "src": "/product-photos-v2/mens-suit/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "39f6b8a49e16d5ed745bc224006ad30dee7b3e3cae3c427de183a4640306a50b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/18.jpg": {
+    "src": "/product-photos-v2/mens-suit/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a20bd6fea3ef7397daf5107c9536a12b4aa67193e1a395843f75946454fa62f4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/19.jpg": {
+    "src": "/product-photos-v2/mens-suit/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "66822c80107736216d73cd7e494020503533fc615f3508c9169138ad3ec2699c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-suit/20.jpg": {
+    "src": "/product-photos-v2/mens-suit/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "833bd9c3197de0c4f3d7c259028916e9b2625e2d81be315e67f57e53d1e089bc",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/01.jpg": {
+    "src": "/product-photos-v2/mens-trousers/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7cbcbb091982a28d628625515172112d148b793b474e07c0ee4c07713662091b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/02.jpg": {
+    "src": "/product-photos-v2/mens-trousers/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5fc0f67a0fad583637171255800b5eed4b38b50565e0810c33a5d5814743177f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/03.jpg": {
+    "src": "/product-photos-v2/mens-trousers/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "49e16b270514fa63e5144185272facdcd3323bfeae3a332f6802121f96b1bf75",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/04.jpg": {
+    "src": "/product-photos-v2/mens-trousers/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a29601ef9d8d2f0e1bb53cef1f66b6ed074fa73876d39dc522bd3b3cc4f4b99a",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/05.jpg": {
+    "src": "/product-photos-v2/mens-trousers/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2e4cfb5a9af208c38533472ecc9981e950d395031e622460ff05a4293064639e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/06.jpg": {
+    "src": "/product-photos-v2/mens-trousers/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "ff9601474eef4e7ed55c41c89ce79f3951a4e7c28d14959fd2b2d32d0e1fabcc",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/07.jpg": {
+    "src": "/product-photos-v2/mens-trousers/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "dd27c9b893ee65639de2bdcd08e0a161631cc5dc6656c32b95f6fb2bf51fd9c9",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/08.jpg": {
+    "src": "/product-photos-v2/mens-trousers/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7aa64e6036fa781885ca5b97b0bbb8537b77ed0183629804d45aabbd91aabc9e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/09.jpg": {
+    "src": "/product-photos-v2/mens-trousers/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "fa5d1314dd443184e857e2079b10aabdf484e7f4ac1d7846262645c1d10d4402",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/10.jpg": {
+    "src": "/product-photos-v2/mens-trousers/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "12071e10c48a510ee07733410da1aa29cb5ebdac62493137909ed33cea12d3e4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/11.jpg": {
+    "src": "/product-photos-v2/mens-trousers/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1009bfa7ab68de1f104b1b2c8ef144e262534883f9f726599959cb05e9154e54",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/12.jpg": {
+    "src": "/product-photos-v2/mens-trousers/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7eafec6db7f203ade80ac046c7e064535c057894a4000bd1ae74128424d3fed3",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/13.jpg": {
+    "src": "/product-photos-v2/mens-trousers/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "ae5ee95f94359016933a10258524db4fe589549da16e41ed4671bab6742b2e21",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/14.jpg": {
+    "src": "/product-photos-v2/mens-trousers/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "94e02064fb156663f7bfc5b97377bd4e879dc1eb86982651f007a2da01094092",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/15.jpg": {
+    "src": "/product-photos-v2/mens-trousers/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "cba193b1ca0dea6ec9caa4fbff19572552e7157a11d6107d09b62196f5601bc9",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/16.jpg": {
+    "src": "/product-photos-v2/mens-trousers/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "04b546f5418e080b449f5d3d61169ca07995de8ce25154b447408e33dee0fa94",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/17.jpg": {
+    "src": "/product-photos-v2/mens-trousers/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "9bad1a46e2213484f73fa09903ee1798bef203981812aa90bc2ccad5388e1e17",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/18.jpg": {
+    "src": "/product-photos-v2/mens-trousers/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "6d691ebddeff2f6393d3fe32c4d90099b4674e95a6a7e3059b412b7b17bdb876",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/19.jpg": {
+    "src": "/product-photos-v2/mens-trousers/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2c8b64477ed2236d4029e4a6004162399becd28b58e21f3dd55f6fc1a9bb1f87",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/mens-trousers/20.jpg": {
+    "src": "/product-photos-v2/mens-trousers/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2516b88f8c024cc3afec0a5532c238d71c7b3a520aae3bd8b8ece9b252ba3069",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/01.jpg": {
+    "src": "/product-photos-v2/perfume/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a6109d21ff001ddc5377da18c8581f1b39646ab8d216381f444284089410e9c4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/02.jpg": {
+    "src": "/product-photos-v2/perfume/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "99366452e3af3e226b15aa18d85fc92cd67e0a8ab509e1577b8a6f14020a4c19",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/03.jpg": {
+    "src": "/product-photos-v2/perfume/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "0d21adb5ba49d03aecaa45b5034eb990eba060bb8564063839cc05933b5d76e6",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/04.jpg": {
+    "src": "/product-photos-v2/perfume/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "6cc0d1105fa06cb1dba459bbb032cffdf2f2f3ace0e76a869817b0ab70582995",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/05.jpg": {
+    "src": "/product-photos-v2/perfume/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "28cbd89881f6e4ad81109299acc6f5122731de3ce8b076c464463cae1f51e941",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/06.jpg": {
+    "src": "/product-photos-v2/perfume/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "505d168dc202bced3ae1978236b68d1fd76d6eff795df0e8a05b113400f0801f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/07.jpg": {
+    "src": "/product-photos-v2/perfume/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a769bc47264305d44795f8096f994689a6bae710459aade594fb3180924f3f38",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/08.jpg": {
+    "src": "/product-photos-v2/perfume/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "20fac3e2fa8eca87694acb138f20ecee8ae71484b571d51c9652b220828c1e2e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/09.jpg": {
+    "src": "/product-photos-v2/perfume/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1f6b189e9ddaddf5e4357edb1dd32a2d6bab8da4bc774dc9e085f5a99c83f080",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/10.jpg": {
+    "src": "/product-photos-v2/perfume/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "38928b0b7883caeefa7276e7170e4d5b16a19c06d8c81137b0ca2a9fb3f52aeb",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/11.jpg": {
+    "src": "/product-photos-v2/perfume/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "feaff67b316c51c7f0d2b772b91c5eff32b1d65c7607075c26b4b79b243f5f91",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/12.jpg": {
+    "src": "/product-photos-v2/perfume/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "ad99686dd1fc296aa98d2566a9108572158d4c68c4f2e454e240b0d8e902b265",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/13.jpg": {
+    "src": "/product-photos-v2/perfume/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "55b880ba1557adcab3f149da00b31bd4d6c4d6d85fd72fc9ee7c4b6c7ab84d0f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/14.jpg": {
+    "src": "/product-photos-v2/perfume/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "fa9dcef0998279d4281cb6aed87fa05c0b7bd03e8762ee95874cd47e44d94765",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/15.jpg": {
+    "src": "/product-photos-v2/perfume/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "277b9de7e14d1ced1f42c3f88d455dcb523f55baf85fc02e0a0dd9a98dc3c7b3",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/16.jpg": {
+    "src": "/product-photos-v2/perfume/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7ecc090284852d12f333b705d7c3e66f55ccf4b43f93ed7346f9b9388039470c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/17.jpg": {
+    "src": "/product-photos-v2/perfume/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "280f976060eed684d970a56ef1457cff22e519fdade7ab830dd1e0a31546ae00",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/18.jpg": {
+    "src": "/product-photos-v2/perfume/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "be2a954adf8c5b652a124d0c14f8ae8c75356b2ed76c85ea2d7e7c6b851f095f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/19.jpg": {
+    "src": "/product-photos-v2/perfume/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5439f94a8bb452daf84699949da8bbbeb1def9f49a0e8ddeaf3734ee3b7360c0",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/perfume/20.jpg": {
+    "src": "/product-photos-v2/perfume/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "f620bd0f476429a847dd1ebd00cdfb6a3e478a17c09c73dec24c038252f420fa",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/01.jpg": {
+    "src": "/product-photos-v2/shoes/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b4f8bb281df106305f39359b5d93c2267da7859c8011c0028953f0c62be19018",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/02.jpg": {
+    "src": "/product-photos-v2/shoes/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "55efc47f0c0eab25a45a398ba4243409f8c3c850a3bd103945fdde753b5a24ec",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/03.jpg": {
+    "src": "/product-photos-v2/shoes/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "15db961348f2537da76298ed976ecab83c14c3f751b69c28a1d1f61468e9e3bc",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/04.jpg": {
+    "src": "/product-photos-v2/shoes/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "33eaa6d30050818385edae4fbb2027131c6b5754110ea343ba16f1f531ae338c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/05.jpg": {
+    "src": "/product-photos-v2/shoes/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b2b147998cc863a73c03d616d3b6b4ff6ac5682f50cbe12b42f9b6a1e4163977",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/06.jpg": {
+    "src": "/product-photos-v2/shoes/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "fba428590fae6b395a19412aad4ac81e871897f9db65a095ffc959f71112ca87",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/07.jpg": {
+    "src": "/product-photos-v2/shoes/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "ee7a72d0c7d4cd63e04729f760b66526e1fc2e425d363e3f694606d200f645d0",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/08.jpg": {
+    "src": "/product-photos-v2/shoes/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "debec530f6ca91b314cb1d70cdd8619f1708d324c7749941a5967b020893ee5d",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/09.jpg": {
+    "src": "/product-photos-v2/shoes/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "ee8e32181b17dc9bace0bfaf47f00cd7ab71d823ac8822fdf81bd0e61b28554a",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/10.jpg": {
+    "src": "/product-photos-v2/shoes/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8e5c50c23b265ee09abb9cbce15b7a35599ba5b866c0cdad26d34ca3a53a3f62",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/11.jpg": {
+    "src": "/product-photos-v2/shoes/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7d979336dced97f425df7957aec21fe020b5a186413c7d05f43cf1b0a79c305c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/12.jpg": {
+    "src": "/product-photos-v2/shoes/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "14f02a10f579b64589f59bd43cf20e69340763b0663758e7f2cd37c8bb4e2510",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/13.jpg": {
+    "src": "/product-photos-v2/shoes/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "59f4f098c5aad698fdfa1216f5449f5201f6b5e81ba48055c52c8283518b7af6",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/14.jpg": {
+    "src": "/product-photos-v2/shoes/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "bd87755a7db31ed60debec3ce43353c43c08967b6ff3dce2db7785b09cf85bec",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/15.jpg": {
+    "src": "/product-photos-v2/shoes/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "96c332d38147fa0e5110f63ad7af3e32f687ab24b86e7f2fc8e051c63790677c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/16.jpg": {
+    "src": "/product-photos-v2/shoes/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b3c822f0eca259f14c40b121217b30063af36bb752777eada557db91ce3ec872",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/17.jpg": {
+    "src": "/product-photos-v2/shoes/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7130fe1f1da0432789ca4391a4ae8a4cac12e21b2e57a8e6085a6dd30069c8b9",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/18.jpg": {
+    "src": "/product-photos-v2/shoes/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1953469a20dfe13c7540c92352b259b8ee647f5958066968138c824876246de2",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/19.jpg": {
+    "src": "/product-photos-v2/shoes/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5195974677a719c499db3557be37271e93aec08b8d2c96c7e7ae450eae862cb7",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/shoes/20.jpg": {
+    "src": "/product-photos-v2/shoes/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1585add335bff6285330a0e794553b1983c42a9f91e3eb917a69000e219be392",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-blouse/11.jpg": {
+    "src": "/product-photos-v2/womens-blouse/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7754f5921401b1833c2d8e449ef0882fc2dca3234b2276269e76de670b8a9854",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-blouse/19.jpg": {
+    "src": "/product-photos-v2/womens-blouse/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a5a7223182f139cc9cb2eb61d245e827d9866078d16e07890069da2a646f6271",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-blouse/20.jpg": {
+    "src": "/product-photos-v2/womens-blouse/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "e19758edb970fa9cfb047400595b901bd320a18cf3eb4b9f36bdcdd670828a9f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/01.jpg": {
+    "src": "/product-photos-v2/womens-jacket/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "002d60883731665677ad9360e683b9b2640a18eb7c41561275843c699debd556",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/02.jpg": {
+    "src": "/product-photos-v2/womens-jacket/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b432e958e4c62d01e7ddb5f9d40b8df8e581eef07b4432fb1e144cd13ef9f65d",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/03.jpg": {
+    "src": "/product-photos-v2/womens-jacket/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8ecc85caee177fc035e041002c0c85705b5864f9293d73df3597695eb7948a46",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/04.jpg": {
+    "src": "/product-photos-v2/womens-jacket/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "556feac8a270bedde383f1696c9fcaee38560d38393841859041c724861b2af3",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/05.jpg": {
+    "src": "/product-photos-v2/womens-jacket/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2e6d24428c13d171c41404468715e711d54fa139db224e93a8cbeb3a0e51090d",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/06.jpg": {
+    "src": "/product-photos-v2/womens-jacket/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "3dc275787ecc6c580d2221b727e3fa37c943d19a92a0895ff5a7c6275be0340b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/07.jpg": {
+    "src": "/product-photos-v2/womens-jacket/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "84b7107bf083bce34fbc2eaecfe127b9660b0744e9ca4cfc668a486da319b48e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/08.jpg": {
+    "src": "/product-photos-v2/womens-jacket/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "25a912d4cc6526ebe4ff4aa68b433cea40502e32146cfb123c61ed7c31d4114c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/09.jpg": {
+    "src": "/product-photos-v2/womens-jacket/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "af696c8c247147f16754d5d95f6dd5ef9c62169a19709ad9060c3c333f6420a5",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/10.jpg": {
+    "src": "/product-photos-v2/womens-jacket/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "cf286e3a4ce403549dd9c8ed7d7cb6a78c250f7d10d2e7078b33d7faff4caa33",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/11.jpg": {
+    "src": "/product-photos-v2/womens-jacket/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "078fa7952470a6b97b11a75a0c80d2a9c4616fedaf5f7d52a26fdff4e04080d6",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/12.jpg": {
+    "src": "/product-photos-v2/womens-jacket/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "0f2e4f4672db16c5e12482d5f74a16af26ff3dd9df05490064bfc11cb137af5b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/13.jpg": {
+    "src": "/product-photos-v2/womens-jacket/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5063b0b83dcb1656726c2892ef7e3a4126bc800af57e8959c1db42eb5b1c2249",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/14.jpg": {
+    "src": "/product-photos-v2/womens-jacket/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c95bc8532a4e9b062dc8153c5b71a569fabb1c23b97a8283448858b45e918073",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/15.jpg": {
+    "src": "/product-photos-v2/womens-jacket/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2d52213328eecc659e6edb461f419f11dc2ea2c7d07ab739764df3277fce8c18",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/16.jpg": {
+    "src": "/product-photos-v2/womens-jacket/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "f5c5a675ea5c2bf461d3a18b9f94055d8db2718b81983288517cc79bade542dd",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/17.jpg": {
+    "src": "/product-photos-v2/womens-jacket/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "ed8cfa0a01e0423971f2ac1e6578480cf73f274533c762507df608e84e6c35f2",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/18.jpg": {
+    "src": "/product-photos-v2/womens-jacket/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "01a66d6cf33b478e613af9ec7355e1de2389eb0bc31d08ede86a2476c5eef3db",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/19.jpg": {
+    "src": "/product-photos-v2/womens-jacket/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "e5758e190fcef49eca0ea9e1a89a0852a2155b0996e2e0ec545bffb9626c2ecf",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-jacket/20.jpg": {
+    "src": "/product-photos-v2/womens-jacket/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c6dce3bd1585a644b014cc6aa51e062b56f20f8ef10c51b3763b2816803181fa",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/01.jpg": {
+    "src": "/product-photos-v2/womens-skirt/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "96da063ada06fbf63d934c4d6cdbf2d04d3d0a34345d119b80ba924e3385c900",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/02.jpg": {
+    "src": "/product-photos-v2/womens-skirt/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "98b98b436ee9ea836ff1a2d3fc2c9b74b20e055baa1dd6898dada113e880188b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/03.jpg": {
+    "src": "/product-photos-v2/womens-skirt/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1c8c377879f511b8172deb8f96f248e342e024333da61942d4b794d39d5176ea",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/04.jpg": {
+    "src": "/product-photos-v2/womens-skirt/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2e57d0dc243bb0d019088c95b83bdbedf1fcccb6c432afc4381b268c30886a56",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/05.jpg": {
+    "src": "/product-photos-v2/womens-skirt/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1890a5c385cd07211ab5e115ebf3f1bd093152b41d6793672a31bf0830d70bf6",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/06.jpg": {
+    "src": "/product-photos-v2/womens-skirt/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "cfa0d4b2c6e52868539bb198206424979a78cb43a0630edb12716dc446ebd14a",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/07.jpg": {
+    "src": "/product-photos-v2/womens-skirt/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8c451906a9824797cdce8e716b6bf16d0d957131df106869dced8d4ada1fdeba",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/08.jpg": {
+    "src": "/product-photos-v2/womens-skirt/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c412c5b4b5accf11dc8ca3663ce17c606031e3aa17dead3a1b6010d6ed1d3d3e",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/09.jpg": {
+    "src": "/product-photos-v2/womens-skirt/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "40164ca4db6b3914f3d236ec0cac66d09b59c8ecedfcaaf1ef0f96149bbbd40b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/10.jpg": {
+    "src": "/product-photos-v2/womens-skirt/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b009d71223f08b5437724626a9fd3d12a836d65a00b5079f70155117863c43e2",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/11.jpg": {
+    "src": "/product-photos-v2/womens-skirt/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8e0c9ec4404e310710f6e77bb8ac254d6ff9d7622b827aee7972dbff032385ab",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/12.jpg": {
+    "src": "/product-photos-v2/womens-skirt/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5516fe5e862840ec638fe54199540e37d83a755f1bd17492119581515cb7a236",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/13.jpg": {
+    "src": "/product-photos-v2/womens-skirt/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5e61f5f5d64462ee397b0e0a7692d9e0c505975f549ee8a025a201bb2046213a",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/14.jpg": {
+    "src": "/product-photos-v2/womens-skirt/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c47052008ce7557d2358d399de9afabb656f6326c26a83b9dcdfdb8e0b0b1480",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/15.jpg": {
+    "src": "/product-photos-v2/womens-skirt/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "300dc61554aa28b644b6d87c391c0490526f66f6d8f84b591ef8d273719f3fe9",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/16.jpg": {
+    "src": "/product-photos-v2/womens-skirt/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "27275785e23c1ca7a2bf5320e4c70a977ec338db79c1ccb8698aa5c302a12b3a",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/17.jpg": {
+    "src": "/product-photos-v2/womens-skirt/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8dbd4b7aaa865950ad5827d15c5fcafb4f8e91320d56d84497e5b03f984060d4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/18.jpg": {
+    "src": "/product-photos-v2/womens-skirt/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a2aa9e50ab4be432c51709f0c71888de464ebee9809bdaa17b8673516ca5d50d",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/19.jpg": {
+    "src": "/product-photos-v2/womens-skirt/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "21398160677aa66bac5fc02fdcd8ea6aca865c36c4c6560bbcbe77c3862ce247",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-skirt/20.jpg": {
+    "src": "/product-photos-v2/womens-skirt/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "fb753fa5ccbad22b3b0a1a78e66e5c19465ca24feba3eb68ad957af0bb52109f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/01.jpg": {
+    "src": "/product-photos-v2/womens-trousers/01.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "2e1147304ed37e7c96472f4fff61ad756ab198824556f2aba1533de8c850e175",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/02.jpg": {
+    "src": "/product-photos-v2/womens-trousers/02.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "d3128f878fd6d2baf5102d847e51ebfdd17c597b941474dab94fa172ed65706f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/03.jpg": {
+    "src": "/product-photos-v2/womens-trousers/03.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "26d84d47b033eb1751b18e6ef7269ae23ca98e2b1a37bf632663bc3dba3103c7",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/04.jpg": {
+    "src": "/product-photos-v2/womens-trousers/04.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b934db35661e083d227ebdbed4cac53db3906ae2bb853004c008adafd23d5b72",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/05.jpg": {
+    "src": "/product-photos-v2/womens-trousers/05.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "bbf22e9919ee63dc6b0cab5b8eaf6cfbaa49b1d5e271f7624b6289f267140ca3",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/06.jpg": {
+    "src": "/product-photos-v2/womens-trousers/06.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "bf6345797b3b43d1a5a528c2a622d21278469b65c4c2569c63257615d5fb0012",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/07.jpg": {
+    "src": "/product-photos-v2/womens-trousers/07.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "48f08cefd9e77540c67f62b8448bded02bd601a131f42167581821b74a9746ec",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/08.jpg": {
+    "src": "/product-photos-v2/womens-trousers/08.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "9a79f566cbecc381e633dfbb52292a06cc2575c80bddc10f02097b45efaa444f",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/09.jpg": {
+    "src": "/product-photos-v2/womens-trousers/09.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "9f49c6356a2ea238769ab9b54051abaa1c89d26c92640ac15855adde4ab11d1c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/10.jpg": {
+    "src": "/product-photos-v2/womens-trousers/10.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "cd3840e92c3f3363fd1d55cd60eb941af36a07006b44307482031afc1dda4486",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/11.jpg": {
+    "src": "/product-photos-v2/womens-trousers/11.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "3a2c0cbe16b4a8a9602e2aa4381a91673d42d959dd23d69f5fd62a9a2745d4bd",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/12.jpg": {
+    "src": "/product-photos-v2/womens-trousers/12.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "181383b1da443a2444ac1e256844d27837132a287fa9f6117c99df5d8e81631b",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/13.jpg": {
+    "src": "/product-photos-v2/womens-trousers/13.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "749999f6b1ed5eb55aa8c6b0ec18305dc607cb1cbac0a33e3dde9013305c4a49",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/14.jpg": {
+    "src": "/product-photos-v2/womens-trousers/14.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "851a63cee0495d28471a3fd8bc9cd31d780b1dc50002976854498f2ab863f3df",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/15.jpg": {
+    "src": "/product-photos-v2/womens-trousers/15.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5cefc4b6344c3a6ca448479d9316c487718627bcbf835b07e3798c9131b56ce4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/16.jpg": {
+    "src": "/product-photos-v2/womens-trousers/16.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "b508caed54bb42342a59afda2f17aee843ee44bc26e61118430188cd1e712105",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/17.jpg": {
+    "src": "/product-photos-v2/womens-trousers/17.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "f8b13181b76d4f07c4c6c9d8b6960149f23280551400783c8664bc222453a682",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/18.jpg": {
+    "src": "/product-photos-v2/womens-trousers/18.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "80125d006fbe542d43eeb7fcfafa43a3bc6a3b884439e5a44d15e33751f8b032",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/19.jpg": {
+    "src": "/product-photos-v2/womens-trousers/19.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "3a03fb8c929ce63d9c7d0d7fbd309a8e3088c0cadf00256d92a39c4c763cc73c",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  },
+  "/demo-products/womens-trousers/20.jpg": {
+    "src": "/product-photos-v2/womens-trousers/20.webp",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "80ccd524b913a81bf42442797d6546955658e3b8af1eb3cae9a6f44ecd28ddf4",
+    "provenance": "AI-enhanced demo illustration from the legacy photograph; fine details are illustrative."
+  }
+}

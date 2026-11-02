@@ -575,9 +575,11 @@ test.describe("chat widget", () => {
     await expect(page.getByTestId("assistant-product-card")).toHaveAttribute("href", "/men/cargo-jeans");
   });
 
-  test("legacy contact-sheet thumbnails never reveal the next row at mobile, desktop or hover", async ({ page }, testInfo) => {
+  test("legacy photo references resolve to standalone thumbnails at mobile, desktop or hover", async ({ page }, testInfo) => {
     const sheet = '<svg xmlns="http://www.w3.org/2000/svg" width="260" height="258"><path fill="#245888" d="M0 0h260v225H0z"/><path fill="#ffffff" d="M0 225h260v9H0z"/><path fill="#ff0000" d="M0 234h260v24H0z"/></svg>';
     await page.route("**/demo-products/mens-trousers/14.jpg", route => route.fulfill({ contentType: "image/svg+xml", body: sheet }));
+    const enhancedRequest = (url: URL) => url.pathname === "/_next/image" && url.searchParams.get("url") === "/product-photos-v2/mens-trousers/14.webp";
+    await page.route(enhancedRequest, route => route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1536"><path fill="#245888" d="M0 0h1024v1536H0z"/></svg>' }));
     const cards = [
       { ...catalog[2], id: "sheet", image_url: "/demo-products/mens-trousers/14.jpg", name: "Atelier Washed Cotton Cargo Pants", category: "Men's Trousers", price: 4200,
         matchReason: "Matches “cargo”; trousers instead of shorts." },
@@ -588,7 +590,7 @@ test.describe("chat widget", () => {
     const input = page.getByLabel("Message the shopping assistant");
     await input.fill("cargo shorts"); await input.press("Enter");
     const frame = page.getByTestId("assistant-product").first().locator(".assistant-product-image");
-    await expect(frame).toHaveAttribute("data-legacy-sheet", "true");
+    await expect(frame).toHaveAttribute("data-photo-kind", "illustrative");
     const checkBottom = async () => {
       const capture = await frame.screenshot({ animations: "disabled" });
       const { data, info } = await sharp(capture).removeAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -605,12 +607,13 @@ test.describe("chat widget", () => {
       await page.emulateMedia({ reducedMotion: "no-preference" });
     }
     const standalone = page.getByTestId("assistant-product").nth(1).locator(".assistant-product-image");
-    await expect(standalone).toHaveAttribute("data-legacy-sheet", "false");
-    await page.unroute("**/demo-products/mens-trousers/14.jpg");
-    const actualPhoto = page.waitForResponse(response => response.url().includes("/demo-products/mens-trousers/14.jpg?preview=actual"));
-    await frame.locator("img").evaluate((image: HTMLImageElement) => { image.src += "?preview=actual"; });
+    await expect(standalone).toHaveAttribute("data-photo-kind", "original");
+    await page.unroute(enhancedRequest);
+    const actualPhoto = page.waitForResponse(response => response.url().includes("/product-photos-v2/mens-trousers/14.webp?preview=actual"));
+    await frame.locator("img").evaluate((image: HTMLImageElement) => { image.removeAttribute("srcset"); image.removeAttribute("sizes"); image.src = "/product-photos-v2/mens-trousers/14.webp?preview=actual"; });
     await actualPhoto;
-    await expect.poll(() => frame.locator("img").evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth)).toBe(260);
+    await expect.poll(() => frame.locator("img").evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth)).toBeGreaterThanOrEqual(1024);
+    await expect(frame.locator("img")).toHaveCSS("transform", "none");
     await page.setViewportSize({ width: 390, height: 850 });
     await page.getByTestId("assistant-product").first().screenshot({ path: testInfo.outputPath("cargo-thumbnail-mobile.png"), animations: "disabled" });
   });
@@ -651,7 +654,7 @@ test.describe("chat widget", () => {
     expect(calls).toBe(2);
     await expect(page.getByTestId("assistant-product-card")).toHaveAttribute("href", "/bags/p3");
     await expect(page.getByTestId("assistant-add-confirmation")).toContainText("Add to bag?");
-    expect(await page.evaluate(() => localStorage.getItem("els-cart"))).not.toContain("p3");
+    expect(await page.evaluate(() => localStorage.getItem("els-cart:customer-a") ?? "[]")).not.toContain("p3");
     const box = await page.getByTestId("assistant-panel").boundingBox();
     expect(box!.y).toBeGreaterThanOrEqual(0);
     expect(box!.x + box!.width).toBeLessThanOrEqual(390);
@@ -674,9 +677,9 @@ test.describe("chat widget", () => {
     await askForBag(page);
     await page.getByRole("button", { name: "Confirm", exact: true }).click();
     await expect(page.getByTestId("assistant-error")).toContainText("price has changed");
-    expect(await page.evaluate(() => localStorage.getItem("els-cart"))).not.toContain("p3");
+    expect(await page.evaluate(() => localStorage.getItem("els-cart:customer-a") ?? "[]")).not.toContain("p3");
     await page.getByRole("button", { name: "Confirm", exact: true }).click();
-    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("els-cart") || "[]"))).toEqual([
+    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("els-cart:customer-a") || "[]"))).toEqual([
       { id: "p3", name: "Leather Tote Bag", price: 1500, image_url: "/canta-5.jpg", category: "Bags", size: null, color: null, quantity: 1 },
     ]);
     await expect(page.getByTestId("assistant-add-confirmation")).toContainText("Sent to your bag");
@@ -698,7 +701,7 @@ test.describe("chat widget", () => {
     await expect(page.getByTestId("assistant-message-user")).toHaveCount(0);
     await setCustomer(page, "customer-b"); release();
     await expect(page.getByTestId("assistant-message-assistant")).toHaveCount(0);
-    expect(await page.evaluate(() => localStorage.getItem("els-cart"))).not.toContain("p3");
+    expect(await page.evaluate(() => localStorage.getItem("els-cart:customer-a") ?? "[]")).not.toContain("p3");
   });
 
   test("account switch discards late chat responses and token refresh retains the conversation", async ({ page }) => {
@@ -728,7 +731,7 @@ test.describe("chat widget", () => {
     await page.getByRole("button", { name: "Confirm", exact: true }).click();
     await expect(page.getByTestId("assistant-error")).toContainText("session changed");
     await expect(page.getByTestId("assistant-add-confirmation")).not.toContainText("Sent to your bag");
-    expect(await page.evaluate(() => localStorage.getItem("els-cart"))).not.toContain("p3");
+    expect(await page.evaluate(() => localStorage.getItem("els-cart:customer-a") ?? "[]")).not.toContain("p3");
   });
 
   test("chat and confirmation deadlines recover without late replies or additions", async ({ page }) => {
@@ -760,12 +763,12 @@ test.describe("chat widget", () => {
     await expect(page.getByTestId("assistant-error")).toContainText("Stock validation took too long");
     await expect(page.getByRole("button", { name: "Confirm", exact: true })).toBeEnabled();
     releaseConfirm();
-    expect(await page.evaluate(() => localStorage.getItem("els-cart"))).not.toContain("p3");
+    expect(await page.evaluate(() => localStorage.getItem("els-cart:customer-a") ?? "[]")).not.toContain("p3");
     await expect(page.getByTestId("assistant-log")).not.toContainText("Late reply");
   });
 
   test("pending confirmation rejects a changed bag and blocks duplicate clicks", async ({ page }) => {
-    await page.addInitScript(() => localStorage.setItem("els-cart", JSON.stringify([
+    await page.addInitScript(() => localStorage.setItem("els-cart:customer-a", JSON.stringify([
       { id: "p3", name: "Leather Tote Bag", price: 1500, image_url: "/canta-5.jpg", category: "Bags", size: null, color: null, quantity: 1 },
     ])));
     await page.goto("/"); await setCustomer(page, "customer-a"); await mockProposal(page);
@@ -788,7 +791,7 @@ test.describe("chat widget", () => {
     release();
     await expect(page.getByTestId("assistant-error")).toContainText("bag changed");
     expect(calls).toBe(1);
-    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("els-cart") || "[]")[0]?.quantity)).toBe(2);
+    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("els-cart:customer-a") || "[]")[0]?.quantity)).toBe(2);
     await expect(page.getByTestId("assistant-add-confirmation")).not.toContainText("Sent to your bag");
   });
 
@@ -857,7 +860,7 @@ test.describe("chat widget", () => {
     await productCard.getByLabel("Quantity for Black Midi Dress").fill("2");
     await review.click();
     await expect(page.getByTestId("assistant-add-confirmation")).toContainText("size M, Red");
-    expect(await page.evaluate(() => localStorage.getItem("els-cart"))).not.toContain("p1");
+    expect(await page.evaluate(() => localStorage.getItem("els-cart:customer-a") ?? "[]")).not.toContain("p1");
     await page.getByRole("button", { name: "Confirm", exact: true }).click();
     await expect(page.getByTestId("assistant-add-confirmation")).toContainText("Sent to your bag");
     // CartContext opens the drawer on add; close it to exercise the explicit View bag control.
@@ -867,7 +870,7 @@ test.describe("chat widget", () => {
     await expect(bag).toBeVisible();
     await expect(bag).toContainText("Black Midi Dress");
     await expect(page.getByTestId("assistant-panel")).toHaveCount(0);
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem("els-cart") || "[]")[0])).toMatchObject({ id: "p1", size: "M", color: "Red", quantity: 2 });
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem("els-cart:customer-a") || "[]")[0])).toMatchObject({ id: "p1", size: "M", color: "Red", quantity: 2 });
   });
 
   test("modern panel supports reduced motion, growing input, mobile viewport and quick reopening", async ({ page }, testInfo) => {

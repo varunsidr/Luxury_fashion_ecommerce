@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import Image from "next/image";
+import Image from "@/components/CatalogImage";
+import { isIllustrativeProductPhoto } from "@/lib/productPhotos";
 import Link from "next/link";
 import { Heart, Minus, Plus, ChevronDown, X, Star } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -129,7 +130,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
       : Number(product.stock ?? 0);
   const isOutOfStock = availableStock !== null && availableStock <= 0;
   const isProductOutOfStock = (product.sizes?.length ?? 0) > 0
-    ? sizeStocks.length > 0 ? sizeStocks.every((entry) => Number(entry.stock) <= 0) : Number(product.stock ?? 0) <= 0
+    ? product.sizes!.every((size) => getSizeStock(size) <= 0)
     : Number(product.stock ?? 0) <= 0;
 
   async function requestRestockNotice(event: FormEvent<HTMLFormElement>) {
@@ -316,20 +317,24 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                         selectedImage === i ? "border-black" : "border-transparent hover:border-neutral-300"
                       }`}
                     >
-                      <Image src={img} alt="" fill className="object-cover object-top" />
+                      <Image src={img} alt="" fill sizes="70px" className="object-contain object-center" />
                     </button>
                   ))}
                 </div>
               )}
               {/* Main image */}
-              <div className="relative flex-1 aspect-[3/4] overflow-hidden bg-neutral-50">
+              <div className="min-w-0 flex-1">
+              <div data-testid="product-detail-image" className={`relative overflow-hidden bg-neutral-50 ${isDemoProduct ? "aspect-[2/3]" : "aspect-[3/4]"}`}>
                 <Image
                   src={displayImage}
                   alt={displayProductName}
                   fill
-                  className={`object-cover object-top origin-top ${isDemoProduct ? "scale-[1.08]" : ""}`}
+                  sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1023px) calc(100vw - 180px), (max-width: 1407px) calc(50vw - 100px), 576px"
+                  className="object-contain object-center"
                   priority
                 />
+              </div>
+              {isIllustrativeProductPhoto(displayImage) && <p className="mt-2 text-xs leading-relaxed text-neutral-500">Illustrative demo imagery.</p>}
               </div>
               {/* Mobile bottom thumbnails */}
               {images.length > 1 && (
@@ -344,7 +349,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                         selectedImage === i ? "border-black" : "border-transparent hover:border-neutral-300"
                       }`}
                     >
-                      <Image src={img} alt="" fill className="object-cover object-top" />
+                      <Image src={img} alt="" fill sizes="64px" className="object-contain object-center" />
                     </button>
                   ))}
                 </div>
@@ -407,15 +412,16 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
                       return (
                         <button
                           key={size}
-                          onClick={() => !outOfStock && setSelectedSize(size)}
-                          disabled={outOfStock}
+                          onClick={() => { setSelectedSize(size); setNotifyStatus(""); }}
+                          aria-label={outOfStock ? `${size} — out of stock, select for restock alert` : size}
+                          aria-pressed={selectedSize === size}
                           data-testid={`product-detail-size-${size}`}
                           data-selected={selectedSize === size}
-                          className={`relative w-12 h-12 text-[12px] tracking-wide font-medium border transition-all duration-200 ${
-                            outOfStock
-                              ? "border-neutral-100 text-neutral-300 cursor-not-allowed overflow-hidden"
-                              : selectedSize === size
+                          className={`relative w-12 h-12 overflow-hidden text-[12px] tracking-wide font-medium border transition-all duration-200 ${
+                            selectedSize === size
                               ? "border-black bg-black text-white"
+                              : outOfStock
+                              ? "border-neutral-200 text-neutral-500 overflow-hidden hover:border-black"
                               : "border-neutral-200 text-neutral-700 hover:border-black"
                           }`}
                         >
@@ -438,7 +444,7 @@ export default function ProductDetailView({ product, mainCategory }: { product: 
               {(isProductOutOfStock || isOutOfStock) && (
                 <form onSubmit={requestRestockNotice} className="mb-8 border border-neutral-200 bg-neutral-50 p-4">
                   <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-700">Out of stock</p>
-                  <p className="mt-1 text-xs font-light text-neutral-500">Get an email when this {selectedSize ? "size" : "item"} is back.</p>
+                  <p className="mt-1 text-xs font-light text-neutral-500">{selectedSize ? `Get an email when size ${selectedSize} is back.` : product.sizes?.length ? "Get an email when this item is back in any size." : "Get an email when this item is back."}</p>
                   <div className="mt-3 flex gap-2">
                     <input type="email" required value={notifyEmail} onChange={(event) => setNotifyEmail(event.target.value)} placeholder="Your email address"
                       aria-label="Email address for restock notification" className="min-w-0 flex-1 border-b border-neutral-300 bg-transparent px-1 py-2 text-xs outline-none focus:border-black" />

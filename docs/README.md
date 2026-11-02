@@ -4,7 +4,7 @@ Start with [BRD.md](BRD.md) for the complete customer/admin feature inventory, r
 
 For implementation boundaries and runtime setup, read [architecture.md](../architecture.md), [README.md](../README.md) and [SECURITY.md](../SECURITY.md). The 2 November 2026 review includes grounded assistant questions, factual comparisons, conversation-only preferences, relevance and chat-image fixes. Earlier recovery/admin and execution records remain historical; the snapshot/review log identify current inspected inputs.
 
-The BRD maps 135 requirements across 20 modules and records 26 source-level gaps separately from implemented behavior.
+The BRD maps 137 requirements across 20 modules and records 26 source-level gaps separately from implemented behavior.
 
 - [QA_TESTING_GUIDE.md](QA_TESTING_GUIDE.md): fixture catalog, coverage checklist, test-case format, scenario seeds and a ready-to-use test-generation prompt.
 - [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv): spreadsheet-friendly requirement matrix with editable test IDs, execution status, defects, owner and notes. Synchronization preserves manual evidence and archives affected history.

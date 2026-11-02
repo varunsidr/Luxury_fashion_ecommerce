@@ -70,7 +70,7 @@ for (const method of ['card_demo', 'cash_on_delivery']) {
         expires_at: Math.floor(Date.now() / 1000) + 3600,
         user: { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', email: 'fictional@example.invalid' },
       }));
-      localStorage.setItem('els-cart', JSON.stringify([{ id: '22222222-2222-4222-8222-222222222222', name: 'Fixture Bag', category: 'Bags', price: 1000, image_url: '/canta-5.jpg', size: null, quantity: 1 }]));
+      localStorage.setItem('els-cart:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', JSON.stringify([{ id: '22222222-2222-4222-8222-222222222222', name: 'Fixture Bag', category: 'Bags', price: 1000, image_url: '/canta-5.jpg', size: null, quantity: 1 }]));
     });
     const keys: string[] = [];
     await page.route('**/api/checkout', (route) => {
@@ -94,7 +94,7 @@ for (const method of ['card_demo', 'cash_on_delivery']) {
     await button().click();
     await expect(page.getByText(/Retry with the same details/)).toBeVisible();
     await expect(button()).toBeEnabled();
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('els-cart') ?? '[]').length)).toBe(1);
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('els-cart:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') ?? '[]').length)).toBe(1);
     expect(await page.evaluate(() => sessionStorage.getItem('zeouf-checkout-attempt'))).not.toContain('Fictional Tester');
     await page.reload();
     await fill();
@@ -104,7 +104,7 @@ for (const method of ['card_demo', 'cash_on_delivery']) {
     expect(keys).toHaveLength(2);
     expect(keys[0]).toMatch(/^[0-9a-f-]{36}$/);
     expect(keys[1]).toBe(keys[0]);
-    await expect.poll(() => page.evaluate(() => localStorage.getItem('els-cart'))).toBe('[]');
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('els-cart:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'))).toBe('[]');
   });
 }
 

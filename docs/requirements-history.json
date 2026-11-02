@@ -11416,5 +11416,1615 @@
       "owner": "",
       "notes": ""
     }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "SEA-03",
+      "module": "Search",
+      "priority": "P2",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Search shall show loading, query/count, results, and no-results states; explicit service-error/retry handling and clearing old results for a blank query are incomplete (G-15).",
+      "source_codes": "SEARCH",
+      "qa_focus": "Slow/error responses, rapid query changes, blank after valid query",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "PDP-03",
+      "module": "Product cards and details",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Sized products shall require a chosen available size before add; zero or missing stock rows disable the size. Detail initializes from supplied size_stock then refreshes database rows; the local fallback supplies fixture rows. All-sold-out fixtures expose a whole-product restock form and disable purchase. Selecting a specific unavailable size for an alert remains unresolved (G-09).",
+      "source_codes": "DETAIL, DBCLIENT, SEED",
+      "qa_focus": "No size, zero/missing row, mixed/all-zero stock, initial versus refreshed rows, unavailable-size alert gap",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "AUTH-06",
+      "module": "Customer account",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Sign Out shall end customer session and clear in-memory favorites through auth updates; local cart currently remains.",
+      "source_codes": "NAV, FAV, CART",
+      "qa_focus": "Reload, protected actions, account switch/cart boundary",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "CART-04",
+      "module": "Cart",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Browser cart shall restore before writing els-cart. Malformed JSON/nonarrays recover to empty; invalid lines are removed while valid lines remain, with recovery feedback. Restored lines require nonempty display fields, supported photo URLs, finite nonnegative numeric prices, positive safe-integer quantities and valid options. Read/write storage failures keep an in-memory bag with a persistence notice. Account separation/sign-out clearing remain unresolved (G-10); no cart_items synchronization exists.",
+      "source_codes": "CART, CARTSTORE, NAV",
+      "qa_focus": "Initial load/reload, mixed invalid rows, duplicate variants, unavailable/quota-limited storage, two accounts",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "CHK-01",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Order submission shall require valid customer bearer token and nonempty cart; UI disables guest/empty submission and API rejects invalid/expired sessions.",
+      "source_codes": "CHECKOUT, CHECKOUTUI",
+      "qa_focus": "Guest, expired token, forged user ID, empty cart",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "CHK-08",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "On successful returned order ID, UI shall clear cart and show demo confirmation/ID and Continue Shopping with no delivery/email/support promises. API failure, malformed response or network rejection shall show error, keep cart and release submitting state for retry. A synchronous guard prevents overlapping UI submissions.",
+      "source_codes": "CHECKOUTUI",
+      "qa_focus": "Success, error/malformed response, network rejection, repeated click, state retention",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "RST-01",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Available alert UI shall accept email for an unavailable item/selected size and save product/email/size/color without customer authentication; invalid email/product shall fail. Specific unavailable-size selection is a UI gap (G-09).",
+      "source_codes": "DETAIL, RESTOCK",
+      "qa_focus": "Guest, whole-product versus size request, invalid product/email",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "RST-02",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Email shall be trimmed/lowercased; duplicate pending product/email/size/color requests shall return already_subscribed; otherwise create one pending record and token.",
+      "source_codes": "RESTOCK, DEMOMIG",
+      "qa_focus": "Case, null options, concurrent duplicate uniqueness",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "RST-03",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Response/UI shall distinguish saved-with-mail-enabled from saved-with-mail-disabled; absent delivery configuration shall keep pending requests.",
+      "source_codes": "RESTOCK, DETAIL, NOTIFY",
+      "qa_focus": "Mail on/off, missing database, queued response",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "implementation_state",
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus",
+      "known_gap_ids"
+    ],
+    "row": {
+      "requirement_id": "RST-04",
+      "module": "Restock alerts",
+      "priority": "P0",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Admin positive stock save can trigger up to 100 pending product requests, filtering by size when supplied, and mark successful sends notified; true stock/transition checks, retry scheduling and robust deduplication are incomplete (G-12).",
+      "source_codes": "ADMIN, NOTIFY",
+      "qa_focus": "Size eligibility, provider failure, repeated/concurrent batches",
+      "known_gap_ids": "G-12",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "STK-01",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock view shall expose one row per configured size or one Overall row for unsized products. Whole-number nonnegative edits save on blur through protected stock PATCH; failed writes/invalid values show feedback and do not update in-memory stock. Positive saves may still trigger notifications with G-12 limits.",
+      "source_codes": "ADMIN, STOCKAPI",
+      "qa_focus": "Sized/unsized, blur, invalid/failing write, expired cookie, notification limits",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance",
+      "source_codes",
+      "qa_focus"
+    ],
+    "row": {
+      "requirement_id": "AST-04",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "getCart shall require a verified customer bearer token, accept up to 30 valid browser-supplied lines and price them from catalog data (cached normally; fresh request snapshot for referenced follow-ups). Cart lines and totals render deterministically in display currency with INR base values. Anonymous/invalid tokens receive sign-in-required output. This is not an account-owned database cart; browser cart remains shared across accounts (G-10). Isolation follows AST-07. No order/account/checkout/payment tools exist.",
+      "source_codes": "ASSIST, CART",
+      "qa_focus": "Verified token, client price tampering, currency totals, fresh references, browser ownership, removed products, account switch",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T10:56:14.543Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; storefront denies fulfillment/support/newsletter delivery and admin order values are labelled demo, excluding cancelled orders; approved-only rating metrics and unsized low stock are corrected. Settings connection label and restock concurrency remain gaps. Transaction locks require live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG, ADMINCAT",
+      "qa_focus": "Demo copy, metric definitions, settings label, live permissions/concurrency, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.081Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "CHK-01",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Submission shall require a verified customer bearer token and nonempty cart. UI follows the cart owner, rejects a changed session before dispatch, and clears entered contact fields/confirmation on owner change. Late responses from a previous account shall not display that account's confirmation or clear the current account's bag. Server rejects invalid/expired sessions.",
+      "source_codes": "CHECKOUT, CHECKOUTUI, CART, UITEST",
+      "qa_focus": "Guest, expired token, forged user ID, empty cart, account switch before dispatch and during response",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.081Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "RST-05",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "GET/POST token unsubscribe shall delete the matching alert and return plain confirmation; malformed token fails, well-formed already-removed token is still successful; public clients cannot directly read the alert table.",
+      "source_codes": "UNSUB, DEMOMIG",
+      "qa_focus": "Valid/repeated/malformed token, privacy/RLS",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "SEA-03",
+      "module": "Search",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Search shall show loading, query/count, results, no-results and separate service-error states. Both name/category queries must succeed; rejected or hung requests reach Retry search within the eight-second operation deadline. Retry repeats the current query; query changes cancel prior work, blank/whitespace queries immediately hide old cards and show a prompt, and late responses cannot replace current results.",
+      "source_codes": "SEARCH, UITEST",
+      "qa_focus": "503/network/timeout, retry, one failed branch, deduplication, rapid query changes, blank after results",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-03",
+      "module": "Product cards and details",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Sized products shall require a chosen available size before add. Zero or missing configured stock rows remain selectable for restock alerts, announce unavailable status and selection, and disable purchase/quantity increase. Detail initializes from supplied size_stock then refreshes database rows; missing rows count as zero. All-sold-out products offer whole-product alerts; selecting a sold-out size changes the alert to that exact size, and switching to an available size hides it.",
+      "source_codes": "DETAIL, DBCLIENT, SEED, RESTOCKFLOW",
+      "qa_focus": "No size, missing/zero row, mixed/all-zero configured sizes, keyboard selection, exact-size payload, switch back to available",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-06",
+      "module": "Customer account",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Sign Out shall end the customer session, clear in-memory favorites and immediately empty/close the visible bag. A new account loads only its own browser bag; same-account token refresh preserves the bag. The signed-out account's scoped saved bag is retained for its next login on this browser.",
+      "source_codes": "NAV, FAV, CART",
+      "qa_focus": "Sign-out, direct account switch, reload, token refresh, former-account contents absent",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-04",
+      "module": "Cart",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cart persistence shall use els-cart:{encoded customer ID}, restore only after auth resolution and write with the owner captured at mutation time. Sign-out clears visible items and closes the drawer; account switch restores the new owner only. The unowned legacy els-cart key is removed with a re-add notice and never assigned to an account. Malformed JSON/nonarrays recover to empty; invalid rows are discarded with feedback while valid rows and normalized variants survive. Restored fields require supported photo URLs, finite nonnegative numeric prices and positive safe-integer quantities. Storage failures preserve separate in-memory account bags with a persistence notice. No database or cross-device cart sync and no automatic guest-action replay exist.",
+      "source_codes": "CART, CARTSTORE, NAV, UITEST",
+      "qa_focus": "Auth startup, A/sign-out/B/A, refresh, legacy bag, malformed rows, quota/read failure, writes during auth changes",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-01",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Submission shall require a verified customer bearer token and nonempty cart. UI enables form entry only after a customer account is restored, follows the cart owner, rejects a changed session before dispatch, and clears entered contact fields/confirmation on owner change. Late responses from a previous account shall not display that account's confirmation or clear the current account's bag. Server rejects invalid/expired sessions.",
+      "source_codes": "CHECKOUT, CHECKOUTUI, CART, UITEST",
+      "qa_focus": "Guest, expired token, forged user ID, empty cart, account switch before dispatch and during response",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-08",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "On successful returned order ID for the still-current account, UI shall clear that account's bag and show demo confirmation/ID and Continue Shopping with no delivery/email/support promises. API failure, malformed response or network rejection shall show error, keep cart and release submitting state for retry. A synchronous guard prevents overlapping submissions; late prior-account responses cannot clear another bag or show its order ID.",
+      "source_codes": "CHECKOUTUI, CART, UITEST",
+      "qa_focus": "Success, malformed/error response, network rejection, repeated click, retained retry state, account race",
+      "known_gap_ids": "G-10; G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-10",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Browser checkout shall retain a random attempt UUID and SHA-256 digest of customer/items/address/method under zeouf-checkout-attempt in sessionStorage, storing no raw contact fields there. Same details after a lost response/reload reuse the key; changed fingerprint generates a new key. Success removes it; unavailable storage permits in-memory retry only. Reload requires re-entering the same form details, and a new tab/session is not a guaranteed replay.",
+      "source_codes": "CHECKOUTUI, UITEST",
+      "qa_focus": "Both methods, lost response/reload, unchanged/changed details, account switch, blocked storage, success cleanup, no raw contact storage",
+      "known_gap_ids": "G-14",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-01",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Guests or customers may request an unavailable product or selected unavailable size. The service-only subscription RPC locks the parent product, validates configured size/color (demo-photo products reject color), rejects currently available requests with 409, and atomically saves normalized email/options/token. Missing configured size rows count as unavailable. Invalid bodies/email/options fail, unknown product is 404, and unavailable service/migration is 503.",
+      "source_codes": "DETAIL, RESTOCK, RESTOCKFLOW",
+      "qa_focus": "Whole product versus exact size, missing row, in-stock rejection, configured/demo colors, malformed body, guest, subscription versus stock race",
+      "known_gap_ids": "G-09; G-12",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-02",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Subscription shall trim/lowercase email and atomically reuse the exact pending product/email/size/color tuple, returning already_subscribed. The partial unique index and INSERT ON CONFLICT prevent concurrent duplicates. Email underscores/percent signs are literal characters, not wildcard matching. A completed request may later subscribe again only when unavailable.",
+      "source_codes": "RESTOCK, DEMOMIG, RESTOCKFLOW",
+      "qa_focus": "Case/whitespace, null options, literal wildcard characters, duplicate races, resubscribe after depletion",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-03",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Response/UI shall distinguish saved-with-mail-enabled from saved-with-mail-disabled. Missing mail configuration leaves requests unclaimed and pending; configured sends require a public site URL. Admin processing reports provider acceptance, failures and saved requests separately from stock-save success.",
+      "source_codes": "RESTOCK, DETAIL, NOTIFY, RESTOCKFLOW, ADMIN",
+      "qa_focus": "Mail on/off, missing database/site URL, queued response, stock saved but mail failed",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-04",
+      "module": "Restock alerts",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Database triggers shall queue pending alerts only on genuine zero-to-positive stock changes: exact configured size, whole-product when any configured size first returns, or unsized stock. Repeated positive saves and obsolete rows do not create eligibility. Service-only workers claim up to ten due eligible alerts with product-first locking, SKIP LOCKED and a ten-minute lease. Claim and preparation both recheck live size/color/inventory and unsubscribe deletion; successful provider acceptance marks notified only for the matching claim token. No stock is reserved and availability may change after preparation.",
+      "source_codes": "ADMIN, NOTIFY, DEMOMIG, RESTOCKFLOW",
+      "qa_focus": "Exact/whole size, missing/retired options, repeated saves, depletion before send, over-100 backlog, lease recovery/stale completion, cancellation restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-05",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "GET/POST token unsubscribe shall delete the matching alert and return plain confirmation; malformed token fails, well-formed already-removed token is still successful; public clients cannot directly read the alert table. Deletion cancels an unsent queue claim, but cannot recall an email already in flight.",
+      "source_codes": "UNSUB, DEMOMIG",
+      "qa_focus": "Valid/repeated/malformed token, privacy/RLS",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-06",
+      "module": "Restock alerts",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Delivery shall persist the exact first payload and use stable restock/request-ID provider idempotency. Transient failures retry with 60-second exponential backoff capped at one hour; leases recover crashes and missing acknowledgements. Permanent provider errors and attempts older than 23 hours park for operator reconciliation before Resend's 24-hour deduplication expires. Signed-admin processing or a bearer-protected scheduler POST drains ten due alerts per call; no live scheduler is provisioned by application code. A valid separate RESTOCK_CRON_SECRET of at least 32 characters is required. Provider acceptance is not proof of inbox delivery.",
+      "source_codes": "RESTOCKFLOW, NOTIFY, ADMIN",
+      "qa_focus": "Fake timeout/429/5xx/permanent error, frozen payload, duplicate key, failed acknowledgement, expired retry window, scheduler auth, disabled config and staging delivery",
+      "known_gap_ids": "G-12",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-01",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock view shall expose one row per configured size or one Overall row for unsized products. Whole-number nonnegative edits save on blur through protected stock PATCH; failed writes/invalid values show feedback without updating in-memory stock. Positive saves can request processing of database-eligible alerts, with separate delivery feedback. Process due alerts drains a batch independently of a stock edit.",
+      "source_codes": "ADMIN, STOCKAPI, RESTOCKFLOW",
+      "qa_focus": "Sized/unsized, blur, failed write, expired cookie, saved stock with failed mail, retry control",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-04",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "getCart shall require a verified customer bearer token, accept up to 30 valid browser-supplied lines and price them from catalog data (cached normally; fresh snapshot for referenced follow-ups). Lines/totals render deterministically in display currency with INR base values. Anonymous/invalid tokens receive sign-in-required output. The UI supplies the active account's scoped browser bag; it remains client-supplied data rather than a database-owned cart or purchase authority. Identity isolation follows AST-07; no order/account/checkout/payment tools exist.",
+      "source_codes": "ASSIST, CART, CARTSTORE",
+      "qa_focus": "Verified token, tampered price, totals, fresh references, removed products, account switch, scoped bag",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry, pending product navigation with exact destination and browser/server timing correlation",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:00:50.429Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; storefront denies fulfillment/support/newsletter delivery and admin order values are labelled demo, excluding cancelled orders; approved-only rating metrics and unsized low stock are corrected. Settings connection label and live restock concurrency verification remain open. Transaction locks require live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG, ADMINCAT",
+      "qa_focus": "Demo copy, metric definitions, settings label, live permissions/concurrency, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:02:47.998Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-04",
+      "module": "Restock alerts",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Database triggers shall queue pending alerts only on genuine zero-to-positive stock changes: exact configured size, whole-product when any configured size first returns, or unsized stock. Repeated positive saves and obsolete rows do not create eligibility. Service-only workers claim up to ten due eligible alerts with product-first locking, SKIP LOCKED and a ten-minute lease. Claim and preparation both recheck live size/color/inventory and unsubscribe deletion; successful provider acceptance marks notified only for the matching claim token. No stock is reserved and availability may change after preparation.",
+      "source_codes": "ADMIN, NOTIFY, DEMOMIG, RESTOCKFLOW",
+      "qa_focus": "Exact/whole size, missing/retired options, repeated saves, depletion before send, over-100 backlog, lease recovery/stale completion, cancellation restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:02:47.998Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-06",
+      "module": "Restock alerts",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Delivery shall persist the exact first payload and use stable restock/request-ID provider idempotency. Transient failures retry with 60-second exponential backoff capped at one hour; leases recover crashes and missing acknowledgements. Permanent provider errors and attempts older than 23 hours park for operator reconciliation before Resend's 24-hour deduplication expires. Signed-admin processing or a bearer-protected scheduler POST drains ten due alerts per call; no live scheduler is provisioned by application code. A valid separate RESTOCK_CRON_SECRET of at least 32 characters is required. Provider acceptance is not proof of inbox delivery.",
+      "source_codes": "RESTOCKFLOW, NOTIFY, ADMIN",
+      "qa_focus": "Fake timeout/429/5xx/permanent error, frozen payload, duplicate key, failed acknowledgement, expired retry window, scheduler auth, disabled config and staging delivery",
+      "known_gap_ids": "G-12",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:04:26.993Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-03",
+      "module": "Product cards and details",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Sized products shall require a chosen available size before add. Zero or missing configured stock rows remain selectable for restock alerts, announce unavailable status and selection, and disable purchase/quantity increase. Detail initializes from supplied size_stock then refreshes database rows; missing rows count as zero. All-sold-out products offer whole-product alerts; selecting a sold-out size changes the alert to that exact size, and switching to an available size hides it.",
+      "source_codes": "DETAIL, DBCLIENT, SEED, RESTOCKFLOW",
+      "qa_focus": "No size, missing/zero row, mixed/all-zero configured sizes, keyboard selection, exact-size payload, switch back to available",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:04:26.993Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-01",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Guests or customers may request an unavailable product or selected unavailable size. The service-only subscription RPC locks the parent product, validates configured size/color (demo-photo products reject color), rejects currently available requests with 409, and atomically saves normalized email/options/token. Missing configured size rows count as unavailable. Invalid bodies/email/options fail, unknown product is 404, and unavailable service/migration is 503.",
+      "source_codes": "DETAIL, RESTOCK, RESTOCKFLOW",
+      "qa_focus": "Whole product versus exact size, missing row, in-stock rejection, configured/demo colors, malformed body, guest, subscription versus stock race",
+      "known_gap_ids": "G-09; G-12",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "SEA-03",
+      "module": "Search",
+      "priority": "P2",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Search shall show loading, query/count, results, no-results and separate service-error states. Both name/category queries must succeed; rejected or hung requests reach Retry search within the eight-second operation deadline. Retry repeats the current query; query changes cancel prior work, blank/whitespace queries immediately hide old cards and show a prompt, and late responses cannot replace current results.",
+      "source_codes": "SEARCH, UITEST",
+      "qa_focus": "503/network/timeout, retry, one failed branch, deduplication, rapid query changes, blank after results",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-03",
+      "module": "Product cards and details",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Sized products shall require a chosen available size before add. Zero or missing configured stock rows remain selectable for restock alerts, announce unavailable status and selection, and disable purchase/quantity increase. Detail initializes from supplied size_stock then refreshes database rows; missing rows count as zero. All-sold-out products offer whole-product alerts; selecting a sold-out size changes the alert to that exact size, and switching to an available size hides it.",
+      "source_codes": "DETAIL, DBCLIENT, SEED, RESTOCKFLOW",
+      "qa_focus": "No size, missing/zero row, mixed/all-zero configured sizes, keyboard selection, exact-size payload, switch back to available",
+      "known_gap_ids": "G-09",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AUTH-06",
+      "module": "Customer account",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Sign Out shall end the customer session, clear in-memory favorites and immediately empty/close the visible bag. A new account loads only its own browser bag; same-account token refresh preserves the bag. The signed-out account's scoped saved bag is retained for its next login on this browser.",
+      "source_codes": "NAV, FAV, CART",
+      "qa_focus": "Sign-out, direct account switch, reload, token refresh, former-account contents absent",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-04",
+      "module": "Cart",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cart persistence shall use els-cart:{encoded customer ID}, restore only after auth resolution and write with the owner captured at mutation time. Sign-out clears visible items and closes the drawer; account switch restores the new owner only. The unowned legacy els-cart key is removed with a re-add notice and never assigned to an account. Malformed JSON/nonarrays recover to empty; invalid rows are discarded with feedback while valid rows and normalized variants survive. Restored fields require supported photo URLs, finite nonnegative numeric prices and positive safe-integer quantities. Storage failures preserve separate in-memory account bags with a persistence notice. No database or cross-device cart sync and no automatic guest-action replay exist.",
+      "source_codes": "CART, CARTSTORE, NAV, UITEST",
+      "qa_focus": "Auth startup, A/sign-out/B/A, refresh, legacy bag, malformed rows, quota/read failure, writes during auth changes",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-01",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Submission shall require a verified customer bearer token and nonempty cart. UI enables form entry only after a customer account is restored, follows the cart owner, rejects a changed session before dispatch, and clears entered contact fields/confirmation on owner change. Late responses from a previous account shall not display that account's confirmation or clear the current account's bag. Server rejects invalid/expired sessions.",
+      "source_codes": "CHECKOUT, CHECKOUTUI, CART, UITEST",
+      "qa_focus": "Guest, expired token, forged user ID, empty cart, account switch before dispatch and during response",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-08",
+      "module": "Demo checkout",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "On successful returned order ID for the still-current account, UI shall clear that account's bag and show demo confirmation/ID and Continue Shopping with no delivery/email/support promises. API failure, malformed response or network rejection shall show error, keep cart and release submitting state for retry. A synchronous guard prevents overlapping submissions; late prior-account responses cannot clear another bag or show its order ID.",
+      "source_codes": "CHECKOUTUI, CART, UITEST",
+      "qa_focus": "Success, malformed/error response, network rejection, repeated click, retained retry state, account race",
+      "known_gap_ids": "G-10; G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CHK-10",
+      "module": "Demo checkout",
+      "priority": "P0",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Browser checkout shall retain a random attempt UUID and SHA-256 digest of customer/items/address/method under zeouf-checkout-attempt in sessionStorage, storing no raw contact fields there. Same details after a lost response/reload reuse the key; changed fingerprint generates a new key. Success removes it; unavailable storage permits in-memory retry only. Reload requires re-entering the same form details, and a new tab/session is not a guaranteed replay.",
+      "source_codes": "CHECKOUTUI, UITEST",
+      "qa_focus": "Both methods, lost response/reload, unchanged/changed details, account switch, blocked storage, success cleanup, no raw contact storage",
+      "known_gap_ids": "G-14",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-01",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Guests or customers may request an unavailable product or selected unavailable size. The service-only subscription RPC locks the parent product, validates configured size/color (demo-photo products reject color), rejects currently available requests with 409, and atomically saves normalized email/options/token. Missing configured size rows count as unavailable. Invalid bodies/email/options fail, unknown product is 404, and unavailable service/migration is 503.",
+      "source_codes": "DETAIL, RESTOCK, RESTOCKFLOW",
+      "qa_focus": "Whole product versus exact size, missing row, in-stock rejection, configured/demo colors, malformed body, guest, subscription versus stock race",
+      "known_gap_ids": "G-09; G-12",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-02",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Subscription shall trim/lowercase email and atomically reuse the exact pending product/email/size/color tuple, returning already_subscribed. The partial unique index and INSERT ON CONFLICT prevent concurrent duplicates. Email underscores/percent signs are literal characters, not wildcard matching. A completed request may later subscribe again only when unavailable.",
+      "source_codes": "RESTOCK, DEMOMIG, RESTOCKFLOW",
+      "qa_focus": "Case/whitespace, null options, literal wildcard characters, duplicate races, resubscribe after depletion",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-03",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Response/UI shall distinguish saved-with-mail-enabled from saved-with-mail-disabled. Missing mail configuration leaves requests unclaimed and pending; configured sends require a public site URL. Admin processing reports provider acceptance, failures and saved requests separately from stock-save success.",
+      "source_codes": "RESTOCK, DETAIL, NOTIFY, RESTOCKFLOW, ADMIN",
+      "qa_focus": "Mail on/off, missing database/site URL, queued response, stock saved but mail failed",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-04",
+      "module": "Restock alerts",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Database triggers shall queue pending alerts only on genuine zero-to-positive stock changes: exact configured size, whole-product when any configured size first returns, or unsized stock. Repeated positive saves and obsolete rows do not create eligibility. Service-only workers claim up to ten due eligible alerts with product-first locking, SKIP LOCKED and a ten-minute lease. Claim and preparation both recheck live size/color/inventory and unsubscribe deletion; successful provider acceptance marks notified only for the matching claim token. No stock is reserved and availability may change after preparation.",
+      "source_codes": "ADMIN, NOTIFY, DEMOMIG, RESTOCKFLOW",
+      "qa_focus": "Exact/whole size, missing/retired options, repeated saves, depletion before send, over-100 backlog, lease recovery/stale completion, cancellation restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-05",
+      "module": "Restock alerts",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "GET/POST token unsubscribe shall delete the matching alert and return plain confirmation; malformed token fails, well-formed already-removed token is still successful; public clients cannot directly read the alert table. Deletion cancels an unsent queue claim, but cannot recall an email already in flight.",
+      "source_codes": "UNSUB, DEMOMIG",
+      "qa_focus": "Valid/repeated/malformed token, privacy/RLS",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "RST-06",
+      "module": "Restock alerts",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Delivery shall persist the exact first payload and use stable restock/request-ID provider idempotency. Transient failures retry with 60-second exponential backoff capped at one hour; leases recover crashes and missing acknowledgements. Permanent provider errors and attempts older than 23 hours park for operator reconciliation before Resend's 24-hour deduplication expires. Signed-admin processing or a bearer-protected scheduler POST drains ten due alerts per call; no live scheduler is provisioned by application code. A valid separate RESTOCK_CRON_SECRET of at least 32 characters is required. Provider acceptance is not proof of inbox delivery.",
+      "source_codes": "RESTOCKFLOW, NOTIFY, ADMIN",
+      "qa_focus": "Fake timeout/429/5xx/permanent error, frozen payload, duplicate key, failed acknowledgement, expired retry window, scheduler auth, disabled config and staging delivery",
+      "known_gap_ids": "G-12",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "STK-01",
+      "module": "Admin stock",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Stock view shall expose one row per configured size or one Overall row for unsized products. Whole-number nonnegative edits save on blur through protected stock PATCH; failed writes/invalid values show feedback without updating in-memory stock. Positive saves can request processing of database-eligible alerts, with separate delivery feedback. Process due alerts drains a batch independently of a stock edit.",
+      "source_codes": "ADMIN, STOCKAPI, RESTOCKFLOW",
+      "qa_focus": "Sized/unsized, blur, failed write, expired cookie, saved stock with failed mail, retry control",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-04",
+      "module": "Shopping assistant",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "getCart shall require a verified customer bearer token, accept up to 30 valid browser-supplied lines and price them from catalog data (cached normally; fresh snapshot for referenced follow-ups). Lines/totals render deterministically in display currency with INR base values. Anonymous/invalid tokens receive sign-in-required output. The UI supplies the active account's scoped browser bag; it remains client-supplied data rather than a database-owned cart or purchase authority. Identity isolation follows AST-07; no order/account/checkout/payment tools exist.",
+      "source_codes": "ASSIST, CART, CARTSTORE",
+      "qa_focus": "Verified token, tampered price, totals, fresh references, removed products, account switch, scoped bag",
+      "known_gap_ids": "G-10",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-03",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "Failed services shall show actionable feedback, preserve recoverable user state and avoid false success/partial inventory writes; fallback browsing must be distinguishable from working commerce in acceptance evidence.",
+      "source_codes": "NAV, CART, LIST, DETAIL, ADMIN, CHECKOUTUI, STOCKAPI",
+      "qa_focus": "Offline/timeout/DB/upload/provider/storage errors, retry, pending product navigation with exact destination and browser/server timing correlation",
+      "known_gap_ids": "G-15",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:05:32.182Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; storefront denies fulfillment/support/newsletter delivery and admin order values are labelled demo, excluding cancelled orders; approved-only rating metrics and unsized low stock are corrected. Settings connection label and live restock concurrency verification remain open. Transaction locks require live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG, ADMINCAT",
+      "qa_focus": "Demo copy, metric definitions, settings label, live permissions/concurrency, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:11:01.678Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "NAV-02",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Two collection panels, seven category links, six editorial tiles and the blouse edit shall navigate to configured category/subcategory destinations. The compact homepage uses consistent typography/spacing and explicit demo copy; editorial tiles remain curated category links.",
+      "source_codes": "HOME",
+      "qa_focus": "Every CTA/destination, 375/768/1440 widths, image loading",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:11:01.678Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "NAV-05",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Header shall expose account, search, favorites and cart; logo returns home. Active account/cart/search/mobile dialogs lock background scrolling, contain keyboard focus, and support Escape/close/backdrop dismissal with focus restoration; closed drawers are inert.",
+      "source_codes": "NAV, SHELL",
+      "qa_focus": "Dialog roles, Tab/Shift+Tab, Escape, counts, scroll lock, focus restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:11:02.036Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-02",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Two collection panels, six editorial tiles and the blouse edit shall navigate to configured category/subcategory destinations. The seven-link shortcut row below the hero is visible only below 768px; desktop uses the header category navigation without a duplicate row. The compact homepage uses consistent typography/spacing and explicit demo copy; editorial tiles remain curated category links.",
+      "source_codes": "HOME",
+      "qa_focus": "Every CTA/destination, 375/768/1440 widths, image loading",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T11:11:02.036Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NAV-05",
+      "module": "Home, navigation, and routes",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Header shall expose account, search, favorites and cart; logo returns home. Desktop search/account/favorites/cart controls shall share a 40px height and vertically centered 19px icons; icon-only controls use 40px width, with account text allowed to expand the account control. Mobile keeps search/cart in the header and account/favorites in the menu. Active account/cart/search/mobile dialogs lock background scrolling, contain keyboard focus, and support Escape/close/backdrop dismissal with focus restoration; closed drawers are inert.",
+      "source_codes": "NAV, SHELL",
+      "qa_focus": "Dialog roles, Tab/Shift+Tab, Escape, counts, scroll lock, focus restoration",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.118Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "PDP-01",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards/detail shall present name, price, image, optional brand/tag/category and product links; detail uses applicable gallery thumbnails. Cards use consistent crops and responsive image sizes, show loading placeholders, and retain readable product information with Image unavailable feedback after photo failure.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Selected-card destination, exact product heading and detail controls, pending navigation/browser errors, single/multiple/missing images, supported remote host, loading/failure state",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.118Z",
+    "reason": "requirement_changed",
+    "changed_fields": [
+      "requirement_and_acceptance"
+    ],
+    "row": {
+      "requirement_id": "AST-10",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards show category/optional brand, configured sizes/disabled unavailable sizes, selectable colors under checkout rules and optional server matchReason as escaped text. Chat thumbnails align to the source top; loaded local /demo-products/ images with the known 260×258 legacy contact-sheet profile crop the lower strip at mobile/desktop sizes, including hover and reduced motion. Standalone/refreshed photos receive no legacy zoom. This is rendering, not source-asset repair or a crop policy for every placement. Compare renders the AST-13 factual table and selects two/three unique products in selection order; a fourth is blocked and Clear resets. Find similar/Compare submit validated keyless interactions; Review bag addition requires configured options and integer quantity 1–10, proposes through AST-05 and never mutates before Confirm. Missing products/options/stock use safe notices. Interactions share limits/deadlines; retry preserves selected action.",
+      "source_codes": "ASSIST, ASSISTMATCH, CART",
+      "qa_focus": "Factual explanation, pixel-level first-row-only crop, real cargo asset preview, hover/reduced-motion/standalone regression, mobile controls, compare bounds, keyless similar, required options, no premature add",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.465Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-01",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards/detail shall present name, price, image, optional brand/tag/category and product links; detail uses applicable gallery thumbnails. Cards and galleries use complete-photo contain framing with no forced zoom; demo detail frames are 2:3 portraits and cards retain their 3:4 layout. Responsive sizes cover detail and thumbnail placements. Cards show loading placeholders and retain readable product information with Image unavailable feedback after photo failure. Shared photo-source mapping applies to catalog/detail, saved bags, order/admin previews, assistant cards and Open Graph images.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Selected-card destination, exact product heading and detail controls, pending navigation/browser errors, single/multiple/missing images, supported remote host, loading/failure state",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.465Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-02",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Verified color options shall expose named swatches and applicable images; selected color accompanies cart line. Products under /demo-products/ shall hide colors and use one demo photograph.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Color/image correspondence, no-color/demo fixtures",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.465Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-09",
+      "module": "Product cards and details",
+      "priority": "P2",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Dynamic routes in all seven category families shall generate product-specific titles identifying name/category with the root zeouf suffix, demo descriptions and Open Graph title/description/image when supplied. Recognized clothing subcategories get collection metadata; missing products request no indexing/following. Product lookup is memoized within a server render. Metadata does not enforce category-path ownership (G-08).",
+      "source_codes": "PRODUCTMETA, DETAILROUTE, DBCLIENT, SHELL",
+      "qa_focus": "Seven product families, collection slugs, absent product, Open Graph values, category-path gap",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.465Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-10",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "The demo photo library shall replace all 243 sub-900px legacy sources with standalone AI-enhanced 1024-by-1536 or larger 2:3 portrait WebP assets, retaining the 37 existing high-resolution demo photos and all originals. A manifest maps exact legacy URLs to versioned local URLs and records dimensions, checksums and illustrative provenance without changing product IDs/options/stock/prices or saved cart records. Enhanced detail imagery shall display Illustrative demo imagery. Unknown, original high-resolution and external sources pass through. The photo audit/build/CI shall reject missing, undersized or checksum-mismatched replacements; AI detail is illustrative, not verified merchandise evidence.",
+      "source_codes": "PHOTOS, CARD, DETAIL, ASSIST, NAV, HISTORY, ADMIN, PRODUCTMETA, DETAILROUTE, DBCLIENT, SHELL, UITEST",
+      "qa_focus": "All mapped assets, complete cargo image at mobile/desktop, hover, saved legacy URLs, source preservation, new/original photos, image failure, provenance and visual review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.465Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-03",
+      "module": "Cart",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Drawer shall show image/name/options/quantity/line total; plus/minus updates quantity; a quantity below one or explicit remove deletes the line.",
+      "source_codes": "CART, NAV",
+      "qa_focus": "Remove at one, variant-specific deletion, total changes",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.465Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ORD-02",
+      "module": "Customer orders",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Order cards shall show short ID, date, formatted total and demo status; expanding one order shows product/image, quantity, line total and demo payment label, including Simulated cash on delivery. Introductory copy states no charge or delivery.",
+      "source_codes": "HISTORY",
+      "qa_focus": "Expand/collapse, deleted product fallback, all statuses, demo copy/payment labels",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.465Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-03",
+      "module": "Admin product management",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Server product saves shall require a trimmed name of 1-200 characters, configured category, finite numeric price 0 to less than 10000000000 with at most two decimals, numeric integer stock 0-2147483647, description at most 10000 characters, unique configured sizes and at most 12 image URLs. Images accept local root paths or HTTPS on the configured Supabase origin, never executable/protocol-relative URLs. JSON body above 50000 JavaScript characters gives 413. Database price/stock checks enforce future writes; NOT VALID preserves legacy rows for explicit inspection/repair (G-17).",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "NaN/string/negative/fraction/overflow, duplicate/unknown size/category, URL/malformed/body boundaries, legacy invalid rows",
+      "known_gap_ids": "G-06; G-17",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.465Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-10",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards show category/optional brand, configured sizes/disabled unavailable sizes, selectable colors under checkout rules and optional server matchReason as escaped text. Chat thumbnails use shared versioned demo-photo mapping and complete-photo contain framing with no hover or legacy zoom. Known old contact-sheet references resolve to high-resolution standalone photos. The old first-row-only pixel regression now checks alias resolution with distinct synthetic legacy/clean images, plus an actual enhanced cargo preview. Unknown and existing original photo URLs pass through without heuristic cropping. Compare renders the AST-13 factual table and selects two/three unique products in selection order; a fourth is blocked and Clear resets. Find similar/Compare submit validated keyless interactions; Review bag addition requires configured options and integer quantity 1–10, proposes through AST-05 and never mutates before Confirm. Missing products/options/stock use safe notices. Interactions share limits/deadlines; retry preserves selected action.",
+      "source_codes": "ASSIST, ASSISTMATCH, CART",
+      "qa_focus": "Factual explanation, pixel-level first-row-only crop, real cargo asset preview, hover/reduced-motion/standalone regression, mobile controls, compare bounds, keyless similar, required options, no premature add",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:16:38.465Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; storefront denies fulfillment/support/newsletter delivery and admin order values are labelled demo, excluding cancelled orders; approved-only rating metrics and unsized low stock are corrected. Settings connection label and live restock concurrency verification remain open. Transaction locks require live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG, ADMINCAT",
+      "qa_focus": "Demo copy, metric definitions, settings label, live permissions/concurrency, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:27:39.027Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-01",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards/detail shall present name, price, image, optional brand/tag/category and product links; detail uses applicable gallery thumbnails. Cards and galleries use complete-photo contain framing with no forced zoom; demo detail frames are 2:3 portraits and cards retain their 3:4 layout. Responsive sizes cover detail and thumbnail placements. Cards show loading placeholders and retain readable product information with Image unavailable feedback after photo failure. Shared photo-source mapping applies to catalog/detail, saved bags, order/admin previews, assistant cards and Open Graph images.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Selected-card destination, exact product heading and detail controls, pending navigation/browser errors, single/multiple/missing images, supported remote host, loading/failure state",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:27:39.027Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-02",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Verified color options shall expose named swatches and applicable images; selected color accompanies cart line. Products under /demo-products/ shall hide colors and use one demo photograph.",
+      "source_codes": "CARD, DETAIL",
+      "qa_focus": "Color/image correspondence, no-color/demo fixtures",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:27:39.027Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-09",
+      "module": "Product cards and details",
+      "priority": "P2",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Dynamic routes in all seven category families shall generate product-specific titles identifying name/category with the root zeouf suffix, demo descriptions and Open Graph title/description/image when supplied. Recognized clothing subcategories get collection metadata; missing products request no indexing/following. Product lookup is memoized within a server render. Metadata does not enforce category-path ownership (G-08).",
+      "source_codes": "PRODUCTMETA, DETAILROUTE, DBCLIENT, SHELL",
+      "qa_focus": "Seven product families, collection slugs, absent product, Open Graph values, category-path gap",
+      "known_gap_ids": "G-08",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:27:39.027Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PDP-10",
+      "module": "Product cards and details",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "The demo photo library shall replace all 243 sub-900px legacy sources with standalone AI-enhanced 1024-by-1536 or larger 2:3 portrait WebP assets, retaining the 37 existing high-resolution demo photos and all originals. A manifest maps exact legacy URLs to versioned local URLs and records dimensions, checksums and illustrative provenance without changing product IDs/options/stock/prices or saved cart records. Enhanced detail imagery shall display Illustrative demo imagery. Unknown, original high-resolution and external sources pass through. The photo audit/build/CI shall reject missing, undersized or checksum-mismatched replacements; AI detail is illustrative, not verified merchandise evidence.",
+      "source_codes": "PHOTOS, CARD, DETAIL, ASSIST, NAV, HISTORY, ADMIN, PRODUCTMETA, DETAILROUTE, DBCLIENT, SHELL, UITEST",
+      "qa_focus": "All mapped assets, complete cargo image at mobile/desktop, hover, saved legacy URLs, source preservation, new/original photos, image failure, provenance and visual review",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:27:39.027Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "CART-03",
+      "module": "Cart",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Drawer shall show image/name/options/quantity/line total; plus/minus updates quantity; a quantity below one or explicit remove deletes the line.",
+      "source_codes": "CART, NAV",
+      "qa_focus": "Remove at one, variant-specific deletion, total changes",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:27:39.027Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "ORD-02",
+      "module": "Customer orders",
+      "priority": "P1",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Order cards shall show short ID, date, formatted total and demo status; expanding one order shows product/image, quantity, line total and demo payment label, including Simulated cash on delivery. Introductory copy states no charge or delivery.",
+      "source_codes": "HISTORY",
+      "qa_focus": "Expand/collapse, deleted product fallback, all statuses, demo copy/payment labels",
+      "known_gap_ids": "",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:27:39.027Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "PRD-03",
+      "module": "Admin product management",
+      "priority": "P0",
+      "implementation_state": "C",
+      "requirement_and_acceptance": "Server product saves shall require a trimmed name of 1-200 characters, configured category, finite numeric price 0 to less than 10000000000 with at most two decimals, numeric integer stock 0-2147483647, description at most 10000 characters, unique configured sizes and at most 12 image URLs. Images accept local root paths or HTTPS on the configured Supabase origin, never executable/protocol-relative URLs. JSON body above 50000 JavaScript characters gives 413. Database price/stock checks enforce future writes; NOT VALID preserves legacy rows for explicit inspection/repair (G-17).",
+      "source_codes": "ADMIN, ADMINCAT",
+      "qa_focus": "NaN/string/negative/fraction/overflow, duplicate/unknown size/category, URL/malformed/body boundaries, legacy invalid rows",
+      "known_gap_ids": "G-06; G-17",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:27:39.027Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "AST-10",
+      "module": "Shopping assistant",
+      "priority": "P1",
+      "implementation_state": "I",
+      "requirement_and_acceptance": "Cards show category/optional brand, configured sizes/disabled unavailable sizes, selectable colors under checkout rules and optional server matchReason as escaped text. Chat thumbnails use shared versioned demo-photo mapping and complete-photo contain framing with no hover or legacy zoom. Known old contact-sheet references resolve to high-resolution standalone photos. The old first-row-only pixel regression now checks alias resolution with distinct synthetic legacy/clean images, plus an actual enhanced cargo preview. Unknown and existing original photo URLs pass through without heuristic cropping. Compare renders the AST-13 factual table and selects two/three unique products in selection order; a fourth is blocked and Clear resets. Find similar/Compare submit validated keyless interactions; Review bag addition requires configured options and integer quantity 1–10, proposes through AST-05 and never mutates before Confirm. Missing products/options/stock use safe notices. Interactions share limits/deadlines; retry preserves selected action.",
+      "source_codes": "ASSIST, ASSISTMATCH, CART",
+      "qa_focus": "Factual explanation, pixel-level first-row-only crop, real cargo asset preview, hover/reduced-motion/standalone regression, mobile controls, compare bounds, keyless similar, required options, no premature add",
+      "known_gap_ids": "G-26",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
+  },
+  {
+    "archived_at": "2026-11-02T12:27:39.027Z",
+    "reason": "source_change_review",
+    "changed_fields": [],
+    "row": {
+      "requirement_id": "NFR-07",
+      "module": "Nonfunctional requirements",
+      "priority": "P1",
+      "implementation_state": "P",
+      "requirement_and_acceptance": "User-facing claims shall match demo capability; storefront denies fulfillment/support/newsletter delivery and admin order values are labelled demo, excluding cancelled orders; approved-only rating metrics and unsized low stock are corrected. Settings connection label and live restock concurrency verification remain open. Transaction locks require live multi-session verification.",
+      "source_codes": "INFO, FOOTER, DETAIL, CHECKOUTUI, HISTORY, ADMIN, NOTIFY, PURCHASEMIG, ADMINCAT",
+      "qa_focus": "Demo copy, metric definitions, settings label, live permissions/concurrency, retained limits",
+      "known_gap_ids": "G-24",
+      "test_case_ids": "",
+      "execution_status": "Not executed",
+      "defect_ids": "",
+      "owner": "",
+      "notes": ""
+    }
   }
 ]

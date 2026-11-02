@@ -359,7 +359,7 @@ const demoProducts = demoCollections.flatMap((collection) =>
       stock: collection.slug === "womens-dress" && index === 0 ? 6 : index % 5 === 4 ? 0 : 6 + ((index * 3) % 13),
       tag: index % 5 === 0 ? "New" : index % 7 === 0 ? "Featured" : null,
       brand: "zeouf Atelier",
-      description: "A considered demo design from the zeouf Atelier collection, photographed in our warm, minimal studio style.",
+      description: "A considered illustrative demo design from the zeouf Atelier collection, presented in a warm, minimal studio style.",
     };
   })
 );

@@ -4,7 +4,7 @@ import { defineConfig } from "@playwright/test";
 // Never reuse a server that might be connected to the user's actual database.
 export default defineConfig({
   testDir: "./tests",
-  testMatch: ["storefront.spec.ts", "admin.spec.ts", "workflows.spec.ts"],
+  testMatch: ["storefront.spec.ts", "admin.spec.ts", "workflows.spec.ts", "restock-delivery.spec.ts", "product-photos.spec.ts"],
   timeout: 30_000,
   workers: 1,
   retries: 0,
@@ -33,6 +33,7 @@ export default defineConfig({
       DEV_CREATE_USER_KEY: "fixture-dev-helper-key-separate-from-admin",
       RESEND_API_KEY: "",
       RESTOCK_FROM_EMAIL: "",
+      RESTOCK_CRON_SECRET: "",
       TEST_API_SECRET: "",
       GROQ_API_KEY: "",
     },

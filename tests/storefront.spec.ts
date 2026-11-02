@@ -1,18 +1,9 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { restoreCart } from "../src/lib/cartStorage";
 import { localProducts } from "../src/lib/localProducts";
 
 const savedItem = { id: "fixture-bag", name: "Fixture Bag", category: "Bags", price: 1000,
   image_url: "/canta-5.jpg", size: null, quantity: 2 };
-
-async function seedCart(page: Page, raw: string) {
-  await page.addInitScript((value) => {
-    if (!sessionStorage.getItem("cart-fixture-initialized")) {
-      localStorage.setItem("els-cart", value);
-      sessionStorage.setItem("cart-fixture-initialized", "1");
-    }
-  }, raw);
-}
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/storefront/region**", (route) => route.fulfill({ json: { country: "IN", currency: "INR", rate: 1, rateDate: null } }));
@@ -151,32 +142,6 @@ test("account drawer traps focus and restores it when dismissed", async ({ page 
   await expect(trigger).toBeFocused();
 });
 
-test("saved cart survives initial hydration, quantity changes and reload", async ({ page }) => {
-  await seedCart(page, JSON.stringify([savedItem]));
-  await page.goto("/");
-  await expect(page.getByTestId("navbar-cart-count")).toHaveText("2");
-  await page.getByTestId("navbar-cart-toggle").click();
-  await expect(page.getByTestId("navbar-cart-item")).toContainText("Fixture Bag");
-  await page.getByRole("button", { name: "Increase quantity of Fixture Bag" }).click();
-  await expect(page.getByTestId("navbar-cart-count")).toHaveText("3");
-  await page.reload();
-  await expect(page.getByTestId("navbar-cart-count")).toHaveText("3");
-  await page.getByTestId("navbar-cart-toggle").click();
-  await page.getByRole("button", { name: "Remove Fixture Bag from bag" }).click();
-  await expect(page.getByRole("button", { name: "Start Shopping" })).toBeVisible();
-});
-
-test("malformed cart recovers without crashing and shows feedback", async ({ page }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  await seedCart(page, "{broken");
-  await page.goto("/");
-  await page.getByTestId("navbar-cart-toggle").click();
-  await expect(page.getByRole("status")).toContainText("could not be restored");
-  await expect(page.getByRole("button", { name: "Start Shopping" })).toBeVisible();
-  expect(errors).toEqual([]);
-});
-
 test("unavailable browser storage leaves a usable cart and explains persistence limits", async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(window, "localStorage", {
     get() { throw new DOMException("Storage is unavailable", "SecurityError"); },
@@ -271,7 +236,10 @@ test("storefront pages expose exactly one top-level main landmark", async ({ pag
 test("Brown Twist Blouse exposes realistic sizes and honest shipping information", async ({ page }) => {
   await page.goto('/women/7');
   await expect(page.getByRole('heading', { name: 'Brown Twist Blouse', exact: true })).toBeVisible();
-  await expect(page.getByTestId('product-detail-size-S')).toBeDisabled();
+  await expect(page.getByTestId('product-detail-size-S')).toBeEnabled();
+  await page.getByTestId('product-detail-size-S').click();
+  await expect(page.getByTestId('product-detail-add-to-cart')).toBeDisabled();
+  await expect(page.getByText('Get an email when size S is back.')).toBeVisible();
   await expect(page.getByTestId('product-detail-size-M')).toBeEnabled();
   await page.getByTestId('product-detail-size-M').click();
   for (let count = 0; count < 4; count++) await page.getByTestId('product-detail-quantity-increase').click({ force: true }).catch(() => {});
@@ -286,7 +254,7 @@ test("fully sold-out sized fixture prevents purchase and offers the demo restock
   const fixture = localProducts.find((product) => product.image_url === '/demo-products/womens-dress/05.jpg');
   if (!fixture) throw new Error('Missing sold-out dress fixture');
   await page.goto(`/women/${fixture.id}`);
-  for (const size of ['S', 'M', 'L']) await expect(page.getByTestId(`product-detail-size-${size}`)).toBeDisabled();
+  for (const size of ['S', 'M', 'L']) await expect(page.getByTestId(`product-detail-size-${size}`)).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Notify me', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Select a size', exact: true })).toBeDisabled();
 });

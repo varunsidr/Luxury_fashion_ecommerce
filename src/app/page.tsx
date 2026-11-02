@@ -88,7 +88,7 @@ export default function Home() {
           <Link href="#collections" className="flex min-h-11 items-center gap-3 text-xs text-white/80">Discover more <ArrowDown size={15} /></Link>
         </div>
       </section>
-      <nav aria-label="Explore categories" className="border-b border-[var(--store-line)] bg-[var(--store-surface)]">
+      <nav aria-label="Explore categories" className="border-b border-[var(--store-line)] bg-[var(--store-surface)] md:hidden">
         <div className="editorial-container flex flex-wrap items-center justify-center gap-x-7 gap-y-1 py-4 md:gap-x-10">
           {categories.map((category) => <Link key={category} href={`/${category.toLowerCase()}`} className="py-2 text-xs text-[var(--store-muted)] transition-colors hover:text-[var(--store-ink)]">{category}</Link>)}
         </div>

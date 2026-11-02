@@ -11,6 +11,10 @@ export interface CartItem {
 
 export const CART_STORAGE_KEY = "els-cart";
 
+export function cartStorageKey(userId: string) {
+  return `${CART_STORAGE_KEY}:${encodeURIComponent(userId)}`;
+}
+
 // Stored browser data is untrusted. Recover valid lines without letting a bad
 // line crash rendering, produce NaN totals, or remove the remaining cart.
 export function restoreCart(raw: string | null): { items: CartItem[]; recovered: boolean } {

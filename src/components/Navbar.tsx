@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, User, Heart, ShoppingBag, Menu, X, Mail, Lock, Eye, EyeOff, LogOut, Loader2, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/CatalogImage";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -354,7 +354,7 @@ export default function Navbar() {
           <div className="absolute right-4 md:right-8 lg:right-14 flex items-center gap-1 md:gap-2">
             <button
               onClick={() => setSearchOpen(true)}
-              className="relative p-1.5 transition-all duration-300 hover:scale-110 group"
+              className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center p-1.5 transition-all duration-300 hover:scale-110 group"
               aria-label="Search"
               data-testid="navbar-search-toggle"
             >
@@ -365,7 +365,7 @@ export default function Navbar() {
             <div className="relative group/auth hidden md:block">
               <button
                 onClick={() => setLoginOpen(true)}
-                className="relative p-1.5 transition-all duration-300 hover:scale-110 group flex items-center gap-2"
+                className="relative flex h-10 min-w-10 items-center justify-center gap-2 p-1.5 transition-all duration-300 hover:scale-110 group"
                 aria-label="Account"
                 data-testid="navbar-account-toggle"
               >
@@ -385,7 +385,7 @@ export default function Navbar() {
             {/* Favorites — sadece desktop */}
             <Link
               href="/favorites"
-                className="relative p-1.5 transition-all duration-300 hover:scale-110 group hidden md:block"
+                className="relative hidden h-10 w-10 shrink-0 items-center justify-center p-1.5 transition-all duration-300 hover:scale-110 group md:inline-flex"
                 aria-label="Favorites"
                 data-testid="navbar-favorites-link"
             >
@@ -400,7 +400,7 @@ export default function Navbar() {
             {/* Cart — her zaman */}
             <button
               onClick={() => setCartOpen(true)}
-              className="relative p-1.5 transition-all duration-300 hover:scale-110 group"
+              className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center p-1.5 transition-all duration-300 hover:scale-110 group"
               aria-label="My Cart"
               data-testid="navbar-cart-toggle"
             >
@@ -1026,7 +1026,7 @@ export default function Navbar() {
                 {items.map((item) => (
                   <li key={`${item.id}-${item.size}-${item.color ?? ""}`} data-testid="navbar-cart-item" className="flex gap-4 px-8 py-5">
                     <div className="relative w-20 aspect-[3/4] flex-shrink-0 bg-neutral-50 overflow-hidden">
-                      <Image src={item.image_url} alt={item.name} fill sizes="80px" className="object-cover object-top" />
+                      <Image src={item.image_url} alt={item.name} fill sizes="80px" className="object-contain object-center" />
                     </div>
                     <div className="flex-1 flex flex-col justify-between">
                       <div>

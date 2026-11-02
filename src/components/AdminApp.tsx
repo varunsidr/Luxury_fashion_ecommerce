@@ -6,6 +6,7 @@ import Link from "next/link";
 import AdminReviewQueue from "@/components/AdminReviewQueue";
 import AdminDialog from "@/components/AdminDialog";
 import { orderTransitions } from "@/lib/orderLifecycle";
+import CatalogImage from "@/components/CatalogImage";
 import {
   LayoutDashboard, Package, Layers, LogOut,
   Plus, Edit2, Trash2, X, ChevronDown, Upload,
@@ -97,6 +98,8 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
   const [loading, setLoading] = useState(true);
   const [productsError, setProductsError] = useState("");
   const [mutationError, setMutationError] = useState("");
+  const [restockStatus, setRestockStatus] = useState("");
+  const [restockProcessing, setRestockProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState<string | null>(null);
@@ -352,16 +355,27 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
     if (size && existing) setSizeStocks((prev) => prev.map((s) => s.id === existing.id ? { ...s, stock } : s));
     else if (size) setSizeStocks((prev) => [...prev, { id: `${productId}-${size}`, product_id: productId, size, stock }]);
     setProducts((previous) => previous.map((product) => product.id === productId ? { ...product, stock: result.stock } : product));
-    if (stock > 0) await notifyRestockRequests(productId, size ?? undefined);
+    if (stock > 0) await notifyRestockRequests(productId);
     } catch (error) { setMutationError(error instanceof Error ? error.message : "Could not update stock."); }
   }
 
-  async function notifyRestockRequests(productId: string, size?: string) {
-    await fetch("/api/admin/restock-alerts/notify", {
+  async function notifyRestockRequests(productId?: string) {
+    setRestockProcessing(true);
+    setRestockStatus("");
+    try {
+    const response = await fetch("/api/admin/restock-alerts/notify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, size: size ?? null }),
+      body: JSON.stringify({ productId: productId ?? null }),
     });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error ?? "Could not process restock alerts.");
+    setRestockStatus(result.configured
+      ? `${result.sent} alerts accepted by the email provider. ${result.failed ?? 0} attempts failed; requests remain saved for retry or review. Process due alerts again to drain any remaining batch.`
+      : "Requests are saved. Enable email delivery before processing alerts.");
+    } catch (error) {
+      setRestockStatus(error instanceof Error ? error.message : "Alerts remain queued. Try processing them again.");
+    } finally { setRestockProcessing(false); }
   }
 
   function getSizeStock(productId: string, size: string) {
@@ -552,7 +566,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                       <tr key={p.id} className="hover:bg-neutral-50/50 transition-colors group">
                         <td className="px-4 py-3">
                           {p.image_url
-                            ? <img src={p.image_url} alt="" className="w-9 h-11 object-cover object-top" />
+                            ? <CatalogImage src={p.image_url} alt="" width={36} height={44} className="w-9 h-11 object-contain object-center" />
                             : <div className="w-9 h-11 bg-neutral-100" />}
                         </td>
                         <td className="px-4 py-3"><p className="text-[12px] font-medium text-neutral-800">{p.name}</p></td>
@@ -662,8 +676,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                   <div className="grid grid-cols-3 gap-2 mb-4">
                     {form.images.map((img, i) => (
                       <div key={i} className="relative aspect-[3/4] bg-neutral-50 overflow-hidden group">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={img} alt="" className="w-full h-full object-cover object-top" />
+                        <CatalogImage src={img} alt="" fill sizes="(max-width: 1023px) 25vw, 160px" className="object-contain object-center" />
                         {i === 0 && <span className="absolute bottom-0 left-0 right-0 bg-neutral-900/70 text-white text-[8px] text-center py-0.5 tracking-wider">MAIN</span>}
                         <button onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-white/90 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><X size={11} /></button>
                       </div>
@@ -698,6 +711,8 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
           <div className="p-8">
             <div className="mb-6">
               <h1 className="text-[20px] font-light text-neutral-800">Stock Management</h1>
+              <button onClick={() => void notifyRestockRequests()} disabled={restockProcessing} className="mt-3 border border-neutral-300 px-4 py-2 text-xs disabled:opacity-50">{restockProcessing ? "Processing alerts…" : "Process due alerts"}</button>
+              {restockStatus && <p role="status" className="mt-3 text-xs text-neutral-600">{restockStatus}</p>}
               <p className="text-[11px] text-neutral-400 mt-0.5">Size-based stock tracking</p>
             </div>
             {stockLoading ? <div className="h-32 bg-neutral-100 animate-pulse" /> : (

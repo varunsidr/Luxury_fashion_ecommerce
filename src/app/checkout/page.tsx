@@ -18,9 +18,11 @@ type ShippingForm = {
 type PaymentMethod = "cash_on_delivery" | "card_demo";
 
 export default function CheckoutPage() {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice, clearCart, ownerId: userId } = useCart();
   const { formatPrice } = useCurrency();
-  const [userId, setUserId] = useState<string | null>(null);
+  const currentOwner = useRef(userId);
+  const accountEpoch = useRef(0);
+  useEffect(() => { currentOwner.current = userId; accountEpoch.current++; }, [userId]);
   const [form, setForm] = useState<ShippingForm>({
     fullName: "",
     phone: "",
@@ -34,15 +36,17 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card_demo");
   const submittingRef = useRef(false);
   const attemptRef = useRef<{ fingerprint: string; key: string } | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then((result: { data?: { session?: { user?: { id?: string } } | null } }) => {
-      setUserId(result.data?.session?.user?.id ?? null);
-    });
-  }, []);
+  const [formOwner, setFormOwner] = useState(userId);
+  if (formOwner !== userId) {
+    setFormOwner(userId);
+    setForm({ fullName: "", phone: "", address: "", city: "", postalCode: "" });
+    setError("");
+    setOrderId("");
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const epoch = accountEpoch.current;
     if (submittingRef.current) return;
     submittingRef.current = true;
     setSubmitting(true);
@@ -50,7 +54,7 @@ export default function CheckoutPage() {
     try {
     const { data: sessionData } = await supabase.auth.getSession();
     const accessToken = sessionData.session?.access_token;
-    if (!userId || !accessToken) {
+    if (!userId || !accessToken || sessionData.session?.user.id !== userId) {
       setError("Please sign in before placing your order.");
       return;
     }
@@ -78,6 +82,12 @@ export default function CheckoutPage() {
       await new Promise((resolve) => setTimeout(resolve, 1200));
     }
 
+    const { data: latestSession } = await supabase.auth.getSession();
+    if (epoch !== accountEpoch.current || currentOwner.current !== userId || latestSession.session?.user.id !== userId) {
+      setError("Your account changed. Please review your bag before placing an order.");
+      return;
+    }
+
     const response = await fetch("/api/checkout", {
       method: "POST",
       headers: {
@@ -88,12 +98,13 @@ export default function CheckoutPage() {
       body: JSON.stringify(payload),
     });
     const result = await response.json().catch(() => ({}));
+    if (epoch !== accountEpoch.current || currentOwner.current !== userId) return;
     if (!response.ok || !result.orderId) {
       setError(result.error ?? "We could not create your order. Please try again.");
       return;
     }
 
-    clearCart();
+    clearCart(userId);
     setOrderId(result.orderId);
     attemptRef.current = null;
     try { sessionStorage.removeItem("zeouf-checkout-attempt"); } catch { /* Order is already saved. */ }
@@ -146,7 +157,8 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="mt-10 space-y-8 bg-white p-6 md:p-10">
+            <form onSubmit={handleSubmit} className="mt-10 bg-white p-6 md:p-10">
+              <fieldset disabled={!userId} className="space-y-8">
               <div className="grid gap-7 md:grid-cols-2">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-neutral-500">
                   Full name
@@ -196,6 +208,7 @@ export default function CheckoutPage() {
                 {submitting && <Loader2 size={14} className="animate-spin" />}
                 {paymentMethod === "card_demo" ? "Simulate payment" : "Place demo order"}
               </button>
+              </fieldset>
             </form>
           </section>
 

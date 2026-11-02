@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import Image from "@/components/CatalogImage";
 import Link from "next/link";
 import { ArrowRight, Check, ChevronDown, GitCompareArrows, Sparkles } from "lucide-react";
 import { useCurrency } from "@/context/CurrencyContext";
 import type { ProductCardData } from "@/lib/assistant/types";
+import { isIllustrativeProductPhoto } from "@/lib/productPhotos";
 
 interface Props {
   product: ProductCardData;
@@ -22,20 +23,14 @@ export default function AssistantProductCard({ product, busy, selected, onNaviga
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [quantity, setQuantity] = useState("1");
-  const [legacySheetSource, setLegacySheetSource] = useState<string | null>(null);
   const sizes = product.sizes ?? [], colors = product.colors ?? [];
   const valid = (!sizes.length || sizes.some(option => option.size === size && option.inStock)) &&
     (!colors.length || colors.includes(color)) && Number.isInteger(Number(quantity)) && Number(quantity) >= 1 && Number(quantity) <= 10;
   return (
     <div className="assistant-product" data-selected={selected} data-testid="assistant-product">
       <Link href={product.url} onClick={onNavigate} data-testid="assistant-product-card" className="assistant-product-link">
-        <span className="assistant-product-image" data-legacy-sheet={legacySheetSource === product.image_url}>
-          <Image src={product.image_url} alt="" width={88} height={110} unoptimized onLoad={event => {
-            const image = event.currentTarget;
-            // These local legacy tiles include a strip of the next contact-sheet
-            // row. Standalone photos (including the refreshed dresses) stay uncropped.
-            setLegacySheetSource(product.image_url.startsWith("/demo-products/") && image.naturalWidth === 260 && image.naturalHeight === 258 ? product.image_url : null);
-          }} />
+        <span className="assistant-product-image" data-photo-kind={isIllustrativeProductPhoto(product.image_url) ? "illustrative" : "original"}>
+          <Image src={product.image_url} alt="" width={88} height={110} unoptimized={!isIllustrativeProductPhoto(product.image_url)} />
         </span>
         <span className="assistant-product-copy">
           <span className="assistant-product-name">{product.name}</span>

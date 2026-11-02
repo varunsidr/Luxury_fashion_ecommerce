@@ -1258,5 +1258,188 @@
     ],
     "source_digest": "9edf8d9f947bda79240d8b9b068a02d889934662cc270ce814ab219dabfa133c",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-11-02T11:00:50.429Z",
+    "summary": "Reviewed account-scoped browser carts and checkout identity/hydration boundaries; recoverable bounded search; selectable unavailable-size alerts; transactional restock eligibility, leased queue, Resend idempotent retries, protected scheduler and admin retry feedback. Updated BRD routes, source references, gap history and QA fixtures/operations; live schema/provider/concurrency acceptance remains separate.",
+    "requirement_ids": [
+      "SEA-03",
+      "PDP-03",
+      "AUTH-06",
+      "CART-04",
+      "CHK-01",
+      "CHK-08",
+      "CHK-10",
+      "RST-01",
+      "RST-02",
+      "RST-03",
+      "RST-04",
+      "RST-05",
+      "RST-06",
+      "STK-01",
+      "AST-04",
+      "NFR-03",
+      "NFR-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      ".env.example",
+      "package.json",
+      "playwright.catalog.config.ts",
+      "playwright.config.ts",
+      "scripts/purchase.test.mjs",
+      "scripts/restock.test.mjs",
+      "src/app/api/admin/restock-alerts/notify/route.ts",
+      "src/app/api/internal/restock-alerts/route.ts",
+      "src/app/api/restock-notifications/route.ts",
+      "src/app/arama/page.tsx",
+      "src/app/checkout/page.tsx",
+      "src/components/AdminApp.tsx",
+      "src/components/ProductDetailView.tsx",
+      "src/context/CartContext.tsx",
+      "src/lib/cartStorage.ts",
+      "src/lib/processRestockAlerts.ts",
+      "src/lib/restockDelivery.ts",
+      "src/lib/supabase.ts",
+      "supabase_restock_delivery_migration.sql",
+      "tests/admin.spec.ts",
+      "tests/assistant.spec.ts",
+      "tests/catalog.spec.ts",
+      "tests/functional-gaps.spec.ts",
+      "tests/restock-delivery.spec.ts",
+      "tests/storefront.spec.ts"
+    ],
+    "source_digest": "a6164a05c3558646ab55d365ee1295bb1252097091ba60f97c053a63f61b58c2",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-11-02T11:02:47.998Z",
+    "summary": "Reviewed the CI addition that runs isolated restock queue SQL regressions alongside existing purchase and browser checks; no live provider or database integration is exercised.",
+    "requirement_ids": [
+      "RST-04",
+      "RST-06"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      ".github/workflows/storefront.yml"
+    ],
+    "source_digest": "4cac962cca4a38f29dc17413d25d39ff2280092d74478ddb7f76c22aa1e25ed1",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-11-02T11:04:26.993Z",
+    "summary": "Reviewed final unavailable-size selection clipping and mobile alert regression capture; purchase stays disabled for unavailable sizes and the 390px page has no horizontal overflow.",
+    "requirement_ids": [
+      "PDP-03",
+      "RST-01"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "src/components/ProductDetailView.tsx",
+      "tests/functional-gaps.spec.ts"
+    ],
+    "source_digest": "cc0a5356f804f571565108e30595ceefab44b7876115ccb4e91679d4edf122f0",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-11-02T11:05:32.182Z",
+    "summary": "Recorded observed functional-gap execution: UI 48, catalog 27, assistant 71, queue SQL 8, purchase SQL 27, docs tooling 13; TypeScript/build passed and lint has zero errors. Visually inspected focused mobile size-alert capture; preserved all existing manual RTM fields and documented initial failures/fixes plus migration/scheduler/live acceptance limits.",
+    "requirement_ids": [
+      "SEA-03",
+      "PDP-03",
+      "AUTH-06",
+      "CART-04",
+      "CHK-01",
+      "CHK-08",
+      "CHK-10",
+      "RST-01",
+      "RST-02",
+      "RST-03",
+      "RST-04",
+      "RST-05",
+      "RST-06",
+      "STK-01",
+      "AST-04",
+      "NFR-03",
+      "NFR-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [],
+    "source_digest": "cc0a5356f804f571565108e30595ceefab44b7876115ccb4e91679d4edf122f0",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-11-02T11:11:02.036Z",
+    "summary": "Reviewed desktop duplicate-category-row removal via mobile-only homepage shortcuts and consistent centered 40px header utility controls. Updated NAV-02/NAV-05 and QA scenarios; inspected desktop/mobile screenshots and measured icon centers at 375, 390, 768 and 1440px in an isolated guest preview.",
+    "requirement_ids": [
+      "NAV-02",
+      "NAV-05"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "src/app/page.tsx",
+      "src/components/Navbar.tsx"
+    ],
+    "source_digest": "0a23d84c1de63a8fc6acc9010194d3739bf20a7b854fb7a847cd1b17d4b9b987",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-11-02T12:16:38.465Z",
+    "summary": "Reviewed complete demo-photo repair: 243 reference-based AI-enhanced 1024x1536 WebP replacements with preserved originals and 37 retained high-resolution photos, exact versioned mapping across product/bag/order/admin/chat/metadata surfaces, complete-image framing with zoom workaround removed, truthful illustrative copy, responsive derivatives, checksum audit and build/CI gate. Updated PDP-01/PDP-10/AST-10 and QA fixtures; photo audit and focused detail/card/chat checks passed; no inventory or hosted data changed.",
+    "requirement_ids": [
+      "PDP-01",
+      "PDP-02",
+      "PDP-09",
+      "PDP-10",
+      "AST-10",
+      "CART-03",
+      "ORD-02",
+      "PRD-03",
+      "NFR-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      ".github/workflows/storefront.yml",
+      "package-lock.json",
+      "package.json",
+      "playwright.config.ts",
+      "scripts/audit-product-photos.mjs",
+      "scripts/install-product-photos.mjs",
+      "scripts/products-data.js",
+      "src/app/orders/page.tsx",
+      "src/components/AdminApp.tsx",
+      "src/components/AssistantProductCard.tsx",
+      "src/components/CatalogImage.tsx",
+      "src/components/Navbar.tsx",
+      "src/components/ProductCard.tsx",
+      "src/components/ProductDetailView.tsx",
+      "src/components/shopping-assistant.css",
+      "src/lib/product-photo-manifest.json",
+      "src/lib/productMetadata.ts",
+      "src/lib/productPhotos.ts",
+      "tests/assistant.spec.ts",
+      "tests/product-photos.spec.ts"
+    ],
+    "source_digest": "7d64abf722be0638eb0c5f93a65b7a01a0e661b976ecc86e11eca0299b5d9a49",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-11-02T12:27:39.027Z",
+    "summary": "Recorded final photo execution: 243 enhanced illustrations and 37 retained high-resolution originals, zero photo audit errors, all 13 category review sheets inspected, UI 50/catalog 27/assistant 71 and docs tooling 13 passed, TypeScript/build passed and lint zero errors. Preserved manual evidence and documented illustrative-detail/live deployment limits.",
+    "requirement_ids": [
+      "PDP-01",
+      "PDP-02",
+      "PDP-09",
+      "PDP-10",
+      "AST-10",
+      "CART-03",
+      "ORD-02",
+      "PRD-03",
+      "NFR-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [],
+    "source_digest": "7d64abf722be0638eb0c5f93a65b7a01a0e661b976ecc86e11eca0299b5d9a49",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCategoryBySlug } from "@/lib/categories";
 import { findProductByIdOrSlug } from "@/lib/supabase";
+import { productPhotoSource } from "@/lib/productPhotos";
 
 export async function productRouteMetadata(category: string, slug: string): Promise<Metadata> {
   const normalized = decodeURIComponent(slug).toLowerCase().trim();
@@ -18,7 +19,7 @@ export async function productRouteMetadata(category: string, slug: string): Prom
     description,
     openGraph: {
       type: "website", title: `${title} | zeouf`, description,
-      images: product.image_url ? [{ url: product.image_url, alt: product.name }] : [],
+      images: product.image_url ? [{ url: productPhotoSource(product.image_url), alt: product.name }] : [],
     },
   };
 }
