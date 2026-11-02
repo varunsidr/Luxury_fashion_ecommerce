@@ -67,8 +67,26 @@
 .assistant-product[data-selected="true"] { border-color: #a58271; box-shadow: 0 0 0 2px #a5827114; }
 .assistant-product-link { display: flex; align-items: center; gap: 15px; border-radius: 12px; text-decoration: none; }
 .assistant-product-image { flex-shrink: 0; width: 88px; height: 110px; border-radius: 12px; overflow: hidden; background: #f1ede6; }
-.assistant-product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 400ms cubic-bezier(.2,.8,.2,1); }
-.assistant-product-link:hover img { transform: scale(1.045); }
+.assistant-product-image img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; transform-origin: top; transform: scale(var(--assistant-image-scale, 1)); transition: transform 400ms cubic-bezier(.2,.8,.2,1); }
+.assistant-product-image[data-legacy-sheet="true"] { --assistant-image-scale: 1.18; }
+.assistant-product-link:hover img { transform: scale(calc(var(--assistant-image-scale, 1) * 1.045)); }
+.assistant-match-reason { margin: 12px 0 0; font-size: 11px; line-height: 1.65; color: #6f4a3b; }
+.assistant-comparison { max-width: 100%; overflow-x: auto; border: 1px solid var(--assistant-line); border-radius: 14px; background: #fffefa; }
+.assistant-comparison:focus-visible { outline: 2px solid var(--assistant-accent); outline-offset: 2px; }
+.assistant-comparison table { width: 100%; min-width: 420px; border-collapse: collapse; text-align: left; font-size: 11px; line-height: 1.6; }
+.assistant-comparison caption { padding: 12px; text-align: left; font-size: 12px; font-weight: 500; }
+.assistant-comparison caption span { display: block; margin-top: 3px; font-size: 10px; font-weight: 400; color: #756859; }
+.assistant-comparison :is(th, td) { padding: 12px; vertical-align: top; border-top: 1px solid var(--assistant-line); min-width: 160px; overflow-wrap: anywhere; }
+.assistant-comparison tr > :first-child { position: sticky; left: 0; z-index: 1; width: 100px; min-width: 100px; overflow-wrap: normal; }
+.assistant-comparison th { font-weight: 500; color: #4c3c32; background: #f6f2ec; }
+.assistant-comparison-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.assistant-comparison-links a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; border-bottom: 1px solid var(--assistant-line); font-size: 11px; line-height: 1.6; color: #774a40; }
+.assistant-preferences { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; max-height: 92px; overflow-y: auto; }
+.assistant-preferences-title { display: block; font-size: 9px; color: #756859; margin-bottom: 5px; }
+.assistant-preference-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.assistant-preference-chips > span { border: 1px solid var(--assistant-line); border-radius: 999px; background: #f6f2ec; padding: 3px 8px; font-size: 10px; color: #62574d; overflow-wrap: anywhere; }
+.assistant-preferences button { flex-shrink: 0; min-height: 44px; max-width: 78px; font-size: 10px; text-decoration: underline; text-underline-offset: 3px; color: #774a40; }
+.assistant-preference-notice { margin: 0 0 8px; font-size: 10px; color: #62574d; }
 .assistant-product-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
 .assistant-product-name { font-family: var(--font-playfair), Georgia, serif; font-size: 19px; letter-spacing: -.025em; line-height: 1.3; overflow-wrap: anywhere; }
 .assistant-product-price { font-size: 13px; font-weight: 500; color: #6f4a3b; }
@@ -162,6 +180,7 @@
 @keyframes zeouf-assistant-check { from { opacity: .3; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) {
   .zeouf-assistant *, .zeouf-assistant *::before, .zeouf-assistant *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  .zeouf-assistant .assistant-launcher:hover, .zeouf-assistant .assistant-suggestion:hover, .zeouf-assistant .assistant-send:hover, .assistant-product-link:hover img { transform: none; }
+  .zeouf-assistant .assistant-launcher:hover, .zeouf-assistant .assistant-suggestion:hover, .zeouf-assistant .assistant-send:hover { transform: none; }
+  .assistant-product-link:hover img { transform: scale(var(--assistant-image-scale, 1)); }
   .assistant-welcome-symbol, .assistant-welcome-symbol svg { transform: none; }
 }

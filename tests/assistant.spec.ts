@@ -9,6 +9,8 @@ import { handleAssistantConfirmation } from "../src/lib/assistant/confirm";
 import { supabase } from "../src/lib/supabase";
 import { withAbort, withRequestDeadline } from "../src/lib/assistant/requestLifetime";
 import { parseDisplay } from "../src/lib/assistant/presentation";
+import { createRequire } from "node:module";
+import sharp from "sharp";
 
 const product = (over: Partial<Product>): Product => ({
   id: "p1", name: "Black Midi Dress", category: "Women's Dress", price: 1800, image_url: "/kadin-product-3.webp",
@@ -50,6 +52,8 @@ const cargoCatalog: Product[] = [
   product({ id: "cargo-expensive", name: "Premium Cargo Jeans", category: "Men's Jeans", price: 5000 }),
   product({ id: "cargo-sold-out", name: "Cargo Shorts", category: "Men's Shorts", size_stock: [{ size: "M", stock: 0 }] }),
   product({ id: "unrelated", name: "Midi Dress", category: "Women's Dress" }),
+  product({ id: "camp-shirt", name: "Atelier Short-Sleeve Camp Shirt", category: "Men's Shirt", brand: "zeouf Atelier", price: 900,
+    description: "Style with cargo shorts for summer." }),
 ];
 const cargoContext = (products = cargoCatalog) => ctx({ store: { listProducts: async () => products }, lastUserMessage: "cargo shorts" });
 
@@ -77,6 +81,38 @@ test("exact garment matches take priority and plural and whole-word matching avo
   expect((await run("searchProducts", { query: "art" }, cargoContext())).out.products).toEqual([]);
   const noStockFilter = await run("searchProducts", { query: "cargo shorts", inStockOnly: false }, cargoContext());
   expect(noStockFilter.out.products.map((p: { id: string }) => p.id)).toEqual(["cargo-sold-out"]);
+});
+
+test("actual seed catalog excludes short-sleeve shirts and ranks cargo bottoms for cargo shorts", async () => {
+  const { allProducts } = createRequire(process.cwd() + "/package.json")("./scripts/products-data.js");
+  const seeded: Product[] = allProducts.map((row: Product, index: number) => ({ ...row, id: `seed-${index}` }));
+  for (const query of ["cargo shorts", "show me cargo shorts", "Do you have cargo shorts?"]) {
+    const result = await run("searchProducts", { query }, cargoContext(seeded));
+    expect(result.out.match_type).toBe("similar");
+    expect(result.out.products.length).toBeGreaterThan(0);
+    expect(result.out.products[0].name).toContain("Cargo");
+    expect(result.out.products.every((p: { category: string }) => /trouser|jean|short/i.test(p.category))).toBe(true);
+    expect(result.out.products[0].match_reason).toMatch(/instead of shorts/);
+  }
+  const pants = await run("searchProducts", { query: "cargo pants" }, cargoContext(seeded));
+  expect(pants.out.match_type).toBe("exact");
+  expect(pants.out.products[0].name).toContain("Cargo Pants");
+});
+
+test("alternatives require garment and audience compatibility and real identity evidence", async () => {
+  const products = [...cargoCatalog,
+    product({ id: "women-cargo", name: "Cargo Trousers", category: "Women's Trousers" }),
+    product({ id: "plain-pants", name: "Plain Trousers", category: "Men's Trousers", description: "Wear with cargo shorts." }),
+  ];
+  const result = await run("searchProducts", { query: "men cargo shorts" }, cargoContext(products));
+  expect(result.out.products.map((p: { id: string }) => p.id)).toEqual(["cargo-jeans", "cargo-expensive"]);
+  const none = await run("searchProducts", { query: "cashmere shorts" }, cargoContext(products));
+  expect(none.out.products).toEqual([]);
+  expect(none.out.match_type).toBe("none");
+  expect((await run("searchProducts", { query: "short sleeve shirt" }, cargoContext(products))).out.products[0].id).toBe("camp-shirt");
+  const related = await run("getRelatedProducts", { productId: "cargo-jeans" }, cargoContext(products));
+  expect(related.out.products.map((p: { id: string }) => p.id)).not.toContain("camp-shirt");
+  expect(related.out.products.map((p: { id: string }) => p.id)).not.toContain("women-cargo");
 });
 
 test("product text is surfaced as untrusted data and unknown products are not invented", async () => {
@@ -155,6 +191,23 @@ test("rendered search reply retains the alternatives disclosure when the model c
   expect(result.reply).not.toContain("exactly the cargo shorts");
   expect(result.products.map(p => p.id)).toEqual(["cargo-jeans"]);
   expect(result.actions).toEqual([]);
+});
+
+test("model markers cannot reorder ranked search cards or revive an unrelated earlier lookup", async () => {
+  const client = fakeClient([
+    { output: [{ type: "function_call", name: "getProduct", arguments: '{"productIdOrSlug":"camp-shirt"}', call_id: "old" }] },
+    { output: [{ type: "function_call", name: "searchProducts", arguments: '{"query":"cargo shorts"}', call_id: "cargo" }] },
+    { output: [], output_text: "[[product:camp-shirt]] [[product:cargo-expensive]] [[product:cargo-jeans]]" },
+  ]);
+  const result = await runAssistant(client, "m", [{ role: "user", content: "cargo shorts" }], cargoContext());
+  expect(result.products.map(p => p.id)).toEqual(["cargo-jeans", "cargo-expensive"]);
+  expect(result.products[0].matchReason).toContain("jeans instead of shorts");
+  const empty = await runAssistant(fakeClient([
+    { output: [{ type: "function_call", name: "getProduct", arguments: '{"productIdOrSlug":"camp-shirt"}', call_id: "old" }] },
+    { output: [{ type: "function_call", name: "searchProducts", arguments: '{"query":"cashmere shorts"}', call_id: "empty" }] },
+    { output: [], output_text: "[[product:camp-shirt]]" },
+  ]), "m", [{ role: "user", content: "cashmere shorts" }], cargoContext());
+  expect(empty.products).toEqual([]);
 });
 
 test("runAssistant executes tools, builds cards from catalog data only and drops invented ids", async () => {
@@ -518,7 +571,48 @@ test.describe("chat widget", () => {
     await expect(page.getByTestId("assistant-message-assistant")).toContainText("similar products you may like");
     await expect(page.getByTestId("assistant-product")).toHaveCount(1);
     await expect(page.getByTestId("assistant-product")).toContainText("Cargo Jeans");
+    await expect(page.getByTestId("assistant-product")).toContainText("jeans instead of shorts");
     await expect(page.getByTestId("assistant-product-card")).toHaveAttribute("href", "/men/cargo-jeans");
+  });
+
+  test("legacy contact-sheet thumbnails never reveal the next row at mobile, desktop or hover", async ({ page }, testInfo) => {
+    const sheet = '<svg xmlns="http://www.w3.org/2000/svg" width="260" height="258"><path fill="#245888" d="M0 0h260v225H0z"/><path fill="#ffffff" d="M0 225h260v9H0z"/><path fill="#ff0000" d="M0 234h260v24H0z"/></svg>';
+    await page.route("**/demo-products/mens-trousers/14.jpg", route => route.fulfill({ contentType: "image/svg+xml", body: sheet }));
+    const cards = [
+      { ...catalog[2], id: "sheet", image_url: "/demo-products/mens-trousers/14.jpg", name: "Atelier Washed Cotton Cargo Pants", category: "Men's Trousers", price: 4200,
+        matchReason: "Matches “cargo”; trousers instead of shorts." },
+      { ...catalog[0], id: "photo", image_url: "/demo-products/womens-dress/01.jpg" },
+    ].map(p => ({ ...p, url: `/men/${p.id}`, inStock: true, sizes: [], colors: [] }));
+    await page.route("**/api/assistant", route => route.fulfill({ json: { reply: "Similar bottoms", products: cards, actions: [] } }));
+    await page.goto("/"); await page.getByTestId("assistant-launcher").click();
+    const input = page.getByLabel("Message the shopping assistant");
+    await input.fill("cargo shorts"); await input.press("Enter");
+    const frame = page.getByTestId("assistant-product").first().locator(".assistant-product-image");
+    await expect(frame).toHaveAttribute("data-legacy-sheet", "true");
+    const checkBottom = async () => {
+      const capture = await frame.screenshot({ animations: "disabled" });
+      const { data, info } = await sharp(capture).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+      const offset = ((info.height - 3) * info.width + Math.floor(info.width / 2)) * info.channels;
+      // The lower center must show the first blue product, never the white
+      // separator or red next row. This checks pixels independently of CSS values.
+      expect([...data.subarray(offset, offset + 3)]).toEqual([36, 88, 136]);
+    };
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await checkBottom();
+      await frame.hover(); await checkBottom();
+      await page.emulateMedia({ reducedMotion: "reduce" }); await checkBottom();
+      await page.emulateMedia({ reducedMotion: "no-preference" });
+    }
+    const standalone = page.getByTestId("assistant-product").nth(1).locator(".assistant-product-image");
+    await expect(standalone).toHaveAttribute("data-legacy-sheet", "false");
+    await page.unroute("**/demo-products/mens-trousers/14.jpg");
+    const actualPhoto = page.waitForResponse(response => response.url().includes("/demo-products/mens-trousers/14.jpg?preview=actual"));
+    await frame.locator("img").evaluate((image: HTMLImageElement) => { image.src += "?preview=actual"; });
+    await actualPhoto;
+    await expect.poll(() => frame.locator("img").evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth)).toBe(260);
+    await page.setViewportSize({ width: 390, height: 850 });
+    await page.getByTestId("assistant-product").first().screenshot({ path: testInfo.outputPath("cargo-thumbnail-mobile.png"), animations: "disabled" });
   });
 
   test("opens accessibly, sends with Enter, shows cards, confirmation and retry", async ({ page }) => {

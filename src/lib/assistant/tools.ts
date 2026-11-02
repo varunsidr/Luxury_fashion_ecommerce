@@ -4,6 +4,9 @@ import { POLICY_TOPICS, STORE_POLICIES } from "./policies";
 import type { ProductCardData, ToolContext, ToolRunState } from "./types";
 import { availableUnits, configuredSizes, configuredColors, cartAction, validVariant } from "./inventory";
 import { assistantPrice, DEFAULT_DISPLAY } from "./presentation";
+import { assessSearchMatch, assessRelatedMatch, searchIntent } from "./relevance";
+import { FACT_TOPICS, MATERIALS, FITS, matchesColor, matchesMaterial, matchesFit, type FactTopic } from "./productFacts";
+import { productAnswer, productComparison } from "./knowledge";
 
 export const MAX_TOOL_RESULTS = 8;
 const MAX_QUANTITY = 10;
@@ -76,13 +79,14 @@ export function toCard(product: Product): ProductCardData {
   };
 }
 
-function summarize(product: Product, state: ToolRunState) {
+function summarize(product: Product, state: ToolRunState, matchReason?: string) {
   const card = toCard(product);
+  card.matchReason = matchReason ?? state.seenProducts.get(card.id)?.matchReason;
   state.seenProducts.set(card.id, card);
   return {
     id: card.id, name: product.name, category: product.category, brand: product.brand ?? null,
     price_inr: product.price, tag: product.tag ?? null, availability: availabilityOf(product),
-    colors: configuredColors(product).map((color) => color.name), url: card.url,
+    colors: configuredColors(product).map((color) => color.name), url: card.url, match_reason: card.matchReason,
   };
 }
 
@@ -105,23 +109,6 @@ function findProduct(products: Product[], idOrSlug: string): Product | undefined
     String((product as { slug?: string }).slug ?? "").toLowerCase() === needle);
 }
 
-const STOP_WORDS = new Set(["a", "an", "the", "for", "me", "show", "find", "i", "want", "need", "some", "any", "with", "in", "of", "and", "to", "please", "something", "under", "below", "over", "than"]);
-
-const tokens = (value: string) => normalizeCatalogText(value).split(/[^a-z0-9]+/)
-  .filter((token) => token && !STOP_WORDS.has(token))
-  .map((token) => /(?:ss|sh|ch|x|z)es$/.test(token) ? token.slice(0, -2)
-    : token.length > 3 && token.endsWith("s") && !token.endsWith("ss") ? token.slice(0, -1) : token);
-
-// Match whole words in product identity fields. Description prose can mention
-// other garment types and must not make jeans an exact match for shorts.
-function searchFields(product: Product): [Set<string>, number][] {
-  return [
-    [new Set(tokens(product.name)), 4], [new Set(tokens(product.category)), 3],
-    [new Set(tokens(product.brand ?? "")), 2], [new Set(tokens(product.tag ?? "")), 1],
-    [new Set(tokens(configuredColors(product).map((color) => color.name).join(" "))), 2],
-  ];
-}
-
 function mainCategoryMatches(product: Product, wanted: string): boolean {
   const normalizedCategory = normalizeCatalogText(product.category);
   const normalizedWanted = normalizeCatalogText(wanted);
@@ -133,24 +120,17 @@ function mainCategoryMatches(product: Product, wanted: string): boolean {
     aliases.includes(normalizedWanted) && aliases.some(hasPrefix));
 }
 
-function searchMatch(product: Product, queryTokens: string[]) {
-  const fields = searchFields(product);
-  const descriptionWords = new Set(tokens(product.description ?? ""));
-  let total = 0;
-  let matched = 0;
-  for (const token of queryTokens) {
-    if (fields.some(([words]) => words.has(token))) matched++;
-    for (const [words, weight] of fields) if (words.has(token)) total += weight;
-    if (descriptionWords.has(token)) total++;
-  }
-  return { score: queryTokens.length ? total : 1, exact: matched === queryTokens.length };
-}
-
 async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState) {
+  args = { ...args, ...Object.fromEntries(Object.entries(ctx.preferences ?? {}).filter(([key, value]) => key !== "query" || value != null).map(([key, value]) => [key, value ?? undefined])) };
   const query = str(args.query, "query", 200);
   const category = str(args.category, "category", 80);
   const color = str(args.color, "color", 40);
   const size = str(args.size, "size", 30);
+  const material = str(args.material, "material", 40);
+  const fit = str(args.fit, "fit", 40);
+  const audience = str(args.audience, "audience", 10);
+  if (audience && audience !== "men" && audience !== "women") throw new ToolInputError("Choose men or women as audience");
+  if (material && !MATERIALS.includes(material) || fit && !FITS.includes(fit)) throw new ToolInputError("Choose a supported material or fit");
   const display = ctx.display ?? DEFAULT_DISPLAY;
   const priceCurrency = str(args.priceCurrency, "priceCurrency", 3) ?? display.currency;
   if (priceCurrency !== "INR" && priceCurrency !== "USD") throw new ToolInputError("priceCurrency must be INR or USD");
@@ -166,17 +146,23 @@ async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState)
   const limit = int(args.limit, "limit", 1, MAX_TOOL_RESULTS) ?? 5;
   if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) throw new ToolInputError("minPrice cannot exceed maxPrice");
 
-  const queryTokens = query ? tokens(query) : [];
+  const intent = searchIntent(query ?? "");
+  if (audience) intent.audience = audience as "men" | "women";
   let matches = (await ctx.store.listProducts())
     .filter((product) => Number.isFinite(product.price) && product.price >= 0)
     .filter((product) => !category || mainCategoryMatches(product, category))
     .filter((product) => minPrice === undefined || product.price >= minPrice)
     .filter((product) => maxPrice === undefined || product.price <= maxPrice)
-    .filter((product) => !color || configuredColors(product).some((option) => normalizeCatalogText(option.name) === normalizeCatalogText(color)))
+    .filter((product) => !color || matchesColor(product, color))
+    .filter((product) => !material || matchesMaterial(product, material))
+    .filter((product) => !fit || matchesFit(product, fit))
+    .filter((product) => !(ctx.preferences?.excludeColors ?? []).some(color => matchesColor(product, color)))
+    .filter((product) => !(ctx.preferences?.excludeMaterials ?? []).some(material => matchesMaterial(product, material)))
+    .filter((product) => !(ctx.preferences?.excludeFits ?? []).some(fit => matchesFit(product, fit)))
     .filter((product) => !size || configuredSizes(product).some((value) => normalizeCatalogText(value) === normalizeCatalogText(size)))
     .filter((product) => !inStockOnly || availabilityOf(product, size ? configuredSizes(product).find(value => normalizeCatalogText(value) === normalizeCatalogText(size)) : null) !== "out_of_stock")
-    .map((product) => ({ product, ...searchMatch(product, queryTokens) }))
-    .filter((entry) => entry.score > 0);
+    .map((product) => ({ product, ...assessSearchMatch(product, intent) }))
+    .filter((entry) => entry.relevant);
 
   const exactMatches = matches.filter((entry) => entry.exact);
   const matchType = exactMatches.length ? "exact" : matches.length ? "similar" : "none";
@@ -191,17 +177,22 @@ async function searchProducts(args: Args, ctx: ToolContext, state: ToolRunState)
     return b.score - a.score || a.product.price - b.product.price;
   });
 
-  const page = matches.slice(0, limit).map((entry) => entry.product);
-  state.lastProductIds = page.map((product) => String(product.id));
+  const page = matches.slice(0, limit);
+  state.lastProductIds = page.map(({ product }) => String(product.id));
+  state.rankedProductIds = state.lastProductIds;
+  if (ctx.preferences && query && !ctx.preferences.query) ctx.preferences.query = query;
   state.sections.set("search", matchType === "exact" ? "Here are matching products. Prices and available options are shown on the cards."
     : matchType === "similar" ? `I couldn't find an exact match for “${query}” with your filters. Here are some similar products you may like. Prices and available options are shown on the cards.`
     : "No products matched those filters. Try a different category, budget, size or color.");
+  if (ctx.preferences?.excludeColors?.length || ctx.preferences?.excludeMaterials?.length || ctx.preferences?.excludeFits?.length) {
+    state.sections.set("exclusions", "Exclusions use listed catalog attributes. Unlisted colors, composition or fit remain unknown; they are not certified absent.");
+  }
   return {
     total_matches: matches.length,
     exact_matches: exactMatches.length,
     match_type: matchType,
-    note: color ? "Color filtering only covers products that list color options." : undefined,
-    products: page.map((product) => summarize(product, state)),
+    note: color ? "Color matches use listed color options or the product name; matching does not create selectable colors." : undefined,
+    products: page.map(({ product, reason }) => summarize(product, state, matchType === "similar" ? reason : undefined)),
   };
 }
 
@@ -210,8 +201,42 @@ async function getProduct(args: Args, ctx: ToolContext, state: ToolRunState) {
   const product = findProduct(await ctx.store.listProducts(), idOrSlug);
   if (!product) return { found: false, message: "No product with that id or slug exists." };
   state.lastProductIds = [String(product.id)];
-  state.sections.set("details", "Here are the catalog details. Open a product page for its description and size guide.");
+  state.sections.set("details", productAnswer(product, "overview", ctx.lastUserMessage, ctx));
   return { found: true, product: detail(product, state) };
+}
+
+async function answerProductQuestion(args: Args, ctx: ToolContext, state: ToolRunState) {
+  const id = str(args.productId, "productId", 100, true)!;
+  const topic = str(args.topic, "topic", 30, true)!;
+  if (!(FACT_TOPICS as readonly string[]).includes(topic)) throw new ToolInputError("Unknown product question topic");
+  const question = str(args.question, "question", 400) ?? ctx.lastUserMessage;
+  const product = findProduct(await ctx.store.listProducts({ fresh: true }), id);
+  if (!product) return { found: false };
+  state.lastProductIds = [String(product.id)];
+  state.rankedProductIds = state.lastProductIds;
+  summarize(product, state);
+  state.sections.set("details", productAnswer(product, topic as FactTopic, question, ctx));
+  return { found: true, answer: state.sections.get("details"), product: detail(product, state) };
+}
+
+async function compareProducts(args: Args, ctx: ToolContext, state: ToolRunState) {
+  const ids = args.productIds;
+  if (!Array.isArray(ids) || ids.length < 2 || ids.length > 3 || new Set(ids).size !== ids.length || ids.some(id => typeof id !== "string" || !id || id.length > 100)) throw new ToolInputError("Choose two or three unique product IDs");
+  const catalog = await ctx.store.listProducts({ fresh: true });
+  const products = ids.map(id => findProduct(catalog, id));
+  if (products.some(product => !product)) {
+    state.rankedProductIds = [];
+    return { found: false, message: "One of these products is no longer listed. Select the products again." };
+  }
+  const selected = products as Product[];
+  selected.forEach(product => summarize(product, state));
+  const result = productComparison(selected, ctx);
+  state.comparison = result.comparison;
+  state.lastProductIds = ids;
+  state.rankedProductIds = ids;
+  state.sections.delete("details");
+  state.sections.set("comparison", result.summary);
+  return { found: true, ...result };
 }
 
 async function getProductAvailability(args: Args, ctx: ToolContext, state: ToolRunState) {
@@ -233,25 +258,45 @@ async function getProductAvailability(args: Args, ctx: ToolContext, state: ToolR
 async function getRelatedProducts(args: Args, ctx: ToolContext, state: ToolRunState) {
   const id = str(args.productId, "productId", 100, true)!;
   const limit = int(args.limit, "limit", 1, MAX_TOOL_RESULTS) ?? 4;
+  const preferences = ctx.preferences;
+  const currency = preferences?.priceCurrency ?? ctx.display?.currency ?? "INR";
+  if (currency === "USD" && ctx.display?.currency !== "USD" && (preferences?.minPrice != null || preferences?.maxPrice != null)) return { error: "currency_unavailable" };
+  const rate = currency === "INR" ? 1 : ctx.display?.rate ?? 1;
+  const preferredAudience = searchIntent("");
+  if (preferences?.audience) preferredAudience.audience = preferences.audience;
+  const preferredQuery = preferences?.query ? searchIntent(preferences.query) : null;
   const products = await ctx.store.listProducts();
   const base = findProduct(products, id);
   if (!base) return { found: false, message: "No product with that id exists." };
-  const baseTokens = new Set(tokens(base.name));
   const related = products
-    .filter((product) => String(product.id) !== String(base.id) && isInStock(product))
+    .filter((product) => String(product.id) !== String(base.id) && (preferences?.inStockOnly === false || isInStock(product)))
+    .filter(product => preferences?.minPrice == null || product.price >= preferences.minPrice / rate)
+    .filter(product => preferences?.maxPrice == null || product.price <= preferences.maxPrice / rate)
+    .filter(product => !preferences?.category || mainCategoryMatches(product, preferences.category))
+    .filter(product => !preferences?.audience || assessSearchMatch(product, preferredAudience).relevant)
+    .filter(product => {
+      if (!preferredQuery) return true;
+      const match = assessSearchMatch(product, preferredQuery);
+      return match.relevant && match.matchedDistinctiveCount === preferredQuery.distinctive.length;
+    })
+    .filter(product => !preferences?.color || matchesColor(product, preferences.color))
+    .filter(product => !preferences?.material || matchesMaterial(product, preferences.material))
+    .filter(product => !preferences?.fit || matchesFit(product, preferences.fit))
+    .filter(product => !(preferences?.excludeColors ?? []).some(color => matchesColor(product, color)))
+    .filter(product => !(preferences?.excludeMaterials ?? []).some(material => matchesMaterial(product, material)))
+    .filter(product => !(preferences?.excludeFits ?? []).some(fit => matchesFit(product, fit)))
+    .filter(product => !preferences?.size || configuredSizes(product).some(size => normalizeCatalogText(size) === normalizeCatalogText(preferences.size) && (preferences.inStockOnly === false || availableUnits(product, size) > 0)))
     .map((product) => ({
       product,
-      score: (product.category === base.category ? 10 : 0) +
-        tokens(product.name).filter((token) => baseTokens.has(token)).length * 2 +
-        (product.brand && product.brand === base.brand ? 1 : 0) -
-        Math.abs(product.price - base.price) / Math.max(base.price, 1),
+      ...assessRelatedMatch(product, base),
     }))
-    .filter((entry) => entry.score > 0)
+    .filter((entry) => entry.relevant)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .map((entry) => entry.product);
   state.lastProductIds = related.map((product) => String(product.id));
-  state.sections.set("related", related.length ? "Here are similar products from the catalog." : "No similar in-stock products were found. Try browsing the category.");
+  state.rankedProductIds = state.lastProductIds;
+  state.sections.set("related", related.length ? "Here are similar products from the catalog, keeping your active shopping preferences." : "No similar products matched the current preferences and stock filters. You can change or clear your preferences to broaden the search.");
   return { found: true, products: related.map((product) => summarize(product, state)) };
 }
 
@@ -352,7 +397,7 @@ function getStorePolicies(args: Args, _ctx: ToolContext, state: ToolRunState) {
 type Handler = (args: Args, ctx: ToolContext, state: ToolRunState) => Promise<unknown> | unknown;
 
 const handlers: Record<string, Handler> = {
-  searchProducts, getProduct, getProductAvailability, getRelatedProducts, getCategories, getCart, addToCart, getStorePolicies,
+  searchProducts, getProduct, answerProductQuestion, compareProducts, getProductAvailability, getRelatedProducts, getCategories, getCart, addToCart, getStorePolicies,
 };
 
 export const TOOL_NAMES = Object.keys(handlers);
@@ -370,11 +415,17 @@ export const TOOL_DEFINITIONS = [
       minPrice: { type: "number" }, maxPrice: { type: "number", description: "Maximum price in priceCurrency, defaulting to the shopper's display currency." },
       priceCurrency: { type: "string", enum: ["INR", "USD"], description: "Set INR for an explicit rupee/INR budget; USD for a dollar/USD budget. Otherwise omit to use display currency. Do not convert the amount yourself." },
       color: { type: "string" }, size: { type: "string" },
+      audience: { type: "string", enum: ["men", "women"] },
+      material: { type: "string", enum: MATERIALS }, fit: { type: "string", enum: FITS },
       inStockOnly: { type: "boolean", description: "Defaults to true." },
       sortBy: { type: "string", enum: [...SORTS] }, limit: { type: "integer", minimum: 1, maximum: MAX_TOOL_RESULTS },
     }) },
   { type: "function" as const, name: "getProduct", strict: false, description: "Get details for one product by id or slug.",
     parameters: obj({ productIdOrSlug: { type: "string" } }, ["productIdOrSlug"]) },
+  { type: "function" as const, name: "answerProductQuestion", strict: false, description: "Answer a specific product question from current catalog fields. Preserves missing facts and distinguishes product-name hints from listed composition. Never infer quality, care, comfort or features from photos.",
+    parameters: obj({ productId: { type: "string" }, topic: { type: "string", enum: [...FACT_TOPICS] }, question: { type: "string" } }, ["productId", "topic"]) },
+  { type: "function" as const, name: "compareProducts", strict: false, description: "Compare two or three products using current prices, material, fit, care, stock and options. Returns a factual table and price difference, never an invented overall winner.",
+    parameters: obj({ productIds: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 3 } }, ["productIds"]) },
   { type: "function" as const, name: "getProductAvailability", strict: false, description: "Stock status (in_stock, low_stock, out_of_stock), per size when sizes exist.",
     parameters: obj({ productId: { type: "string" } }, ["productId"]) },
   { type: "function" as const, name: "getRelatedProducts", strict: false, description: "Find products similar to a given product.",

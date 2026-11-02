@@ -1,20 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import Link from "next/link";
 import { ArrowDown, ArrowRight, ArrowUp, Check, Gift, Loader2, MessageCircle, RotateCcw, ShieldCheck, ShoppingBag, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useCart } from "@/context/CartContext";
 import { useCurrency } from "@/context/CurrencyContext";
-import type { AddToCartAction, AssistantInteraction, AssistantReply, ChatMessage, ProductCardData } from "@/lib/assistant/types";
+import type { AddToCartAction, AssistantInteraction, AssistantReply, ChatMessage, ProductCardData, ProductComparison, ShoppingPreferences } from "@/lib/assistant/types";
 import { MAX_MESSAGE_LENGTH, MAX_MESSAGES, MAX_CART_LINES } from "@/lib/assistant/types";
 import { withAbort } from "@/lib/assistant/requestLifetime";
 import AssistantProductCard from "./AssistantProductCard";
+import AssistantComparison from "./AssistantComparison";
+import { EMPTY_PREFERENCES, preferenceLabels } from "@/lib/assistant/preferences";
 import "./shopping-assistant.css";
 
 interface UiMessage extends ChatMessage {
   id: number;
   products?: ProductCardData[];
   actions?: AddToCartAction[];
+  comparison?: ProductComparison;
 }
 
 const GREETING = "Find new favourites, check sizes, compare the details, and build your bag. What catches your eye?";
@@ -39,6 +43,10 @@ export default function ShoppingAssistant() {
   const [confirmed, setConfirmed] = useState<Set<string>>(new Set());
   const [confirming, setConfirming] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [preferences, setPreferences] = useState<ShoppingPreferences>({});
+  const [preferenceNotice, setPreferenceNotice] = useState("");
+  const currentPreferences = useRef<ShoppingPreferences>({});
+  const positionedComparison = useRef<number | null>(null);
   const confirmedRef = useRef(new Set<string>());
   const confirmBusy = useRef(false);
   const identity = useRef<string | null | undefined>(undefined);
@@ -70,6 +78,9 @@ export default function ShoppingAssistant() {
     setMessages([]); setDraft(""); setError(null); setLoading(false);
     setConfirmed(new Set()); setConfirming(null);
     setCompareIds([]);
+    currentPreferences.current = {};
+    setPreferences({}); setPreferenceNotice("");
+    positionedComparison.current = null;
     pinned.current = true;
     autoScrolling.current = false;
     if (scrollTimer.current) clearTimeout(scrollTimer.current);
@@ -117,7 +128,23 @@ export default function ShoppingAssistant() {
   }, []);
 
   useEffect(() => {
-    if (open && pinned.current && (messages.length > 0 || loading || error)) scrollToLatest();
+    if (!open || !pinned.current || !(messages.length > 0 || loading || error)) return;
+    const latest = messages.at(-1);
+    if (latest?.comparison && positionedComparison.current !== latest.id && logRef.current) {
+      const log = logRef.current;
+      const message = log.querySelector<HTMLElement>(`[data-message-id="${latest.id}"]`);
+      if (message) {
+        positionedComparison.current = latest.id;
+        pinned.current = false;
+        autoScrolling.current = true;
+        if (scrollTimer.current) clearTimeout(scrollTimer.current);
+        log.scrollTo({ top: log.scrollTop + message.getBoundingClientRect().top - log.getBoundingClientRect().top,
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+        scrollTimer.current = setTimeout(() => { autoScrolling.current = false; }, 600);
+        return;
+      }
+    }
+    scrollToLatest();
   }, [messages, loading, error, open, scrollToLatest]);
 
   useEffect(() => {
@@ -181,6 +208,7 @@ export default function ShoppingAssistant() {
     busy.current = true;
     setLoading(true);
     setError(null);
+    setPreferenceNotice("");
     setFailedHistory(null);
     const scope = generation.current;
     const controller = new AbortController();
@@ -201,7 +229,7 @@ export default function ShoppingAssistant() {
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) },
         body: JSON.stringify({
           messages: history.slice(-MAX_MESSAGES).map(({ role, content, productIds }) => ({ role, content: content.slice(0, MAX_MESSAGE_LENGTH), ...(productIds ? { productIds } : {}) })),
-          display: { currency, rate }, interaction,
+          display: { currency, rate }, interaction, preferences: currentPreferences.current,
           cart: token ? currentCart.current.slice(0, MAX_CART_LINES).map((item) => ({ id: item.id, size: item.size, color: item.color ?? null, quantity: item.quantity })) : [],
         }),
       });
@@ -209,7 +237,8 @@ export default function ShoppingAssistant() {
       if (generation.current !== scope || identity.current !== userId) return;
       if (!response.ok || !body) throw new Error(typeof body?.error === "string" ? body.error : "Something went wrong.");
       const reply = body as AssistantReply;
-      setMessages((prev) => [...prev, { id: nextId.current++, role: "assistant", content: reply.reply, products: reply.products, actions: reply.actions }]);
+      if (reply.preferences) { currentPreferences.current = reply.preferences; setPreferences(reply.preferences); }
+      setMessages((prev) => [...prev, { id: nextId.current++, role: "assistant", content: reply.reply, products: reply.products, actions: reply.actions, comparison: reply.comparison }]);
     } catch (caught) {
       if (generation.current !== scope) return;
       setFailedHistory({ history, interaction });
@@ -343,10 +372,12 @@ export default function ShoppingAssistant() {
 
               {messages.map(message => (
                 <div key={message.id} className={"assistant-message assistant-reveal assistant-message-" + message.role}
-                  data-testid={"assistant-message-" + message.role}>
+                  data-testid={"assistant-message-" + message.role} data-message-id={message.id}>
                   {message.role === "assistant" && <div className="assistant-message-author"><Sparkles size={12} aria-hidden="true" /> Zeouf</div>}
                   <p className="assistant-message-text">{message.content}</p>
-                  {message.products?.map(product => (
+                  {message.comparison && <AssistantComparison comparison={message.comparison} />}
+                  {message.comparison && <div className="assistant-comparison-links">{message.products?.map(product => <Link key={product.id} href={product.url} onClick={close}>View {product.name}<ArrowRight size={13} aria-hidden="true" /></Link>)}</div>}
+                  {!message.comparison && message.products?.map(product => (
                     <AssistantProductCard key={product.id} product={product} busy={loading || confirming !== null}
                       selected={compareIds.includes(product.id)} onNavigate={close}
                       onCompare={() => setCompareIds(previous => previous.includes(product.id) ? previous.filter(id => id !== product.id) : previous.length < 3 ? [...previous, product.id] : previous)}
@@ -400,6 +431,13 @@ export default function ShoppingAssistant() {
             </div>
           )}
           <footer className="assistant-footer">
+            {preferenceLabels(preferences).length > 0 && <div className="assistant-preferences" aria-label="Shopping preferences" data-testid="assistant-preferences">
+              <div><span className="assistant-preferences-title">For this conversation</span><div className="assistant-preference-chips">{preferenceLabels(preferences).map((label, index) => <span key={index}>{label}</span>)}</div></div>
+              <button type="button" disabled={loading || confirming !== null} onClick={() => {
+                currentPreferences.current = { ...EMPTY_PREFERENCES }; setPreferences({ ...EMPTY_PREFERENCES }); setPreferenceNotice("Shopping preferences cleared.");
+              }}>Clear preferences</button>
+            </div>}
+            {preferenceNotice && <p role="status" className="assistant-preference-notice">{preferenceNotice}</p>}
             <form onSubmit={onSubmit} className="assistant-composer">
               <label htmlFor="assistant-input" className="sr-only">Message the shopping assistant</label>
               <textarea id="assistant-input" ref={inputRef} rows={1} value={draft} maxLength={MAX_MESSAGE_LENGTH}

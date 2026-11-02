@@ -7,7 +7,7 @@ const port = process.env.ASSISTANT_TEST_PORT ?? "3100";
 
 export default defineConfig({
   ...storefront,
-  testMatch: "assistant.spec.ts",
+  testMatch: ["assistant.spec.ts", "assistant-shopping.spec.ts"],
   outputDir: "test-results/assistant",
   use: { ...storefront.use, baseURL: `http://localhost:${port}` },
   webServer: {

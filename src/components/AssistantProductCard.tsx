@@ -22,19 +22,28 @@ export default function AssistantProductCard({ product, busy, selected, onNaviga
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [quantity, setQuantity] = useState("1");
+  const [legacySheetSource, setLegacySheetSource] = useState<string | null>(null);
   const sizes = product.sizes ?? [], colors = product.colors ?? [];
   const valid = (!sizes.length || sizes.some(option => option.size === size && option.inStock)) &&
     (!colors.length || colors.includes(color)) && Number.isInteger(Number(quantity)) && Number(quantity) >= 1 && Number(quantity) <= 10;
   return (
     <div className="assistant-product" data-selected={selected} data-testid="assistant-product">
       <Link href={product.url} onClick={onNavigate} data-testid="assistant-product-card" className="assistant-product-link">
-        <span className="assistant-product-image"><Image src={product.image_url} alt="" width={88} height={110} unoptimized /></span>
+        <span className="assistant-product-image" data-legacy-sheet={legacySheetSource === product.image_url}>
+          <Image src={product.image_url} alt="" width={88} height={110} unoptimized onLoad={event => {
+            const image = event.currentTarget;
+            // These local legacy tiles include a strip of the next contact-sheet
+            // row. Standalone photos (including the refreshed dresses) stay uncropped.
+            setLegacySheetSource(product.image_url.startsWith("/demo-products/") && image.naturalWidth === 260 && image.naturalHeight === 258 ? product.image_url : null);
+          }} />
+        </span>
         <span className="assistant-product-copy">
           <span className="assistant-product-name">{product.name}</span>
           <span className="assistant-product-price">{formatPrice(product.price)}</span>
           <span className="assistant-stock" data-available={product.inStock}><span aria-hidden="true" />{product.inStock ? "In stock" : "Out of stock"}</span>
         </span>
       </Link>
+      {product.matchReason && <p className="assistant-match-reason">{product.matchReason}</p>}
       <dl className="assistant-product-facts">
         <div><dt>Category</dt><dd>{product.category}</dd></div>
         <div><dt>Brand</dt><dd>{product.brand || "Not listed"}</dd></div>

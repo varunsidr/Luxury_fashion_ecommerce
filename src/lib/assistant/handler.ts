@@ -7,6 +7,7 @@ import { supabaseCatalogStore } from "./catalogStore";
 import { MAX_CART_LINES, MAX_MESSAGES, MAX_MESSAGE_LENGTH, type AssistantInteraction, type CartLineInput, type CatalogStore, type ChatMessage } from "./types";
 import { parseDisplay } from "./presentation";
 import { CHAT_DEADLINE_MS, withAbort, withRequestDeadline } from "./requestLifetime";
+import { conversationPreferences, parsePreferences } from "./preferences";
 
 const MAX_BODY_BYTES = 24_000;
 const DEFAULT_MODEL = "openai/gpt-oss-20b";
@@ -100,7 +101,9 @@ async function handleRequest(request: Request, deps: AssistantDeps, signal: Abor
   if (!messages) return json({ error: "Invalid or empty message." }, 400);
   const display = parseDisplay(body.display);
   const interaction = parseInteraction(body.interaction);
-  if (!display || body.interaction !== undefined && !interaction) return json({ error: "Invalid display or shopping action." }, 400);
+  const savedPreferences = body.preferences === undefined ? undefined : parsePreferences(body.preferences);
+  if (!display || body.interaction !== undefined && !interaction || savedPreferences === null) return json({ error: "Invalid display, shopping preferences or shopping action." }, 400);
+  const memory = conversationPreferences(messages, savedPreferences, display, Boolean(interaction));
   const client = interaction ? null : deps.createClient();
   if (!interaction && !client) return json({ error: "The shopping assistant is not configured." }, 503);
 
@@ -114,10 +117,10 @@ async function handleRequest(request: Request, deps: AssistantDeps, signal: Abor
       store: { listProducts: (options?: { fresh?: boolean; signal?: AbortSignal }) => withAbort(() => deps.store.listProducts({ ...options, signal }), signal) }, authenticated,
       cart: authenticated ? parseCart(body.cart) : [],
       lastUserMessage: messages.at(-1)!.content,
-      display, signal,
+      display, signal, preferences: memory.preferences, preferenceChanged: memory.changed,
     };
     const result = interaction ? await runInteraction(interaction, ctx) : await runAssistant(client!, deps.model(), messages, ctx);
-    return json(result);
+    return json({ ...result, preferences: ctx.preferences });
   } catch (error) {
     if (signal.aborted) return json({ error: "The assistant took too long. Please try again." }, 504);
     console.error("[assistant] request failed", {

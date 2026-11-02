@@ -1,0 +1,15 @@
+[
+  { "name": "cargo request then black refinement", "messages": ["Show me cargo shorts under ₹5000", "Only black"], "expected": { "query": "cargo shorts", "maxPrice": 5000, "priceCurrency": "INR", "color": "black" } },
+  { "name": "size and lower budget persist", "messages": ["Cargo pants under ₹5000 in size M", "Under ₹3000"], "expected": { "query": "cargo pants", "maxPrice": 3000, "priceCurrency": "INR", "size": "M" } },
+  { "name": "explicit dollar budget", "messages": ["Show me shirts under $25", "Only linen"], "expected": { "query": "shirts", "maxPrice": 25, "priceCurrency": "USD", "material": "linen" } },
+  { "name": "polite material search is still a search", "messages": ["Do you have cotton shirts under ₹3000?"], "expected": { "query": "shirts", "maxPrice": 3000, "material": "cotton" } },
+  { "name": "material replacement removes the old query material", "messages": ["Linen shirts under ₹4000", "Only cotton"], "expected": { "query": "shirts", "maxPrice": 4000, "material": "cotton" } },
+  { "name": "spaced wide-leg preference can be replaced", "messages": ["Wide leg pants under ₹4000", "Only slim"], "expected": { "query": "pants", "maxPrice": 4000, "fit": "slim" } },
+  { "name": "switching product family clears the old size", "messages": ["Cargo pants in size M under ₹5000", "Actually show bags"], "expected": { "query": "bags", "size": null, "maxPrice": 5000 } },
+  { "name": "audience remains separate from garment keywords", "messages": ["Men's cargo shorts under ₹5000", "Only for women"], "expected": { "query": "cargo shorts", "audience": "women", "maxPrice": 5000 } },
+  { "name": "negative material is never a positive filter", "messages": ["Show bags under ₹5000", "No leather"], "expected": { "query": "bags", "maxPrice": 5000, "excludeMaterials": ["leather"] } },
+  { "name": "negative fit is never a positive filter", "messages": ["Show shirts under ₹5000", "Not slim"], "expected": { "query": "shirts", "maxPrice": 5000, "excludeFits": ["slim"] } },
+  { "name": "a factual question does not become a shopping filter", "messages": ["Show shirts under ₹4000", "Is the second one cotton?"], "expected": { "query": "shirts", "maxPrice": 4000 } },
+  { "name": "remove budget but keep product", "messages": ["Cargo shorts under ₹2000", "No budget limit"], "expected": { "query": "cargo shorts", "maxPrice": null, "priceCurrency": null } },
+  { "name": "explicit reset forgets old choices", "messages": ["Black shirts in size M under ₹5000", "Forget my preferences"], "expected": { "query": null, "color": null, "size": null, "maxPrice": null } }
+]

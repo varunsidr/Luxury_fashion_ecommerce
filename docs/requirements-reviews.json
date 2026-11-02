@@ -1192,5 +1192,71 @@
     ],
     "source_digest": "05d0b2163a7f81e0d839ac005be9c1d6fa8ee3479e203c70f1c38f2c90d83e49",
     "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-11-02T06:44:19.983Z",
+    "summary": "Fix cargo-shorts relevance with garment/audience constraints and pants aliases, preserve server search/related card rankings, explain substitutions from catalog facts, and crop known legacy chat contact-sheet thumbnails; document scoped seed/pixel/browser evidence and retained live-model/source-asset limits",
+    "requirement_ids": [
+      "AST-03",
+      "AST-10",
+      "AST-01"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "architecture.md",
+      "src/components/AssistantProductCard.tsx",
+      "src/components/shopping-assistant.css",
+      "src/lib/assistant/chat.ts",
+      "src/lib/assistant/prompt.ts",
+      "src/lib/assistant/relevance.ts",
+      "src/lib/assistant/tools.ts",
+      "src/lib/assistant/types.ts",
+      "tests/assistant.spec.ts"
+    ],
+    "source_digest": "abc8a2b8a93650dba40cb64937161f0f3a73d17f352ae92bd1197317385c4367",
+    "evidence": "Documentation/source review; not test execution"
+  },
+  {
+    "reviewed_at": "2026-11-02T08:23:50.471Z",
+    "summary": "Add grounded product topic answers, fresh factual comparison tables with useful differences and compact links, conversation-only search preferences with visible/resettable memory and enforced filters, representative shopping evaluations, and accurate privacy/architecture/security guidance; preserve unknown-data and real-provider limits",
+    "requirement_ids": [
+      "AST-01",
+      "AST-02",
+      "AST-03",
+      "AST-07",
+      "AST-08",
+      "AST-09",
+      "AST-10",
+      "AST-11",
+      "AST-12",
+      "AST-13",
+      "AST-14",
+      "CNT-03",
+      "OPS-07"
+    ],
+    "no_functional_change": false,
+    "changed_sources": [
+      "README.md",
+      "SECURITY.md",
+      "architecture.md",
+      "playwright.assistant.config.ts",
+      "src/app/privacy/page.tsx",
+      "src/components/AssistantComparison.tsx",
+      "src/components/ShoppingAssistant.tsx",
+      "src/components/shopping-assistant.css",
+      "src/lib/assistant/chat.ts",
+      "src/lib/assistant/handler.ts",
+      "src/lib/assistant/knowledge.ts",
+      "src/lib/assistant/preferences.ts",
+      "src/lib/assistant/productFacts.ts",
+      "src/lib/assistant/prompt.ts",
+      "src/lib/assistant/relevance.ts",
+      "src/lib/assistant/tools.ts",
+      "src/lib/assistant/types.ts",
+      "tests/assistant-shopping.spec.ts",
+      "tests/fixtures/assistant-shopping-questions.json"
+    ],
+    "source_digest": "9edf8d9f947bda79240d8b9b068a02d889934662cc270ce814ab219dabfa133c",
+    "evidence": "Documentation/source review; not test execution"
   }
 ]
