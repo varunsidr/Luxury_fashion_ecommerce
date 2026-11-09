@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AdminReviewQueue from "@/components/AdminReviewQueue";
 import AdminDialog from "@/components/AdminDialog";
+import { readAdminData } from "@/lib/adminRead";
 import { orderTransitions } from "@/lib/orderLifecycle";
 import CatalogImage from "@/components/CatalogImage";
 import {
@@ -155,60 +156,69 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
     }
   }, [page]);
 
+  const readGeneration = useRef({ products: 0, reviews: 0, users: 0, orders: 0 });
+
   async function fetchProducts() {
+    const generation = ++readGeneration.current.products;
     setLoading(true);
     setStockLoading(true);
     setProductsError("");
     try {
-      const response = await fetch("/api/admin/products", { cache: "no-store" });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error ?? "Could not load the catalog.");
-      const rows: Product[] = result.products ?? [];
+      const result = await readAdminData("/api/admin/products");
+      if (generation !== readGeneration.current.products) return;
+      if (!Array.isArray(result.products)) throw new Error("Invalid products response. Please retry.");
+      const rows = result.products as Product[];
       setProducts(rows);
       setSizeStocks(rows.flatMap(product => product.product_size_stock ?? []));
     } catch (error) {
+      if (generation !== readGeneration.current.products) return;
+      setProducts([]); setSizeStocks([]);
       setProductsError(error instanceof Error ? error.message : "Could not load the catalog.");
-    } finally { setLoading(false); setStockLoading(false); }
+    } finally { if (generation === readGeneration.current.products) { setLoading(false); setStockLoading(false); } }
   }
 
   async function fetchReviews() {
+    const generation = ++readGeneration.current.reviews;
     setReviewsLoading(true);
     setReviewsError("");
     try {
-      const response = await fetch("/api/admin/reviews?status=all", { cache: "no-store" });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error ?? "Could not load reviews.");
-      setReviews(Array.isArray(result.reviews) ? result.reviews : []);
+      const result = await readAdminData("/api/admin/reviews?status=all");
+      if (generation !== readGeneration.current.reviews) return;
+      if (!Array.isArray(result.reviews)) throw new Error("Invalid reviews response. Please retry.");
+      setReviews(result.reviews as Review[]);
     } catch (error) {
+      if (generation !== readGeneration.current.reviews) return;
       setReviews([]);
       setReviewsError(error instanceof Error ? error.message : "Could not load reviews.");
     } finally {
-      setReviewsLoading(false);
+      if (generation === readGeneration.current.reviews) setReviewsLoading(false);
     }
   }
 
   async function fetchProfiles() {
+    const generation = ++readGeneration.current.users;
     setProfilesLoading(true);
     setProfilesError("");
     try {
-      const response = await fetch("/api/admin/users", { cache: "no-store" });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error ?? "Could not load users.");
-      setProfiles(result.users ?? []);
-    } catch (error) { setProfilesError(error instanceof Error ? error.message : "Could not load users."); }
-    finally { setProfilesLoading(false); }
+      const result = await readAdminData("/api/admin/users");
+      if (generation !== readGeneration.current.users) return;
+      if (!Array.isArray(result.users)) throw new Error("Invalid users response. Please retry.");
+      setProfiles(result.users as Profile[]);
+    } catch (error) { if (generation !== readGeneration.current.users) return; setProfiles([]); setSelectedProfile(null); setProfilesError(error instanceof Error ? error.message : "Could not load users."); }
+    finally { if (generation === readGeneration.current.users) setProfilesLoading(false); }
   }
 
   async function fetchOrders() {
+    const generation = ++readGeneration.current.orders;
     setOrdersLoading(true);
     setOrdersError("");
     try {
-      const response = await fetch("/api/admin/orders", { cache: "no-store" });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error ?? "Could not load orders.");
-      setOrders(result.orders ?? []);
-    } catch { setOrdersError("Could not load orders. Please retry."); }
-    finally { setOrdersLoading(false); }
+      const result = await readAdminData("/api/admin/orders");
+      if (generation !== readGeneration.current.orders) return;
+      if (!Array.isArray(result.orders)) throw new Error("Invalid orders response. Please retry.");
+      setOrders(result.orders as Order[]);
+    } catch { if (generation !== readGeneration.current.orders) return; setOrders([]); setSelectedOrder(null); setOrdersError("Could not load orders. Please retry."); }
+    finally { if (generation === readGeneration.current.orders) setOrdersLoading(false); }
   }
 
   async function updateOrderStatus(orderId: string, status: string) {
@@ -593,7 +603,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                     ))}
                   </tbody>
                 </table>
-                {filtered.length === 0 && <p className="text-center py-12 text-[12px] text-neutral-300">No products found.</p>}
+                {filtered.length === 0 && <p className="text-center py-12 text-[12px] text-neutral-300">{productsError ? "Catalog unavailable. Retry loading data." : "No products found."}</p>}
               </div>
             )}
           </div>
@@ -735,7 +745,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
                     ))}
                   </tbody>
                 </table>
-                {products.length === 0 && <p className="p-8 text-center text-[12px] text-neutral-400">No products found.</p>}
+                {products.length === 0 && <p className="p-8 text-center text-[12px] text-neutral-400">{productsError ? "Catalog unavailable. Retry loading data." : "No products found."}</p>}
               </div>
             )}
           </div>
@@ -746,7 +756,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
           <div className="p-8">
             <div className="mb-6">
               <h1 className="text-[20px] font-light text-neutral-800">Orders</h1>
-              <p className="text-[11px] text-neutral-400">{orders.length} total orders · update fulfillment status</p>
+              <p className="text-[11px] text-neutral-400">{ordersLoading || ordersError ? "Unavailable" : orders.length} total orders · update fulfillment status</p>
             </div>
 
             <div className="mb-5 flex flex-col gap-3 md:flex-row">
@@ -861,18 +871,19 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
             <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
               <section className="bg-white border border-neutral-100 p-6">
                 <div className="flex items-center justify-between mb-5"><div><h2 className="text-[13px] font-medium text-neutral-800">Order pipeline</h2><p className="mt-1 text-[11px] text-neutral-400">Current fulfillment status</p></div><ShoppingCart size={17} className="text-neutral-300" /></div>
-                <div className="space-y-4">{orderStatusCounts.map((entry) => { const percentage = orders.length ? Math.round((entry.count / orders.length) * 100) : 0; return <div key={entry.status}><div className="flex justify-between text-[11px] text-neutral-500"><span className="capitalize">{entry.status}</span><span>{entry.count} · {percentage}%</span></div><div className="mt-2 h-2 bg-neutral-100"><div className="h-full bg-neutral-800 transition-all" style={{ width: `${percentage}%` }} /></div></div>; })}</div>
+                {ordersLoading || ordersError ? <p className="text-[12px] text-neutral-400">Order pipeline unavailable or loading.</p> : <div className="space-y-4">{orderStatusCounts.map((entry) => { const percentage = orders.length ? Math.round((entry.count / orders.length) * 100) : 0; return <div key={entry.status}><div className="flex justify-between text-[11px] text-neutral-500"><span className="capitalize">{entry.status}</span><span>{entry.count} · {percentage}%</span></div><div className="mt-2 h-2 bg-neutral-100"><div className="h-full bg-neutral-800 transition-all" style={{ width: `${percentage}%` }} /></div></div>; })}</div>}
               </section>
               <section className="bg-white border border-neutral-100 p-6">
                 <div className="flex items-center justify-between mb-5"><div><h2 className="text-[13px] font-medium text-neutral-800">Inventory health</h2><p className="mt-1 text-[11px] text-neutral-400">Products needing attention</p></div><AlertTriangle size={17} className="text-amber-500" /></div>
-                <div className="space-y-3"><div className="flex justify-between border-b border-neutral-100 pb-3 text-[12px]"><span className="text-neutral-500">Healthy products</span><span className="text-emerald-700">{Math.max(products.length - lowStock - outOfStock, 0)}</span></div><div className="flex justify-between border-b border-neutral-100 pb-3 text-[12px]"><span className="text-neutral-500">Low stock</span><span className="text-amber-600">{lowStock}</span></div><div className="flex justify-between text-[12px]"><span className="text-neutral-500">Out of stock</span><span className="text-red-500">{outOfStock}</span></div></div>
+                {loading || productsError ? <p className="text-[12px] text-neutral-400">Inventory unavailable or loading.</p> : <div className="space-y-3"><div className="flex justify-between border-b border-neutral-100 pb-3 text-[12px]"><span className="text-neutral-500">Healthy products</span><span className="text-emerald-700">{Math.max(products.length - lowStock - outOfStock, 0)}</span></div><div className="flex justify-between border-b border-neutral-100 pb-3 text-[12px]"><span className="text-neutral-500">Low stock</span><span className="text-amber-600">{lowStock}</span></div><div className="flex justify-between text-[12px]"><span className="text-neutral-500">Out of stock</span><span className="text-red-500">{outOfStock}</span></div></div>}
               </section>
               <section className="bg-white border border-neutral-100 p-6">
                 <div className="flex items-center justify-between mb-5"><div><h2 className="text-[13px] font-medium text-neutral-800">Top products</h2><p className="mt-1 text-[11px] text-neutral-400">Units sold in loaded orders</p></div><TrendingUp size={17} className="text-neutral-300" /></div>
-                {topProducts.length === 0 ? <p className="text-[12px] text-neutral-400">No product sales data yet.</p> : <div className="space-y-3">{topProducts.map((entry) => <div key={entry.product.id} className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3 last:border-0 last:pb-0"><span className="truncate text-[12px] text-neutral-700">{entry.product.name}</span><span className="whitespace-nowrap text-[11px] text-neutral-400">{entry.units} units</span></div>)}</div>}
+                {loading || productsError || ordersLoading || ordersError ? <p className="text-[12px] text-neutral-400">Sales data unavailable or loading.</p> : topProducts.length === 0 ? <p className="text-[12px] text-neutral-400">No product sales data yet.</p> : <div className="space-y-3">{topProducts.map((entry) => <div key={entry.product.id} className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3 last:border-0 last:pb-0"><span className="truncate text-[12px] text-neutral-700">{entry.product.name}</span><span className="whitespace-nowrap text-[11px] text-neutral-400">{entry.units} units</span></div>)}</div>}
               </section>
               <section className="bg-white border border-neutral-100 p-6">
                 <div className="flex items-center justify-between mb-5"><div><h2 className="text-[13px] font-medium text-neutral-800">Customer signal</h2><p className="mt-1 text-[11px] text-neutral-400">Review activity</p></div><Star size={17} className="text-amber-500" /></div>
+                {reviewsError && <div role="alert" className="mb-3 text-sm text-red-800">{reviewsError} <button className="underline" onClick={() => void fetchReviews()}>Retry review data</button></div>}
                 <p className="text-[30px] font-light text-neutral-800">{reviewsLoading || reviewsError ? "\u2014" : approvedReviews.length ? (approvedReviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / approvedReviews.length).toFixed(1) : "0.0"}<span className="ml-2 text-[12px] text-neutral-400">/ 5 average</span></p><p className="mt-2 text-[11px] text-neutral-400">{reviewsLoading || reviewsError ? "Unavailable" : approvedReviews.length} approved reviews</p>
               </section>
             </div>
@@ -887,7 +898,7 @@ export default function AdminApp({ initialPage }: { initialPage?: Page }) {
           <div className="p-8">
             <h1 className="text-[20px] font-light text-neutral-800 mb-2">Settings</h1>
             <p className="text-[11px] text-neutral-400 mb-6">Read-only store summary. Connection status reflects the latest protected catalog request.</p>
-            <div className="bg-white border border-neutral-100 divide-y divide-neutral-100"><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Storefront</p><p className="mt-2 text-[13px] text-neutral-800">zeouf Luxury Fashion &amp; Lifestyle</p></div><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Catalog</p><p className="mt-2 text-[13px] text-neutral-800">{products.length} products across {new Set(products.map((product) => product.category)).size} categories</p></div><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Database</p><p className="mt-2 text-[13px] text-emerald-700">{loading ? "Checking catalog connection..." : productsError ? "Catalog connection unavailable. Refresh the dashboard to retry." : "Protected catalog request succeeded."}</p></div></div>
+            <div className="bg-white border border-neutral-100 divide-y divide-neutral-100"><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Storefront</p><p className="mt-2 text-[13px] text-neutral-800">zeouf Luxury Fashion &amp; Lifestyle</p></div><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Catalog</p><p className="mt-2 text-[13px] text-neutral-800">{loading || productsError ? "Catalog unavailable or loading" : `${products.length} products across ${new Set(products.map((product) => product.category)).size} categories`}</p></div><div className="p-5"><p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Database</p><p className="mt-2 text-[13px] text-emerald-700">{loading ? "Checking catalog connection..." : productsError ? "Catalog connection unavailable. Refresh the dashboard to retry." : "Protected catalog request succeeded."}</p></div></div>
           </div>
         )}
 

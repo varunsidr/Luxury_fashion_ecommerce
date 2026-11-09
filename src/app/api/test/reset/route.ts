@@ -1,54 +1,16 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-// NOTE: This endpoint must be protected in CI / production. It uses the service role key.
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'test endpoint disabled in production' }, { status: 404 });
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "test endpoint disabled in production" }, { status: 404 });
   }
-  const provided = req.headers.get('x-test-api-secret');
-  const testSecret = process.env.TEST_API_SECRET;
-  const svc = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!testSecret || provided !== testSecret) {
-    return NextResponse.json({ error: 'missing or invalid test API secret' }, { status: 401 });
+  const secret = process.env.TEST_API_SECRET?.trim();
+  if (!secret || req.headers.get("x-test-api-secret") !== secret) {
+    return NextResponse.json({ error: "missing or invalid test API secret" }, { status: 401 });
   }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!supabaseUrl) {
-    return NextResponse.json({ error: 'missing NEXT_PUBLIC_SUPABASE_URL' }, { status: 500 });
-  }
-  if (!svc) {
-    return NextResponse.json({ error: 'missing SUPABASE_SERVICE_ROLE_KEY' }, { status: 500 });
-  }
-
-  const supabase = createClient(supabaseUrl, svc, { auth: { persistSession: false } });
-
-  try {
-    // delete core tables
-    await supabase.from('favorites').delete();
-    await supabase.from('cart_items').delete();
-    await supabase.from('reviews').delete();
-    await supabase.from('products').delete();
-    // do not delete auth.users via client; profiles will be handled if needed
-
-    // insert seeded products
-    // products data lives in scripts/products-data.js
-    // require dynamically to avoid ESM/TS import issues
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { allProducts } = require('../../../../../scripts/products-data');
-
-    if (!Array.isArray(allProducts)) {
-      return NextResponse.json({ error: 'no product data available' }, { status: 500 });
-    }
-
-    const { data, error } = await supabase.from('products').insert(allProducts).select();
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ status: 'ok', inserted: data?.length ?? 0 });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: err && typeof err === 'object' && 'message' in err ? err.message ?? String(err) : String(err) }, { status: 500 });
-  }
+  // HTTP requests must not clear a potentially shared database. The SQL suites
+  // rebuild isolated in-memory fixtures and browsers use fresh contexts.
+  return NextResponse.json({
+    error: "The database reset helper has been retired. Use test:purchase and test:restock for isolated database fixtures, and a fresh browser context for browser storage.",
+  }, { status: 410 });
 }

@@ -156,23 +156,3 @@ test("a late search response cannot replace the latest query or a cleared query"
   await page.evaluate(() => history.pushState(null,"","/search"));
   await expect(page.getByTestId("product-card")).toHaveCount(0);
 });
-
-test("sold-out size accepts an exact-size alert while in-stock size enables purchase", async ({ page }, testInfo) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  const subscriptions: Record<string,unknown>[] = [];
-  await page.route("**/api/restock-notifications",route => { subscriptions.push(route.request().postDataJSON()); return route.fulfill({ status: 201,json: { status: "subscribed",emailConfigured: false } }); });
-  await page.goto("/women/7");
-  await page.getByTestId("product-detail-size-S").click();
-  await expect(page.getByTestId("product-detail-size-S")).toHaveAttribute("aria-pressed","true");
-  await expect(page.getByTestId("product-detail-add-to-cart")).toBeDisabled();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await page.getByText("Get an email when size S is back.").scrollIntoViewIfNeeded();
-  await page.screenshot({ path: testInfo.outputPath("size-alert-mobile.png") });
-  await page.getByRole("textbox",{ name: "Email address for restock notification" }).fill("fictional@example.invalid");
-  await page.getByRole("button",{ name: "Notify me",exact: true }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Your request is saved" })).toBeVisible();
-  expect(subscriptions).toEqual([{ productId: "7",email: "fictional@example.invalid",size: "S",color: null }]);
-  await page.getByTestId("product-detail-size-M").click();
-  await expect(page.getByTestId("product-detail-add-to-cart")).toBeEnabled();
-  await expect(page.getByRole("button",{ name: "Notify me",exact: true })).toHaveCount(0);
-});

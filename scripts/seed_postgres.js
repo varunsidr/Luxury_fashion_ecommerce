@@ -1,30 +1,17 @@
-const { Client } = require('pg');
-const { allProducts } = require('./products-data');
-
-const databaseUrl = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/els_ecommerce_local';
+const { Client } = require("pg");
+const { allProducts } = require("./products-data");
 
 async function seed() {
-  const client = new Client({ connectionString: databaseUrl });
+  const { seedCatalog } = await import("./catalog-seed.mjs");
+  const client = new Client({ connectionString: process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/els_ecommerce_local" });
   await client.connect();
-
   try {
-    await client.query('TRUNCATE TABLE products RESTART IDENTITY CASCADE');
-    console.log(`Inserting ${allProducts.length} products into local Postgres...`);
-    for (const p of allProducts) {
-      const res = await client.query(
-        `INSERT INTO products (name, brand, category, price, image_url, tag)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         ON CONFLICT DO NOTHING`,
-        [p.name || null, p.brand || null, p.category || null, p.price || null, p.image_url || null, p.tag || null]
-      );
-    }
-    console.log('Seeding complete.');
-  } catch (err) {
-    console.error('Seeding failed:', err);
-    process.exit(1);
-  } finally {
-    await client.end();
-  }
+    const result = await seedCatalog(client, allProducts);
+    console.log(`Catalog seed committed: ${result.inserted} products inserted. Existing products, orders and customer data are retained.`);
+  } finally { await client.end(); }
 }
 
-seed();
+seed().catch(() => {
+  console.error("Catalog seed failed. Verify connectivity and current catalog migrations; no seed changes were committed.");
+  process.exitCode = 1;
+});

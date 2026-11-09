@@ -4,6 +4,9 @@ import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { PGlite } from '@electric-sql/pglite';
 import { inspectAdminCatalog } from './admin_security_inventory.mjs';
+import { seedCatalog } from './catalog-seed.mjs';
+import seedData from './products-data.js';
+import { demoEmail, seedAdminFixtures } from './admin-fixtures.mjs';
 
 // Real PostgreSQL in memory, with no URL, network, or shared database cleanup.
 // Single connection: this does not establish multi-session concurrency safety.
@@ -40,6 +43,83 @@ beforeEach(async () => {
   await db.query(`INSERT INTO product_size_stock(product_id,size,stock) VALUES($1,'S',0),($1,'M',3),($2,'M',2)`, [sized, demo]);
 });
 after(() => db.close());
+
+test('catalog seed is repeatable and preserves existing orders and sold inventory', async () => {
+  const products = seedData.allProducts.filter(product => product.size_stock?.length).slice(0, 2);
+  assert.equal((await seedCatalog(db, products)).inserted, 2);
+  const product = (await db.query('SELECT * FROM products WHERE name=$1', [products[0].name])).rows[0];
+  await checkout([{ id: product.id, quantity: 1, size: 'M' }]);
+  const before = await state();
+  assert.equal((await seedCatalog(db, products)).inserted, 0);
+  assert.deepEqual(await state(), before);
+});
+
+test('catalog seed rolls back earlier product and copy changes when size insertion fails', async () => {
+  const products = seedData.allProducts.filter(product => product.size_stock?.length).slice(0, 2);
+  const before = await state();
+  await db.exec(`CREATE FUNCTION fixture_fail_seed() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'SEED_SIZE_FAILURE'; END $$;
+    CREATE TRIGGER fixture_fail_seed BEFORE INSERT ON product_size_stock FOR EACH ROW EXECUTE FUNCTION fixture_fail_seed();`);
+  try {
+    await assert.rejects(seedCatalog(db, [seedData.allProducts.find(product => !product.sizes?.length), ...products]), /SEED_SIZE_FAILURE/);
+    assert.deepEqual(await state(), before);
+  } finally { await db.exec('DROP TRIGGER fixture_fail_seed ON product_size_stock; DROP FUNCTION fixture_fail_seed()'); }
+});
+
+test('catalog seed repairs legacy split inserts at zero without replenishing existing sizes', async () => {
+  const products = seedData.allProducts.filter(product => product.size_stock?.length).slice(0, 1);
+  await seedCatalog(db, products);
+  const product = (await db.query('SELECT * FROM products WHERE name=$1', [products[0].name])).rows[0];
+  await db.query("DELETE FROM product_size_stock WHERE product_id=$1 AND size='S'", [product.id]);
+  await stock(product.id, 'M', 1);
+  assert.equal((await seedCatalog(db, products)).repaired, 1);
+  assert.deepEqual((await db.query('SELECT size,stock FROM product_size_stock WHERE product_id=$1 ORDER BY size', [product.id])).rows,
+    [{ size: 'L', stock: 5 }, { size: 'M', stock: 1 }, { size: 'S', stock: 0 }]);
+  assert.equal((await db.query('SELECT stock FROM products WHERE id=$1', [product.id])).rows[0].stock, 6);
+});
+
+test('admin fixtures are repeatable, preserve inventory and reject unrelated fixed IDs', async () => {
+  await db.query('UPDATE auth.users SET email=$1 WHERE id=$2', [demoEmail, user]);
+  await db.query("INSERT INTO products(name,category,price,stock) VALUES('Fourth fixture','Bags',500,2)");
+  const inventory = (await state()).products;
+  assert.deepEqual(await seedAdminFixtures(db, user), { orders: 3, reviews: 4 });
+  const seeded = await state();
+  assert.deepEqual(seeded.products, inventory);
+  await seedAdminFixtures(db, user);
+  assert.deepEqual(await state(), seeded);
+  await db.query("UPDATE orders SET user_id=$1 WHERE id='a0000000-0000-4000-8000-000000000001'", [otherUser]);
+  const collision = await state();
+  await assert.rejects(seedAdminFixtures(db, user), /unrelated data/);
+  assert.deepEqual(await state(), collision);
+});
+
+test('admin fixture failure rolls back orders, lines, reviews and profile together', async () => {
+  await db.query('UPDATE auth.users SET email=$1 WHERE id=$2', [demoEmail, user]);
+  await db.query("INSERT INTO products(name,category,price,stock) VALUES('Fourth fixture','Bags',500,2)");
+  await db.exec(`CREATE FUNCTION fixture_fail_review_seed() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'REVIEW_SEED_FAILURE'; END $$;
+    CREATE TRIGGER fixture_fail_review_seed BEFORE INSERT ON reviews FOR EACH ROW EXECUTE FUNCTION fixture_fail_review_seed();`);
+  const before = await state();
+  const profile = (await db.query('SELECT * FROM profiles WHERE id=$1', [user])).rows;
+  try {
+    await assert.rejects(seedAdminFixtures(db, user), /REVIEW_SEED_FAILURE/);
+    assert.deepEqual(await state(), before);
+    assert.deepEqual((await db.query('SELECT * FROM profiles WHERE id=$1', [user])).rows, profile);
+  } finally { await db.exec('DROP TRIGGER fixture_fail_review_seed ON reviews; DROP FUNCTION fixture_fail_review_seed()'); }
+});
+
+test('local Docker/CI schema supports the complete catalog seed and a non-destructive repeat', async () => {
+  const localDb = new PGlite();
+  try {
+    const schema = readFileSync(new URL('./ci_products_schema.sql', import.meta.url), 'utf8').replace('CREATE EXTENSION IF NOT EXISTS pgcrypto;', '');
+    await localDb.exec(schema);
+    const count = new Set(seedData.allProducts.map(product => product.name)).size;
+    assert.equal((await seedCatalog(localDb, seedData.allProducts)).inserted, count);
+    assert.equal((await seedCatalog(localDb, seedData.allProducts)).inserted, 0);
+    assert.equal((await localDb.query('SELECT count(*)::int AS count FROM products')).rows[0].count, count);
+    const invalid = await localDb.query(`SELECT id FROM products p WHERE cardinality(sizes)>0 AND stock IS DISTINCT FROM
+      (SELECT coalesce(sum(stock),0) FROM product_size_stock WHERE product_id=p.id AND size=ANY(p.sizes))`);
+    assert.deepEqual(invalid.rows, []);
+  } finally { await localDb.close(); }
+});
 
 async function checkout(items, key = randomUUID(), customer = user, shipping = address, payment = 'card_demo') {
   const { rows } = await db.query('SELECT create_checkout_order($1,$2::jsonb,$3::jsonb,$4,$5) AS result', [customer, JSON.stringify(items), JSON.stringify(shipping), payment, key]);

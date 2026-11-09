@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { lookupProduct } from "@/lib/productLookup";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { localProducts } from "@/lib/localProducts";
 
@@ -126,49 +127,6 @@ export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl!, supabaseAnonKey!)
   : (localSupabase as unknown as SupabaseClient);
 
-// Helper: try to find a product by id or slug with fallbacks for local seed data
-export const findProductByIdOrSlug = cache(async (value: string) => {
-  const normalized = String(value ?? "").toLowerCase().trim();
-  
-
-  // Quick numeric ID mapping for local seed data like `1`, `2` => map to localProducts[0], localProducts[1]
-  try {
-    if (/^\d+$/.test(normalized)) {
-      const idx = Math.max(0, parseInt(normalized, 10) - 1);
-      const maybe = localProducts[idx];
-      if (maybe) return maybe;
-    }
-  } catch (e) {}
-
-  // 1) Try id exact match
-  try {
-    const byId = await supabase.from("products").select("*").eq("id", normalized).single();
-    if (byId.data) return byId.data;
-  } catch (e) {
-    // ignore
-  }
-
-  // 2) Try slug exact match
-  try {
-    const bySlug = await supabase.from("products").select("*").eq("slug", normalized).single();
-    if (bySlug.data) return bySlug.data;
-  } catch (e) {
-    // ignore
-  }
-
-  // 3) Fallback: fetch list and search (useful for localProducts where id may be "1", "2" strings)
-  try {
-    // If Supabase isn't configured, use the localProducts array directly to avoid query nuances
-    if (!isSupabaseConfigured) {
-      const foundLocal = localProducts.find((p) => String(p.id).toLowerCase() === normalized || String(p.slug ?? "").toLowerCase() === normalized);
-      return foundLocal ?? null;
-    }
-
-    const listResp = await supabase.from("products").select("*");
-    const all = listResp.data ?? [];
-    const found = all.find((p) => String(p.id).toLowerCase() === normalized || String(p.slug ?? "").toLowerCase() === normalized);
-    return found ?? null;
-  } catch (e) {
-    return null;
-  }
-});
+// Metadata and page share one bounded lookup per server render.
+export const findProductByIdOrSlug = cache((value: string, category?: string) =>
+  lookupProduct(value, category, { configured: isSupabaseConfigured, client: supabase, local: localProducts }));

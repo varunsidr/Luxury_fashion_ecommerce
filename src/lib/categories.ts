@@ -77,3 +77,9 @@ export function getStorefrontSlugForCategory(category: string): string {
   const match = CATEGORY_PREFIX_TO_ROUTE_SLUG.find((entry) => category.startsWith(entry.prefix));
   return match ? match.slug : category.toLowerCase().split(" ")[0];
 }
+
+export function productBelongsToRoute(productCategory: string, route: string): boolean {
+  const family = Object.entries(MAIN_CATEGORY_ALIASES)
+    .find(([, aliases]) => aliases.includes(route.toLowerCase()))?.[0];
+  return Boolean(family && getStorefrontSlugForCategory(productCategory) === MAIN_CATEGORY_ROUTES[family]);
+}

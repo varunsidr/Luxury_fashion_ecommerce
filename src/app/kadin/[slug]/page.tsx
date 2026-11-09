@@ -1,5 +1,5 @@
 import { productRouteMetadata } from '@/lib/productMetadata';
-import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
+import { findProductByIdOrSlug } from "@/lib/supabase";
 import ProductListing from "@/components/ProductListing";
 import ProductDetailView from "@/components/ProductDetailView";
 import { notFound } from "next/navigation";
@@ -32,7 +32,7 @@ export default async function KadinSlugPage({ params }: PageProps) {
   }
 
   // 2. Use findProductByIdOrSlug helper
-  const product = await findProductByIdOrSlug(normalizedSlug);
+  const product = await findProductByIdOrSlug(normalizedSlug, "women");
   if (product) return <ProductDetailView product={product} mainCategory="Women" />;
 
   notFound();

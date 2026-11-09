@@ -7,6 +7,17 @@ const liveProducts = categories.map((category, index) => ({
   image_url: "/canta-5.jpg", sizes: [],
 }));
 
+test("failed configured server product lookup renders a retry boundary", async ({ page }) => {
+  await mockCatalog(page);
+  await page.goto("/women/11111111-1111-4111-8111-111111111111");
+  await expect(page.getByRole("heading", { name: "Product temporarily unavailable" })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("button", { name: "Retry product" })).toBeVisible();
+  await page.getByRole("button", { name: "Retry product" }).click();
+  await expect(page.getByRole("heading", { name: "Product temporarily unavailable" })).toBeVisible({ timeout: 15_000 });
+  await page.getByRole("link", { name: "Continue browsing" }).click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
 async function mockCatalog(page: Page, options: { products?: typeof liveProducts; blockProducts?: () => boolean; blockStock?: boolean; failProducts?: () => boolean } = {}) {
   await page.route("**/api/storefront/region**", (route) => route.fulfill({ json: { country: "IN", currency: "INR", rate: 1, rateDate: null } }));
   await page.route("https://supabase.co.catalog-fixture.invalid/**", (route) => {

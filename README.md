@@ -288,17 +288,17 @@ Open `/admin` and enter a username and password from `ADMIN_CREDENTIALS`. Config
 
 ### Populate admin demo data
 
-After applying the current migrations, run `npm run seed:products` to add 20 new demo items per existing product category. The 280 products use generated contact-sheet crops in `public/demo-products/`; prices and inventory are demo values. The seed skips existing product names and removes incorrect color variants from previously seeded demo rows without changing their stock. New sized fixtures insert size rows after product rows; a size-row failure leaves products and requires isolated staging repair because rerunning skips existing names. Existing rows do not receive fixture sizes/stock automatically. [scripts/staging_product_options.sql](scripts/staging_product_options.sql) is an optional manual fixture reset for the blouse and two specified dress photographs; it preserves UUIDs but overwrites stock/sizes for all matching rows, so use only in isolated staging and inspect its results. Then run the following with your Supabase service-role key configured in `.env.local`:
+After applying the current catalog migrations, set `DATABASE_URL` explicitly in `.env.local` for the intended database and run `npm run seed:products`. The direct SQL transaction adds missing named demo products and their configured size inventory together, or rolls back all seed changes on failure. It retains existing IDs, sold stock and customer/order data, updates original demo copy and removes invented demo color variants. Legacy missing configured size rows are repaired at zero and aggregates reconciled; reruns do not replenish stock. The 280 demo additions use illustrative assets in `public/demo-products/`. [scripts/staging_product_options.sql](scripts/staging_product_options.sql) remains an optional isolated fixture reset that overwrites sizes/stock for matching images; inspect its scope and results before use.
 
 ```bash
 npm run seed:admin-data
 ```
 
-The admin-data seed creates or reuses a demo customer, three sample orders, four approved reviews, and demo product stock. It is intended for local or demo environments only.
+The admin-data seed requires matching Supabase settings and DATABASE_URL, creates or reuses the demo customer and commits three sample orders/four fictional approved reviews together. It preserves product stock. Use isolated demo environments only; Auth provisioning is a separate operation.
 
-To deliver restock alerts, configure `RESEND_API_KEY` and a verified `RESTOCK_FROM_EMAIL`. Requests can be saved without mail delivery. A positive admin stock save may trigger a notification batch; zero-to-positive transition checks, recipient eligibility, and retry/deduplication remain incomplete (G-12).
+To deliver restock alerts, configure `RESEND_API_KEY` and a verified `RESTOCK_FROM_EMAIL`. Requests can be saved without mail delivery. A positive admin stock save may trigger a notification batch; transactional zero-to-positive eligibility, leased batches and durable retries are implemented. The external scheduler, actual provider/inbox delivery and live concurrency remain unverified (G-12).
 
-The dashboard calculates stock from configured `product_size_stock` rows for sized products and from `products.stock` otherwise. Protected stock saves, checkout and catalog size edits share the product-first locking order; catalog saves synchronize configured rows/totals and preserve current unsized quantities. Separate seed writes/repair and live multi-session verification remain G-18.
+The dashboard calculates stock from configured `product_size_stock` rows for sized products and from `products.stock` otherwise. Protected stock saves, checkout and catalog size edits share the product-first locking order; catalog saves synchronize configured rows/totals and preserve current unsized quantities. Seeds now commit atomically; live multi-session verification remains G-18.
 
 ### Local PostgreSQL with Docker
 
@@ -370,15 +370,12 @@ Checkout offers a demo card method and simulated cash on delivery. It has no car
 The project provides lightweight endpoints to help automated tests (e.g. Playwright suites) manage state without touching the UI:
 
 - `GET /api/health` — application liveness response `{ status: 'ok', time: '...' }`; it does not check database readiness.
-- `POST /api/test/reset` — protected endpoint that attempts to clear favorites/cart/reviews/products and reseed products. Requires the service role key; it omits orders/browser storage and does not establish a completely clean fixture (G-23).
+- `POST /api/test/reset` ? retired destructive helper. Production returns 404; a valid nonproduction test secret returns 410 without service calls. Use isolated purchase/restock suites and a fresh browser context (G-23).
 - `POST /api/test/seed-user` — protected endpoint that creates (or resets the password of) a fixed test user, so a test suite can log in via API and reuse a `storageState` instead of driving the UI login form every run.
 
 Both `/api/test/*` endpoints are disabled in production. In local development they require `x-test-api-secret` to match the separate `TEST_API_SECRET` environment variable. The service role key stays on the server and is never used as an HTTP credential.
 
 ```bash
-curl -X POST http://localhost:3000/api/test/reset \
-  -H "x-test-api-secret: $TEST_API_SECRET"
-
 curl -X POST http://localhost:3000/api/test/seed-user \
   -H "x-test-api-secret: $TEST_API_SECRET" \
   -H "Content-Type: application/json" \
@@ -554,3 +551,11 @@ Follow these quick steps before creating a commit that will be pushed to a share
 - **Run quick functional checks:** visit `/admin`, place a demo checkout order with an authenticated user, and exercise the register/login flow. If you rely on the dev helper, test `/api/dev/create-user` with `curl`.
 - **Update architecture notes:** Keep `architecture.md` in sync with any DB or API changes so reviewers understand design decisions.
 - **Review requirements:** Update the BRD/QA guide, run `docs:sync`, record `docs:review` with affected IDs, and pass `docs:check`; preserve existing test execution history.
+
+### Source-gap fixes (9 November 2026)
+
+Product pages and metadata enforce the category family, share an eight-second server lookup and expose loading/error recovery. Configured lookups do not substitute numeric demo IDs. Admin read deadlines include response bodies; late older responses are ignored, failed rows are cleared, and analytics distinguishes unavailable data with retry controls. Terms attribution matches LICENSE. Public smoke also blocks state-changing GET unsubscribe links.
+
+Catalog seeds now require current migrations and use one transaction; `seed:postgres` retains its localhost default but no longer truncates customer data. `seed:admin-data` requires `DATABASE_URL` alongside matching Supabase settings, retains stock, rejects unrelated fixed IDs and commits application fixtures together. A newly provisioned demo Auth user may remain if the SQL fixture transaction fails. No hosted seed or migration runs during build. Standalone `seed:orders` remains a sample-data generator and now rolls back partial orders/lines.
+
+For deployed verification and remaining real-service prerequisites, use [docs/LIVE_ACCEPTANCE.md](docs/LIVE_ACCEPTANCE.md). Local checks do not certify production migrations, scheduler/email delivery, real-model quality or independent database-session races.

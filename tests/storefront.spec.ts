@@ -1,6 +1,47 @@
 import { test, expect } from "@playwright/test";
 import { restoreCart } from "../src/lib/cartStorage";
 import { localProducts } from "../src/lib/localProducts";
+import { lookupProduct } from "../src/lib/productLookup";
+import { productBelongsToRoute } from "../src/lib/categories";
+import { createClient } from "@supabase/supabase-js";
+import { permitsPublicSmokeRequest } from "./helpers/publicRequestGuard";
+
+test("public smoke blocks unsubscribe GETs and all mutating methods", () => {
+  for (const path of ["/api/restock-notifications/unsubscribe", "/api/restock-notifications/unsubscribe/", "/api/admin/logout", "/api/test/reset", "/api/dev/create-user"]) {
+    expect(permitsPublicSmokeRequest("GET", path)).toBe(false);
+  }
+  for (const method of ["POST", "PATCH", "PUT", "DELETE"]) expect(permitsPublicSmokeRequest(method, "/api/health")).toBe(false);
+  expect(permitsPublicSmokeRequest("GET", "/api/health")).toBe(true);
+  expect(permitsPublicSmokeRequest("HEAD", "/bags")).toBe(true);
+});
+
+test("product lookup bounds service failures, never substitutes configured demo IDs and checks category ownership", async () => {
+  const local = localProducts[0];
+  const client = createClient("https://lookup-fixture.invalid", "fixture-key", { global: { fetch: async () => new Response(JSON.stringify({ code: "42703", message: "slug column absent" }), { status: 400 }) } });
+  expect(await lookupProduct(local.id, undefined, { configured: true, client, local: localProducts })).toBeNull();
+  expect(await lookupProduct(local.id, "men", { configured: false, client, local: localProducts })).toBeNull();
+  expect(await lookupProduct(local.id, "women", { configured: false, client, local: localProducts })).toEqual(local);
+  let signal: AbortSignal | null | undefined;
+  const heldClient = createClient("https://lookup-fixture.invalid", "fixture-key", { global: { fetch: async (_url, options) => { signal = options?.signal; return new Promise<Response>(() => {}); } } });
+  await expect(lookupProduct("11111111-1111-4111-8111-111111111111", "women", { configured: true, client: heldClient, local: localProducts, timeoutMs: 20 })).rejects.toThrow("timed out");
+  expect(signal?.aborted).toBe(true);
+  const failedClient = createClient("https://lookup-fixture.invalid", "fixture-key", { global: { fetch: async () => new Response('{}', { status: 503 }) } });
+  await expect(lookupProduct("11111111-1111-4111-8111-111111111111", "women", { configured: true, client: failedClient, local: localProducts })).rejects.toThrow("Could not load");
+});
+
+for (const category of ["women", "men", "perfume", "shoes", "bags", "accessories", "makeup"]) {
+  test(`${category} product routes reject other families in page and metadata`, async ({ page }) => {
+    const product = localProducts.find(product => productBelongsToRoute(product.category, category))!;
+    await page.goto(`/${category}/${product.id}`);
+    await expect(page.getByRole("heading", { level: 1, name: product.name, exact: true })).toBeVisible();
+    await expect(page).toHaveTitle(new RegExp(product.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    const wrongCategory = category === "women" ? "men" : "women";
+    await page.goto(`/${wrongCategory}/${product.id}`);
+    await expect(page.getByRole("heading", { name: /404|not found/i }).first()).toBeVisible();
+    await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
+    await expect(page.getByRole("heading", { name: product.name, exact: true })).toHaveCount(0);
+  });
+}
 
 const savedItem = { id: "fixture-bag", name: "Fixture Bag", category: "Bags", price: 1000,
   image_url: "/canta-5.jpg", size: null, quantity: 2 };
@@ -289,4 +330,24 @@ test("stock writes require a signed admin cookie and reject invalid data before 
     expect((await request.patch('/api/admin/stock', { data: { productId: '11111111-1111-4111-8111-111111111111', stock } })).status()).toBe(400);
   }
   expect((await request.patch('/api/admin/stock', { data: { productId: '11111111-1111-4111-8111-111111111111', stock: 1 } })).status()).toBe(503);
+});
+
+test("sold-out size accepts an exact-size alert while in-stock size enables purchase", async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const subscriptions: Record<string,unknown>[] = [];
+  await page.route("**/api/restock-notifications",route => { subscriptions.push(route.request().postDataJSON()); return route.fulfill({ status: 201,json: { status: "subscribed",emailConfigured: false } }); });
+  await page.goto("/women/7");
+  await page.getByTestId("product-detail-size-S").click();
+  await expect(page.getByTestId("product-detail-size-S")).toHaveAttribute("aria-pressed","true");
+  await expect(page.getByTestId("product-detail-add-to-cart")).toBeDisabled();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByText("Get an email when size S is back.").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath("size-alert-mobile.png") });
+  await page.getByRole("textbox",{ name: "Email address for restock notification" }).fill("fictional@example.invalid");
+  await page.getByRole("button",{ name: "Notify me",exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Your request is saved" })).toBeVisible();
+  expect(subscriptions).toEqual([{ productId: "7",email: "fictional@example.invalid",size: "S",color: null }]);
+  await page.getByTestId("product-detail-size-M").click();
+  await expect(page.getByTestId("product-detail-add-to-cart")).toBeEnabled();
+  await expect(page.getByRole("button",{ name: "Notify me",exact: true })).toHaveCount(0);
 });

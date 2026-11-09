@@ -1,5 +1,5 @@
 import { productRouteMetadata } from '@/lib/productMetadata';
-import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
+import { findProductByIdOrSlug } from "@/lib/supabase";
 import ProductListing from "@/components/ProductListing";
 import ProductDetailView from "@/components/ProductDetailView";
 import { notFound } from "next/navigation";
@@ -18,7 +18,7 @@ export default async function AyakkabiSlugPage({ params }: PageProps) {
   const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
 
   // 1. Check as product ID first (support UUIDs by querying directly)
-  const product = await findProductByIdOrSlug(normalizedSlug);
+  const product = await findProductByIdOrSlug(normalizedSlug, "shoes");
   if (product) return <ProductDetailView product={product} mainCategory="Shoes" />;
 
   // 2. Subcategory support can be added later; for now return 404 if not an ID

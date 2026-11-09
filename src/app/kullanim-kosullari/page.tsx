@@ -11,9 +11,9 @@ export default function TermsPage() {
 
         <div className="space-y-10 text-[14px] text-neutral-500 font-light leading-relaxed">
           <section>
-            <h2 className="text-[11px] tracking-[0.3em] uppercase text-neutral-800 mb-3">1. Open Source Project</h2>
+            <h2 className="text-[11px] tracking-[0.3em] uppercase text-neutral-800 mb-3">1. Portfolio Project</h2>
             <p>
-              This platform is an open-source project. The source code is available at
+              This platform is a portfolio project. Public source visibility does not grant permission to reuse it. The project owner is{" "}
               <a
                 href="https://github.com/varunsidr"
                 target="_blank"
@@ -28,8 +28,8 @@ export default function TermsPage() {
           <section>
             <h2 className="text-[11px] tracking-[0.3em] uppercase text-neutral-800 mb-3">2. Copyright</h2>
             <p>
-              This project was designed and developed by <strong className="text-neutral-700 font-medium">Elif Kaynar</strong>.
-              All design, code and content rights are reserved. Please obtain written permission before reusing, copying or distributing.
+              This project was designed and developed by <strong className="text-neutral-700 font-medium">varunsidr</strong>.
+              All rights reserved, as stated in the repository LICENSE. Please obtain written permission from the owner before reusing, copying or distributing the project.
             </p>
           </section>
 

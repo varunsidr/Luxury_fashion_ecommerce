@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { permitsPublicSmokeRequest } from "./helpers/publicRequestGuard";
 
 const blockedRequests: string[] = [];
 
@@ -7,8 +8,7 @@ test.beforeEach(async ({ context }) => {
   await context.route("**/*", (route) => {
     const request = route.request();
     const url = new URL(request.url());
-    if (!["GET", "HEAD", "OPTIONS"].includes(request.method()) ||
-      /^\/api\/(?:admin\/logout|test\/|dev\/)/.test(url.pathname)) {
+    if (!permitsPublicSmokeRequest(request.method(), url.pathname)) {
       blockedRequests.push(`${request.method()} ${url.pathname}`);
       return route.abort();
     }

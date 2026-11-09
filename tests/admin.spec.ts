@@ -1,8 +1,35 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Route } from "@playwright/test";
 import { handleCatalog, handleProductUpload, validateProduct, type AdminCatalogDeps } from "../src/lib/adminCatalog";
 import { POST as adminLogin } from "../src/app/api/admin/login/route";
 import { POST as createDevUser } from "../src/app/api/dev/create-user/route";
 import { signToken, verifyToken } from "../src/lib/adminAuth";
+import { POST as retiredReset } from "../src/app/api/test/reset/route";
+import { readAdminData } from "../src/lib/adminRead";
+
+test("retired reset is production-hidden and performs no service requests", async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => { throw new Error("reset must not access services"); };
+  try {
+    for (const [environment, supplied, expected] of [["production", "test-secret", 404], ["development", "wrong", 401], ["development", "test-secret", 410]] as const) {
+      await withAuthEnvironment({ NODE_ENV: environment, TEST_API_SECRET: "test-secret" }, async () => {
+        expect((await retiredReset(new Request("http://localhost/api/test/reset", { method: "POST", headers: { "x-test-api-secret": supplied } }))).status).toBe(expected);
+      });
+    }
+  } finally { globalThis.fetch = original; }
+});
+
+test("admin read deadline also bounds a stalled response body", async () => {
+  const original = globalThis.fetch;
+  let signal: AbortSignal | null | undefined;
+  globalThis.fetch = async (_url, options) => {
+    signal = options?.signal;
+    return new Response(new ReadableStream({ start() {} }));
+  };
+  try {
+    await expect(readAdminData("http://localhost/api/admin/products", 20)).rejects.toThrow("timed out");
+    expect(signal?.aborted).toBe(true);
+  } finally { globalThis.fetch = original; }
+});
 
 async function withAuthEnvironment(overrides: Record<string, string>, run: () => Promise<void>) {
   const values = {
@@ -135,6 +162,53 @@ async function dashboard(page: Page, products = [{ id, ...input, created_at: "20
   ] } }));
   await page.goto("/admin/dashboard");
 }
+
+test("failed order reload hides previous records and retry restores persisted rows", async ({ page }) => {
+  await dashboard(page);
+  await expect(page.getByText("Active demo order value", { exact: true }).locator("..")).toContainText("1,000");
+  let fail = true;
+  await page.route("**/api/admin/orders", route => route.fulfill(fail ? { status: 503, json: { error: "Fixture unavailable" } } : { json: { orders: [{ id: "recovered-order", status: "pending", total: 2500, order_items: [] }] } }));
+  await page.getByRole("button", { name: "Orders", exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Could not load orders" }).first()).toBeVisible();
+  await expect(page.getByText("Unavailable total orders", { exact: false })).toBeVisible();
+  await expect(page.getByText("Order active-o", { exact: true })).toHaveCount(0);
+  fail = false;
+  await page.getByRole("button", { name: "Retry loading data" }).click();
+  await expect(page.getByText("1 total orders", { exact: false })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "Could not load orders" })).toHaveCount(0);
+});
+
+test("an older held order response cannot replace a newer analytics load", async ({ page }) => {
+  await dashboard(page);
+  await expect(page.getByText("Active demo order value", { exact: true }).locator("..")).toContainText("1,000");
+  let held: Route | undefined;
+  let calls = 0;
+  await page.route("**/api/admin/orders", route => {
+    if (++calls === 1) { held = route; return; }
+    return route.fulfill({ json: { orders: [{ id: "current", status: "pending", total: 2000, order_items: [] }] } });
+  });
+  await page.getByRole("button", { name: "Orders", exact: true }).click();
+  await expect.poll(() => Boolean(held)).toBe(true);
+  await page.getByRole("button", { name: "Analytics", exact: true }).click();
+  const metric = page.getByText("Active demo order value", { exact: true }).locator("..");
+  await expect(metric).toContainText("2,000");
+  const response = page.waitForResponse("**/api/admin/orders");
+  await held!.fulfill({ json: { orders: [{ id: "stale", status: "pending", total: 9000, order_items: [] }] } });
+  await (await response).finished();
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await expect(metric).toContainText("2,000");
+});
+
+test("analytics review failure offers retry instead of a silent unavailable rating", async ({ page }) => {
+  await dashboard(page);
+  let fail = true;
+  await page.route("**/api/admin/reviews?**", route => route.fulfill(fail ? { status: 503, json: { error: "Review fixture unavailable" } } : { json: { reviews: [{ id: "approved", rating: 5, approved: true }] } }));
+  await page.getByRole("button", { name: "Analytics", exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Review fixture unavailable" })).toBeVisible();
+  fail = false;
+  await page.getByRole("button", { name: "Retry review data" }).click();
+  await expect(page.locator("section").filter({ has: page.getByRole("heading", { name: "Customer signal" }) })).toContainText("5.0");
+});
 
 test("dashboard counts unsized low stock and excludes cancelled demo value and unapproved ratings", async ({ page }) => {
   const pageErrors: Error[] = [];

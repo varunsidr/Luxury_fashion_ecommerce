@@ -11,11 +11,11 @@ async function seed() {
   await client.connect();
 
   try {
+    await client.query('BEGIN');
     const productsRes = await client.query('SELECT id, price FROM products LIMIT 20');
     const products = productsRes.rows;
     if (!products.length) {
-      console.error('No products found to seed orders. Insert products first.');
-      process.exit(1);
+      throw new Error('No products found to seed orders. Insert products first.');
     }
 
     console.log(`Seeding 3 sample orders using ${products.length} available products...`);
@@ -59,10 +59,12 @@ async function seed() {
       console.log(`Inserted order ${orderId} (${items.length} items) total ${total}`);
     }
 
+    await client.query('COMMIT');
     console.log('Order seeding complete.');
-  } catch (err) {
-    console.error('Failed seeding orders:', err);
-    process.exit(1);
+  } catch {
+    await client.query('ROLLBACK');
+    console.error('Order seed failed; no orders or items were committed.');
+    process.exitCode = 1;
   } finally {
     await client.end();
   }

@@ -11,6 +11,8 @@
 5. Generate cases for normal flow, denial/error, boundary, persistence, and integration as applicable. Separate present behavior from proposed target acceptance.
 6. Link each case and defect to requirement IDs, and update the CSV execution fields after running it.
 
+For an already deployed site, also read [LIVE_ACCEPTANCE.md](LIVE_ACCEPTANCE.md). Its 17 scenario families distinguish public smoke from real-account/service, mail, scheduler and independent-session acceptance. Supply the exact deployment/database baseline and dedicated fixtures before generating integration tests; documentation and Vercel reachability alone do not establish execution.
+
 I/C/D describe implementation evidence only. Use `Known gap` for reproduced unmet P requirements, `Target requirement` for T or intended P behavior, and `Environment blocked` for unavailable prerequisites. Do not treat a known gap or unexecuted test as Passed.
 
 ## 2. Test-case record
@@ -95,9 +97,9 @@ Use fictional identities and addresses. Resolve database UUIDs from created fixt
 | AST-PRESENTATION | Reduced-motion browser; desktop/390px/320px viewports; fictional 360px VisualViewport keyboard height; delayed intercepted second reply after a long transcript | Scoped animation/focus/inert-close/reopen, composer growth/cap, viewport fit, reader position/Latest message and screenshot inspection; no actual OS keyboard or frame-rate acceptance |
 | AST-RUNTIME-MODE | Separate nonproduction and production processes with controlled shared-limiter settings; use injected dependencies or an isolated database, never record credentials | Missing shared settings permit a local counter only outside production; missing/failed production limiter returns 503 before the model; complete-but-failing shared RPC also fails closed in development |
 
-Seed scripts may change stock and insert sample orders. Measure final stock/records before testing. Current reset endpoint omits orders, auth users and browser localStorage and ignores delete failures. Do not use it as a guaranteed clean baseline. Never run destructive fixture setup against a shared or production database.
+Fixture setup must use an isolated intended database. The HTTP reset helper is retired: production 404, missing/wrong test secret 401, authorized nonproduction 410 with no database/Auth/Storage calls. Use the purchase/restock suites' newly rebuilt in-memory databases and fresh browser contexts; neither promises cleanup of a hosted environment. Explicit staging_product_options.sql still overwrites selected stock and requires isolated scope.
 
-For newly inserted products, seed:products strips embedded size_stock from product payloads and inserts size rows afterward. Those writes are not one transaction: size-row failure leaves products, and a rerun skips them by name. Verify/repair in isolated staging. Existing named products keep their inventory unless explicitly changed by fixture setup. scripts/staging_product_options.sql is a manual fixture reset for all products matching the three image paths above; it preserves their UUIDs but overwrites sizes/stock and replaces size rows. Inspect the returned IDs/counts/values, including missing or duplicate image matches. Do not run it as a live migration or assume it executed during build. PGlite uses separate fixed UUIDs and data; local numeric IDs do not become production checkout IDs.
+seed:products now requires explicit DATABASE_URL and current catalog migrations. Product inserts, size rows and copy/image repairs commit in one SQL transaction; repeated runs preserve sold stock and existing orders. A forced size failure must roll back every earlier seed edit. Previously partial matching seed rows receive missing configured sizes at zero and a reconciled aggregate; reruns never restore initial fixture stock. seed:postgres uses the same transaction without truncating data. Admin application fixtures commit three orders/four fictional reviews together, reject fixed-ID collisions and retain inventory; Supabase demo Auth creation remains outside that transaction and may remain after failure. Verify that DATABASE_URL points to the same project as the demo Auth identity. scripts/staging_product_options.sql remains a manual isolated stock reset, not a runtime migration. Local numeric IDs are never deployed checkout IDs.
 
 ## 4. Coverage matrix
 
@@ -227,7 +229,8 @@ Some product-card/detail/navbar controls already expose data-testid, data-state,
 
 ```text
 Generate test cases for the zeouf website using docs/BRD.md,
-docs/QA_TESTING_GUIDE.md and docs/REQUIREMENTS_TRACEABILITY.csv.
+docs/QA_TESTING_GUIDE.md, docs/LIVE_ACCEPTANCE.md and
+docs/REQUIREMENTS_TRACEABILITY.csv.
 
 Treat the BRD as the business baseline, with the documented source state and
 known gaps. Cover every exact requirement ID. Do not claim any case executed.
@@ -262,6 +265,11 @@ Special boundaries:
 - Settings, user View, newsletter and unused countdown have documented limits.
 - Checkout server truncates long shipping strings and uses current DB prices.
 - A health response or reset response does not prove database readiness/cleanup.
+- For deployed acceptance, expand LIVE_CASE_01 through LIVE_CASE_17 into separate cases with
+  deployment/Git/database/migration identity and required real-service inputs.
+  Keep public request guards intact; configured writes/mail/concurrency need
+  a separate opt-in suite and dedicated scope. Missing inputs mean Blocked.
+  Label interceptions/fault injection separately from real integration results.
 
 Output a coverage table mapping every requirement ID to generated test IDs
 and identify unanswered business decisions or missing environment inputs.
@@ -364,7 +372,7 @@ For the architecture review, inspect the source paths and dependency boundaries 
 
 ### Product-navigation investigation (PDP-01, NFR-03)
 
-The [17 October investigation](PRODUCT_NAVIGATION_INVESTIGATION.md) separates a confirmed framework synchronization defect from an unresolved deployed navigation stall. Product cards use Next Link; detail routes await server product lookup, which has no explicit deadline. The detail component's browser stock/review/related reads occur after rendering, and no route loading boundary is supplied. These source observations do not establish the cause of the retained failed attempt.
+The [17 October investigation](PRODUCT_NAVIGATION_INVESTIGATION.md) separates a confirmed framework synchronization defect from an unresolved deployed navigation stall. Product cards use Next Link; at the time of the investigation detail routes awaited product lookup without an explicit deadline. The detail component's browser stock/review/related reads occur after rendering, and the historical source had no route loading boundary. The 9 November source fix now supplies bounded lookup and loading/error boundaries; deployed verification of the original stall remains pending. These source observations do not establish the cause of the retained failed attempt.
 
 In the external pw-mcp-demo framework, openFirstProduct captures the selected card's name/href and waits for that destination; expectProductDetailLoaded requires that product's exact heading and detail controls. Existing quantity, review and guest-cart assertions remain unchanged. Set ECOMMERCE_NAVIGATION_DIAGNOSTICS=1 to retain passive JSON diagnostics on successful runs as well as failures; use --trace=on for targeted reproduction. Diagnostics record main-frame URLs, request completion/failure/status/timing, pending requests, page errors and console errors, with bounded buffers and omitted URL query values. Requests pending at teardown or cancelled during successful Next routing are not independently proof of a failed navigation.
 
@@ -385,6 +393,10 @@ After installing Chromium, run `npm run test:live`. The default target is the pu
 The 13 cases check homepage/manual hero links, all seven populated collections without loading/empty/fallback warnings, name/category search, card-to-detail correspondence, mobile clothing navigation/overflow, privacy/terms accessibility and admin login rendering. The context intercepts and blocks non-GET/HEAD/OPTIONS methods plus known helper/logout paths, and asserts that no blocked request was attempted. No login, signup, checkout, favorite, review, restock, seed/reset or admin write is submitted. State-changing scenarios continue to use the isolated local suites or a separately scoped staging environment with dedicated identities.
 
 Failures retain screenshots/traces under test-results/live. This opt-in suite does not run in the push workflow, which may execute before the new deployment is ready. Healthy browsing does not prove live authentication, purchase/stock integrity, email delivery, admin authorization or complete site acceptance. An empty or deliberately unavailable demo catalog is a failed populated-collection smoke assumption, not proof of a loading defect.
+
+### Configured deployed acceptance (8 November 2026)
+
+[LIVE_ACCEPTANCE.md](LIVE_ACCEPTANCE.md) is the framework's deployment-specific specification: preflight inputs, 17 mapped scenario families, expected UI/API/database outcomes, mail/scheduler proof, independent-session races, cleanup and result schema. It contains a copyable generation prompt. Keep test:live and the external public suite read-only; no current command executes the entire integration plan. Missing identities, migrations, mail/scheduler or approved fixture scope block the affected integration cases. Record real-service, client-injected failure and local fixture evidence separately, preserve unresolved findings/manual history and identify the exact app/database/configuration baseline. This documentation update did not execute live checks or mark any case Passed.
 
 ### README previews and capability accuracy
 
@@ -488,3 +500,24 @@ Source contact sheets, per-batch generation records and final visual captures ar
 **2 November 2026 photo-refresh execution:** all 243 small demo sources now have versioned 1024-by-1536 WebP illustrations; 37 existing high-resolution demo originals remain unmapped and every original file is preserved. The final audit reports 280 originals, 243 enhancements, zero remaining small unmapped sources, zero integrity/resolution errors and 28,446,578 replacement bytes. All 13 original and refreshed review sheets were visually inspected for framing, dividers and neighboring-image fragments; this is visual review of demo imagery, not certification of physical garment/jewelry details.
 
 The full UI suite passed 50/50, assistant suite 71/71 and catalog/recovery/account suite 27/27. Focused tests cover alias/provenance preservation, actual cargo detail/card framing at mobile/desktop, synthetic legacy-versus-clean chat pixels, hover/reduced-motion behavior and the actual enhanced chat preview. The old heuristic zoom was removed in favor of standalone assets; unrelated/external images retain their original URLs. TypeScript, production build (including the photo audit), documentation checks and all 13 documentation-tool tests passed. Lint returned zero errors and 22 existing warnings. Logs are local ignored test-results/product-photo-*.log artifacts; cargo detail/chat captures and all category review sheets are retained there. Production build and browsers used isolated/disabled live integrations; no hosted database/storage mutation or deployment occurred. Existing manual RTM fields were verified preserved; PDP-10 is the new photo-pipeline requirement.
+
+## 9 November 2026 source-gap closure and push verification
+
+Reviewed source gaps G-08/G-15/G-18/G-22/G-23; retain their IDs and unresolved live acceptance. OPS-12 adds the seed transaction contract. Expand these fixtures/scenarios:
+
+| Fixture/scenario | Required assertions | Limits |
+|---|---|---|
+| Seven category families, correct and crossed product IDs | Correct heading/title; crossed family shows not-found/noindex and no product. Recognized clothing collections retain metadata. Configured numeric IDs never substitute local products. | Local Chromium uses fallback catalog; applied production data is separate. |
+| Held/failed configured lookup | Whole operation stops after eight seconds, aborts underlying request and does not scan all products. All dynamic families expose loading and Retry product/Continue browsing recovery. | Unit deadline uses a short injected value; configured browser uses reserved .invalid service. Original deployed stall remains unverified. |
+| Admin products/orders/profiles/analytics review reads | Eight-second fetch-and-body deadline; malformed success fails; late older loads cannot overwrite newer success/error. Failed reads clear old rows/dialogs; summary, pipeline, inventory and top products distinguish unavailable from zero. Review signal has Retry review data; users retain Retry users. | Local API interception; real cookie/RLS and deployed outages remain separate. |
+| Transactional catalog/admin fixtures (test:purchase) | Repeat seed without adding orders/products or replenishing sold stock; force size/review insert failure and verify complete application rollback. Repair absent size rows at zero. Reject unrelated fixed order/review IDs. Existing Auth-provisioned profile survives rollback unchanged. | Single PGlite connection; no hosted seed execution, live Auth transaction or independent-session proof. |
+| Retired HTTP reset | Production 404, wrong/missing secret 401, authorized nonproduction 410; no service calls even with service credentials available. Start browser cases with a fresh context. | No full hosted database/Auth/Storage reset exists. |
+| Terms and public smoke guard | Terms attribute varunsidr and reserved rights consistently with README/LICENSE. Guard rejects GET unsubscribe/helper/logout paths and all mutating methods. | Existing deployed copy is unchanged until this revision is deployed. |
+
+Before push run docs:sync, descriptive docs:review with affected IDs, docs:check, docs:test, test:purchase, test:restock, test:ui, test:catalog, test:assistant, lint and build. Browser suites run sequentially on dedicated fixture servers. Record final execution below only after observing results; all manual RTM fields and historical evidence remain preserved. Configured integration acceptance remains specified in LIVE_ACCEPTANCE.md; it is not an implemented all-scenario runner.
+
+The exact-size alert browser case uses the unconfigured local blouse fixture in test:ui, whose embedded stock has S=0/M=4. It no longer relies on numeric demo substitution by the configured catalog server. The configured catalog suite retains actual server lookup failure/retry coverage. The local Docker/CI schema includes the catalog option and size-stock columns; test:purchase seeds the complete checked-in catalog there and verifies repeatability and aggregate consistency.
+
+**9 November 2026 final local execution:** docs:test passed 13/13; test:purchase passed 33/33 (including the full local/CI catalog seed, forced rollback, stock preservation and fixture ownership cases); test:restock passed 8/8. Sequential final browser runs passed test:ui 65/65, test:catalog 27/27 and test:assistant 71/71. TypeScript and the production build passed; the build photo audit reported 243 enhanced/37 retained originals, zero remaining/errors. Full lint passed with zero errors/eight warnings. Final browser/build logs: test-results/gap-ui.log, gap-catalog.log, gap-assistant.log and gap-build.log (ignored local artifacts). Initial regressions exposed a profile assertion that omitted the existing Auth-created profile, and the catalog suite's numeric demo fallback assumption; the profile test now verifies unchanged existing data and the exact-size alert case moved to its proper unconfigured suite before the final passes. The initial failed catalog attempt is not current acceptance.
+
+All 137 existing manual matrix records, 623 pre-existing archived evidence entries and 50 prior reviews were verified retained; OPS-12 brings the current matrix to 138 rows. These results are scoped local checks, not blanket passing requirement statuses. No hosted seed/reset/migration, actual mail/provider evaluation, deployment or independent-session integration run was performed. This checkout lacks DATABASE_URL, RESEND_API_KEY and RESTOCK_CRON_SECRET, so full database inspection and configured restock delivery could not be established here; deployed configuration remains unverified. Preserve the BRD's remaining live/security/data/media/business-decision limits and use LIVE_ACCEPTANCE.md for configured acceptance.

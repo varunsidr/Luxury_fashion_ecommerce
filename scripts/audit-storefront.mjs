@@ -15,7 +15,7 @@ try {
       const attemptedWrites = [];
       await context.route('**/*', route => {
         const request = route.request();
-        if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method()) || /\/api\/(test|dev)\/|\/api\/admin\/logout/.test(new URL(request.url()).pathname)) {
+        if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method()) || /^\/api\/(?:test(?:\/|$)|dev(?:\/|$)|admin\/logout(?:\/|$)|restock-notifications\/unsubscribe(?:\/|$))/.test(new URL(request.url()).pathname)) {
           attemptedWrites.push({ method: request.method(), path: new URL(request.url()).pathname });
           return route.abort();
         }

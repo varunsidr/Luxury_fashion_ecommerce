@@ -4,9 +4,10 @@ Start with [BRD.md](BRD.md) for the complete customer/admin feature inventory, r
 
 For implementation boundaries and runtime setup, read [architecture.md](../architecture.md), [README.md](../README.md) and [SECURITY.md](../SECURITY.md). The 2 November 2026 review includes grounded assistant questions, factual comparisons, conversation-only preferences, relevance and chat-image fixes. Earlier recovery/admin and execution records remain historical; the snapshot/review log identify current inspected inputs.
 
-The BRD maps 137 requirements across 20 modules and records 26 source-level gaps separately from implemented behavior.
+The BRD maps 138 requirements across 20 modules and records 26 source-level gaps separately from implemented behavior.
 
 - [QA_TESTING_GUIDE.md](QA_TESTING_GUIDE.md): fixture catalog, coverage checklist, test-case format, scenario seeds and a ready-to-use test-generation prompt.
+- [LIVE_ACCEPTANCE.md](LIVE_ACCEPTANCE.md): deployed-site preflight, 17 integration scenario families, real-account/cart/order/stock/permission/mail/scheduler checks, evidence format and a framework prompt. Added 8 November 2026; specification only, with execution pending. Public smoke remains separate from configured integration acceptance.
 - [REQUIREMENTS_TRACEABILITY.csv](REQUIREMENTS_TRACEABILITY.csv): spreadsheet-friendly requirement matrix with editable test IDs, execution status, defects, owner and notes. Synchronization preserves manual evidence and archives affected history.
 
 Historical documentation baseline: prepared from repository source on 2 October 2026; updated on 10 October for checkout replay/stock safeguards, sized fixtures, product metadata, visible counts, landmarks and demo copy. Historical finding IDs remain, including earlier G-01/G-13 fixes and the remaining portions of G-08/G-09/G-15/G-18/G-22. G-25 retains the historical inspector incompatibility; the current queries recognize the repaired signatures, with full live inspection still pending. Implementation states are source observations, not passing test results. Payment and delivery are simulated.
@@ -32,3 +33,5 @@ Run `npm run test:ui` then `npm run test:catalog` sequentially after installing 
 `npm run test:live` separately checks public browsing on the deployed Vercel site, with no local server, no saved authentication and blocked state-changing requests. PLAYWRIGHT_BASE_URL selects another accessible deployment origin. Results describe the deployed revision at execution time and stay separate from local fixtures; this optional smoke suite does not prove live customer/admin mutations or full acceptance.
 
 On 12 October 2026, assistant confirmation gained a read-only bearer-protected fresh-validation route; configured-size availability no longer uses retired/missing stock rows. Identity changes and New conversation clear chat/proposals and cancel browser work; bounded history/deadlines improve recovery. The 30 assistant and 32 storefront/admin regressions passed locally. AST-07 records the new lifecycle contract. Browser cart ownership (G-10), cached recommendations and live/concurrent verification (G-26) remain separate limits.
+
+9 November source review: category-safe bounded product lookup, admin recovery/stale-response handling, transactional catalog/admin seeds (OPS-12), retired destructive HTTP reset and consistent terms attribution. Historical G-xx findings and live acceptance limits remain; scoped source fixes are not passing production results.

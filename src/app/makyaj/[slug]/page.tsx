@@ -1,5 +1,5 @@
 import { productRouteMetadata } from '@/lib/productMetadata';
-import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
+import { findProductByIdOrSlug } from "@/lib/supabase";
 import ProductDetailView from "@/components/ProductDetailView";
 import { notFound } from "next/navigation";
 
@@ -16,7 +16,7 @@ export default async function MakyajSlugPage({ params }: PageProps) {
   const { slug } = await params;
   const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
 
-  const product = await findProductByIdOrSlug(normalizedSlug);
+  const product = await findProductByIdOrSlug(normalizedSlug, "makeup");
   if (product) return <ProductDetailView product={product} mainCategory="Makeup" />;
 
   notFound();

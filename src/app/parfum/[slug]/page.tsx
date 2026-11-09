@@ -1,5 +1,5 @@
 import { productRouteMetadata } from '@/lib/productMetadata';
-import { supabase, findProductByIdOrSlug } from "@/lib/supabase";
+import { findProductByIdOrSlug } from "@/lib/supabase";
 import ProductDetailView from "@/components/ProductDetailView";
 import { notFound } from "next/navigation";
 
@@ -17,7 +17,7 @@ export default async function ParfumSlugPage({ params }: PageProps) {
   const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
 
   // 1. Check as product ID first (support UUIDs by querying directly)
-  const product = await findProductByIdOrSlug(normalizedSlug);
+  const product = await findProductByIdOrSlug(normalizedSlug, "perfume");
   if (product) return <ProductDetailView product={product} mainCategory="Perfume" />;
 
   notFound();
